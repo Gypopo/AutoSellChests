@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.bgsoftware:WildStackerAPI:latest">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/bgsoftware/WildStackerAPI/latest/WildStackerAPI-latest.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/bgsoftware/WildStackerAPI/latest/WildStackerAPI-latest-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/bgsoftware/WildStackerAPI/latest/WildStackerAPI-latest-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

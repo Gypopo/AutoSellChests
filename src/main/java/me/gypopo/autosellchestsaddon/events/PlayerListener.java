@@ -1,0 +1,116 @@
+package me.gypopo.autosellchestsaddon.events;
+
+import me.gypopo.autosellchestsaddon.AutosellChests;
+import me.gypopo.autosellchestsaddon.files.Lang;
+import me.gypopo.autosellchestsaddon.managers.ChestManager;
+import me.gypopo.autosellchestsaddon.objects.Chest;
+import me.gypopo.autosellchestsaddon.objects.InformationScreen;
+import me.gypopo.autosellchestsaddon.util.Logger;
+import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
+
+public class PlayerListener implements Listener {
+
+    private AutosellChests plugin;
+
+    public PlayerListener(AutosellChests plugin) {
+        this.plugin = plugin;
+    }
+
+    @EventHandler
+    public void onPlayerInteract(final PlayerInteractEvent e) {
+        if (!e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+            return;
+        }
+
+        Block clicked = e.getClickedBlock();
+
+        if (clicked == null || clicked.getType() != Material.TRAPPED_CHEST) {
+            return;
+        }
+
+        Chest chest = this.plugin.getManager().getChestByLocation(clicked.getLocation());
+        if (chest == null) {
+            return;
+        }
+
+        new InformationScreen(chest).open(e.getPlayer());
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockPlace(BlockPlaceEvent e) {
+        if (!e.getBlockPlaced().getType().equals(Material.TRAPPED_CHEST)) {
+            return;
+        }
+
+        org.bukkit.block.Chest chest = (org.bukkit.block.Chest) e.getBlockPlaced().getState();
+        if (chest.getCustomName() == null || !chest.getCustomName().equals(ChestManager.chestName)) {
+            return;
+        }
+
+        if (this.plugin.getManager().getChestsByPlayer(e.getPlayer().getUniqueId()).size() == ChestManager.maxSellChestsPlayer) {
+            Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(ChestManager.maxSellChestsPlayer)));
+            return;
+        }
+
+        Location loc = e.getBlockPlaced().getLocation();
+        this.plugin.getManager().addChest(loc, e.getPlayer());
+        loc.add(0.5, 0.5, 0.5);
+        loc.getWorld().spawnParticle(Particle.SPELL_WITCH, loc, 10);
+        loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 10, new Particle.DustOptions(Color.RED, 2F));
+        loc.getWorld().playSound(loc, Sound.ENTITY_SPLASH_POTION_BREAK, SoundCategory.AMBIENT, 30L, 10L);
+        Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get());
+
+        loc.subtract(0.5, 0.5, 0.5); // This line is needed, it caused me some headaches :/
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockBreak(BlockBreakEvent e) {
+        if (e.getBlock().getType() != Material.TRAPPED_CHEST) {
+            return;
+        }
+
+        Chest chest = this.plugin.getManager().getChestByLocation(e.getBlock().getLocation());
+        if (chest == null) {
+            //Logger.debug("Chest is null for location: " + e.getBlock().getLocation());
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onMenuClick(InventoryClickEvent e) {
+        if (e.getClickedInventory() != null && e.getClickedInventory().getHolder() instanceof InformationScreen) {
+            e.setCancelled(true);
+            if (e.getSlot() == 31) {
+                e.getWhoClicked().closeInventory();
+                Location loc = e.getWhoClicked().getLocation();
+                this.plugin.getManager().removeChest(((InformationScreen) e.getClickedInventory().getHolder()).getChest());
+                ((InformationScreen) e.getClickedInventory().getHolder()).getChest().getLocation().getBlock().breakNaturally();
+                loc.add(0.5, 0.5, 0.5);
+                loc.getWorld().spawnParticle(Particle.CLOUD, loc, 15);
+                loc.getWorld().playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 30L, 10L);
+                Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get());
+            }
+        }
+    }
+
+    @EventHandler
+    public void onMenuClose(InventoryCloseEvent e) {
+        if (e.getInventory().getHolder() instanceof InformationScreen) {
+            this.plugin.runTaskLater(() -> ((Player) e.getPlayer()).updateInventory(), 1);
+        }
+    }
+}
