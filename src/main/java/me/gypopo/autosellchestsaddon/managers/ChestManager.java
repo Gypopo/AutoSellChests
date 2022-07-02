@@ -84,7 +84,7 @@ public class ChestManager {
             } else this.loadedChestsByPlayer.put(chest.getOwner(), new ArrayList<>(Collections.singletonList(chest)));
             i++;
         }
-        this.plugin.getLogger().info("Took " + (System.currentTimeMillis()-start) + "ms to load " + i + " sell chests from the database");
+        Logger.debug("Took " + (System.currentTimeMillis()-start) + "ms to load " + i + " sell chests from the database");
     }
 
     public void addChest(Location loc, Player p) {

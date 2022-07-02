@@ -27,7 +27,7 @@ public class GiveChest implements SubCommad {
 
     @Override
     public String getDescription() {
-        return "&7Gives a &cauto-sell-chest &7to the player specified";
+        return "&7Gives a #CDCDCDAuto#FF7070Sell#CDCDCDChest &7to the player specified";
     }
 
     @Override

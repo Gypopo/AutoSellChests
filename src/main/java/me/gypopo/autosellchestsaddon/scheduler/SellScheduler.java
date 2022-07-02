@@ -76,6 +76,11 @@ public class SellScheduler {
 
     private Runnable sellContents(Chest chest, int i) {
         return () -> {
+            if (Bukkit.getPlayer(chest.getOwner()) == null) {
+                Logger.debug("Owner from chest " + chest.getId() + " is not online, skipping...");
+                this.processNextChest(i);
+                return;
+            }
             if (!this.plugin.getManager().getLoadedChests().containsKey(chest.getLocation())) {
                 Logger.debug("Did not found sell chest with id " + chest.getId() + " while executing the sell interval, skipping...");
                 this.processNextChest(i);

@@ -54,8 +54,7 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        org.bukkit.block.Chest chest = (org.bukkit.block.Chest) e.getBlockPlaced().getState();
-        if (chest.getCustomName() == null || !chest.getCustomName().equals(ChestManager.chestName)) {
+        if (!e.getItemInHand().hasItemMeta() || !e.getItemInHand().getItemMeta().getDisplayName().equals(ChestManager.chestName)) {
             return;
         }
 
