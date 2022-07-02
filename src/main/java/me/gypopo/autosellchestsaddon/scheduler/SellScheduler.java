@@ -39,10 +39,8 @@ public class SellScheduler {
     public SellScheduler(AutosellChests plugin, long interval) {
         this.plugin = plugin;
         this.interval = interval;
-        Logger.debug(interval + "");
 
         this.ticks = interval / 1000L * 20L;
-        Logger.debug(ticks + "");
 
         // Give the server 2 minutes to fully start before starting the interval
         this.task = this.plugin.runTaskLater(this.startNextInterval(), /*2400L*/300L);

@@ -14,7 +14,7 @@ sellchest-lore:
   - "&cThis chest sells its contents"
   - "&cautomatically every &e%interval%"
   - "&aPlace this chest down and"
-  - "&aright-click it to get more info"
+  - "&aleft-click it to get more info"
 
 # Enable or disable messages send to player when their sell chest has sold items
 sold-items-logging-player: true

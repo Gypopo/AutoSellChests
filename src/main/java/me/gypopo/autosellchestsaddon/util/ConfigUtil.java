@@ -16,56 +16,6 @@ import java.util.stream.Collectors;
 
 public class ConfigUtil {
 
-    public static boolean loadConfig() {
-        if (new File(AutosellChests.getInstance().getDataFolder(), "config.yml").exists()) {
-            try {
-
-                // The edited config inside the data folder
-                final FileConfiguration config = AutosellChests.getInstance().getConfig();
-
-                // Load all default data
-                BufferedReader input = new BufferedReader(new InputStreamReader(AutosellChests.getInstance().getResource("config.yml"), StandardCharsets.UTF_8));
-                List<String> defaults = input.lines().collect(Collectors.toList());
-                input.close();
-
-                // Make string from default data
-                StringBuilder builder = new StringBuilder();
-                for (String s : defaults) {
-                    builder.append(s).append("\n");
-                }
-
-                // Save default data
-                Files.write(Paths.get(AutosellChests.getInstance().getDataFolder() + "/config.yml"), builder.toString().getBytes(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-
-                // Config as file
-                final File file = new File(AutosellChests.getInstance().getDataFolder(), "config.yml");
-
-                // Load the new config
-                AutosellChests.getInstance().reloadConfig();
-                // New config in the datafolder
-                FileConfiguration conf = AutosellChests.getInstance().getConfig();
-
-                // Set the settings back
-                for (String str : config.getKeys(false)) {
-                    conf.set(str, config.get(str));
-                }
-
-                save(conf, file);
-
-                // Load the new config
-                AutosellChests.getInstance().reloadConfig();
-            } catch (IOException e) {
-                // Cannot load config
-                AutosellChests.getInstance().getLogger().warning("Cannot read config.yml config because it is mis-configured, use a online Yaml parser with the error underneath here to find out the cause of the problem and to solve it.");
-                e.printStackTrace();
-                return false;
-            }
-        } else {
-            AutosellChests.getInstance().saveDefaultConfig();
-        }
-        return true;
-    }
-
     public static void save(FileConfiguration fileConfiguration, File file) {
 
         try {

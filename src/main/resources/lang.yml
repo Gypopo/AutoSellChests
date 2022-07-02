@@ -3,17 +3,17 @@ plugin-prefix: "#CDCDCD&lAuto#FF7070&lSell#CDCDCD&lChests &8>>"
 # The inventory title of the screen when someone right-clicks a AutoSellChest
 info-screen-title: "&8&lChest information"
 # This message shows how many items a single chest has sold
-sold-items-info: "&c&lThis sell chest has sold &a%amount% &c&litems in total."
+sold-items-info: "&c&lThis chest has sold &a%amount% &c&litem(s) in total."
 # This will display the current amount of money they player has made using this chest
-income-info: "&clYou currently have earned &a%amount% &c&lwith this chest."
+income-info: "&c&lThis chest has sold items for &a$%profit%"
 # Message send to player when a sellchest has been placed
-sellchest-placed: "&aYou have successfully placed a AutoSellChest, right click it for more info."
+sellchest-placed: "&aYou have successfully placed a AutoSellChest, left click it for more info."
 # Message send to player when a sellchest is broken
 sellchest-broken: "&cYou have destroyed an #CDCDCDAuto#FF7070Sell#CDCDCDChest"
 # Message send to player when the maximum amount of sell chests placed has been reached
 max-sellchests-reached: "&cYou already have &a%maxSellChests% &cplaced and cannot place anymore"
 # Message send to player when items have been sold using a chest
-items-sold-player-log: "&a&lYour #CDCDCDAuto#FF7070Sell#CDCDCDChest &a&lhas sold &6%amount% &a&litem(s) for &6%profit%"
+items-sold-player-log: "&a&lYour #CDCDCD&lAuto#FF7070&lSell#CDCDCD&lChest &a&lhas sold &6%amount% &a&litem(s) for &6%profit%"
 # Message send to console when items are sold using a player's sell chest
 items-sold-console-log: "AutoSellChest from player %player% on location %location% has sold %amount% item(s) for $%profit%"
 # When player tries to use a command, place a chest, ... without permissions
@@ -22,11 +22,12 @@ no-permissions: "&cYou do not have permissions for that!"
 sell-chest-given-log: "%player_name% was given %amount% AutoSellChests"
 # Message send to player when they receive a sell chest
 player-sell-chest-given: "&cYou were given &7%amount% #CDCDCD&lAuto#FF7070Sell#CDCDCDChests"
-# Message sent to player when given a sell chest but they don't have enough inventory space
+# Message sent to player when given a sell chest, but they don't have enough inventory space
 not-enough-inventory-space: "&cYou do not have enough space in your inventory"
-
+# Option to destroy the sell chest when inside the information screen
+destroy-chest: "&c&lDestroy this #CDCDCD&lAuto#FF7070&lSell#CDCDCD&lChest"
 # The displayname of the block information item inside the info screen
-sell-chest-block-info: "#FF7070&lBlock info:"
+sell-chest-block-info: "#FF7070&lChest info:"
 # The owner of the sell chest
 sell-chest-owner: "&eOwner: #FF7070%player_name%"
 # The location of the sell chest
