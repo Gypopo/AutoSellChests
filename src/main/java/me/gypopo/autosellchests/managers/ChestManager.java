@@ -103,7 +103,7 @@ public class ChestManager {
     }
 
     public ItemStack getChest(int amount) {
-        ItemStack chest = new ItemStack(Material.TRAPPED_CHEST, amount);
+        ItemStack chest = new ItemStack(Material.CHEST, amount);
         ItemMeta meta = chest.getItemMeta();
         meta.setDisplayName(chestName);
         meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", this.plugin.getTimeUtils().getReadableTime(this.sellInterval)))).collect(Collectors.toList()));

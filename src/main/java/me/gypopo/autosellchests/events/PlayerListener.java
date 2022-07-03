@@ -34,7 +34,7 @@ public class PlayerListener implements Listener {
 
         Block clicked = e.getClickedBlock();
 
-        if (clicked == null || clicked.getType() != Material.TRAPPED_CHEST) {
+        if (clicked == null || clicked.getType() != Material.CHEST) {
             return;
         }
 
@@ -48,7 +48,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent e) {
-        if (!e.getBlockPlaced().getType().equals(Material.TRAPPED_CHEST)) {
+        if (!e.getBlockPlaced().getType().equals(Material.CHEST)) {
             return;
         }
 
@@ -74,7 +74,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
-        if (e.getBlock().getType() != Material.TRAPPED_CHEST) {
+        if (e.getBlock().getType() != Material.CHEST) {
             return;
         }
 
