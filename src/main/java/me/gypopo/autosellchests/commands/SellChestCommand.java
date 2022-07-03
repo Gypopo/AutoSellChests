@@ -1,12 +1,12 @@
-package me.gypopo.autosellchestsaddon.commands;
+package me.gypopo.autosellchests.commands;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.commands.subcommands.GiveChest;
-import me.gypopo.autosellchestsaddon.commands.subcommands.Reload;
-import me.gypopo.autosellchestsaddon.commands.subcommands.RemoveChest;
-import me.gypopo.autosellchestsaddon.commands.subcommands.ViewChests;
-import me.gypopo.autosellchestsaddon.files.Lang;
-import me.gypopo.autosellchestsaddon.util.Logger;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.commands.subcommands.GiveChest;
+import me.gypopo.autosellchests.commands.subcommands.Reload;
+import me.gypopo.autosellchests.commands.subcommands.RemoveChest;
+import me.gypopo.autosellchests.commands.subcommands.ViewChests;
+import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.util.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,9 +23,9 @@ public class SellChestCommand implements TabExecutor {
 
     private final ArrayList<SubCommad> subCommads = new ArrayList<>();
 
-    private final AutosellChests plugin;
+    private final AutoSellChests plugin;
 
-    public SellChestCommand(AutosellChests plugin) {
+    public SellChestCommand(AutoSellChests plugin) {
         subCommads.add(new GiveChest());
         subCommads.add(new ViewChests());
         subCommads.add(new RemoveChest());

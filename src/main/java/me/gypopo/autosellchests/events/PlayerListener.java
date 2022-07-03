@@ -1,11 +1,11 @@
-package me.gypopo.autosellchestsaddon.events;
+package me.gypopo.autosellchests.events;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.files.Lang;
-import me.gypopo.autosellchestsaddon.managers.ChestManager;
-import me.gypopo.autosellchestsaddon.objects.Chest;
-import me.gypopo.autosellchestsaddon.objects.InformationScreen;
-import me.gypopo.autosellchestsaddon.util.Logger;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.managers.ChestManager;
+import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.objects.InformationScreen;
+import me.gypopo.autosellchests.util.Logger;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -16,15 +16,13 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
 
 public class PlayerListener implements Listener {
 
-    private AutosellChests plugin;
+    private AutoSellChests plugin;
 
-    public PlayerListener(AutosellChests plugin) {
+    public PlayerListener(AutoSellChests plugin) {
         this.plugin = plugin;
     }
 

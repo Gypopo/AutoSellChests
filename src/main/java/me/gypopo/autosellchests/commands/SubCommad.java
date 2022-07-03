@@ -1,4 +1,4 @@
-package me.gypopo.autosellchestsaddon.commands;
+package me.gypopo.autosellchests.commands;
 
 import java.util.List;
 

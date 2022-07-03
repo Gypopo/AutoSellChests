@@ -1,18 +1,13 @@
-package me.gypopo.autosellchestsaddon.commands.subcommands;
+package me.gypopo.autosellchests.commands.subcommands;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.commands.SubCommad;
-import me.gypopo.autosellchestsaddon.objects.Chest;
-import me.gypopo.autosellchestsaddon.util.Logger;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.commands.SubCommad;
+import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.util.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
-import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.UUID;
 
 public class ViewChests implements SubCommad {
 
@@ -35,7 +30,7 @@ public class ViewChests implements SubCommad {
     public void perform(Object logger, String[] args) {
         //asc view <player>
         if (args.length > 1) {
-            List<Chest> chests = AutosellChests.getInstance().getManager().getChestsByPlayer(Bukkit.getOfflinePlayer(args[1]).getUniqueId());
+            List<Chest> chests = AutoSellChests.getInstance().getManager().getChestsByPlayer(Bukkit.getOfflinePlayer(args[1]).getUniqueId());
             if (!chests.isEmpty()) {
                 Logger.sendMessage(logger, ChatColor.translateAlternateColorCodes('&',"&aFound %7%qty% &aAutoSellChests for " + args[0] + "(" + Bukkit.getOfflinePlayer(args[0]).getUniqueId() + ")".replace("%qty%", String.valueOf(chests.size()))));
                 for (Chest chest : chests) {

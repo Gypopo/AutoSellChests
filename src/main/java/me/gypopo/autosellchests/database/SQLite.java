@@ -1,8 +1,7 @@
-package me.gypopo.autosellchestsaddon.database;
+package me.gypopo.autosellchests.database;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.objects.Chest;
-import org.bukkit.Location;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.objects.Chest;
 
 import java.io.File;
 import java.sql.*;
@@ -10,7 +9,7 @@ import java.util.*;
 
 public class SQLite {
 
-    private final String dbPath = AutosellChests.getInstance().getDataFolder() + File.separator + "database.db";
+    private final String dbPath = AutoSellChests.getInstance().getDataFolder() + File.separator + "database.db";
     private Connection conn;
 
     public boolean connect() {
@@ -20,7 +19,7 @@ public class SQLite {
             createTables();
             return true;
         } catch (Exception e) {
-            AutosellChests.getInstance().getLogger().warning("Error loading database...");
+            AutoSellChests.getInstance().getLogger().warning("Error loading database...");
             e.printStackTrace();
             return false;
         }
@@ -30,7 +29,7 @@ public class SQLite {
         try {
             this.conn.close();
         } catch (SQLException e) {
-            AutosellChests.getInstance().getLogger().warning("Error while closing database connection");
+            AutoSellChests.getInstance().getLogger().warning("Error while closing database connection");
         }
     }
 

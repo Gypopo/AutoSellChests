@@ -1,7 +1,7 @@
-package me.gypopo.autosellchestsaddon.objects;
+package me.gypopo.autosellchests.objects;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.files.Lang;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.files.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -38,7 +38,7 @@ public class InformationScreen implements InventoryHolder {
                 Lang.SELL_CHEST_OWNER.get().replace("%player_name%", Bukkit.getPlayer(this.chest.getOwner()).getName()),
                 Lang.SELL_CHEST_LOCATION.get().replace("%loc%", "World '" + this.chest.getLocation().getWorld().getName() + "', x" + this.chest.getLocation().getBlockX() + ", y" + this.chest.getLocation().getBlockY() + ", z" + this.chest.getLocation().getBlockZ()),
                 Lang.SELL_CHEST_ID.get().replace("%id%", String.valueOf(this.chest.getId())),
-                Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", AutosellChests.getInstance().getTimeUtils().getReadableTime(this.chest.getNextInterval()))));
+                Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", AutoSellChests.getInstance().getTimeUtils().getReadableTime(this.chest.getNextInterval()))));
         nextSell.setItemMeta(nsM);
 
         // Shows the total amount of money the player has made so far with this sellchest

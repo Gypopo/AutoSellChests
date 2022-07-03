@@ -1,6 +1,6 @@
-package me.gypopo.autosellchestsaddon.util;
+package me.gypopo.autosellchests.util;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
+import me.gypopo.autosellchests.AutoSellChests;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -8,9 +8,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -73,7 +70,7 @@ public class ConfigUtil {
             writer.close();
 
         } catch (IOException e) {
-            AutosellChests.getInstance().getLogger().warning("Error while saving " + file.getName());
+            AutoSellChests.getInstance().getLogger().warning("Error while saving " + file.getName());
             e.printStackTrace();
         }
     }

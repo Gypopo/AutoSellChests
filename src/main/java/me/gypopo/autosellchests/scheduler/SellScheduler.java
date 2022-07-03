@@ -1,27 +1,20 @@
-package me.gypopo.autosellchestsaddon.scheduler;
+package me.gypopo.autosellchests.scheduler;
 
-import jdk.jpackage.internal.Log;
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.files.Lang;
-import me.gypopo.autosellchestsaddon.managers.ChestManager;
-import me.gypopo.autosellchestsaddon.objects.Chest;
-import me.gypopo.autosellchestsaddon.util.Logger;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Container;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class SellScheduler {
 
-    private final AutosellChests plugin;
+    private final AutoSellChests plugin;
 
     private BukkitTask task; // The current interval that is active
 
@@ -36,7 +29,7 @@ public class SellScheduler {
 
     private int items = 0;
 
-    public SellScheduler(AutosellChests plugin, long interval) {
+    public SellScheduler(AutoSellChests plugin, long interval) {
         this.plugin = plugin;
         this.interval = interval;
 

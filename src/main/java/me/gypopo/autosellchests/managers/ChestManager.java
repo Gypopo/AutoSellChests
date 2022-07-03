@@ -1,20 +1,16 @@
-package me.gypopo.autosellchestsaddon.managers;
+package me.gypopo.autosellchests.managers;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.files.Config;
-import me.gypopo.autosellchestsaddon.files.Lang;
-import me.gypopo.autosellchestsaddon.objects.Chest;
-import me.gypopo.autosellchestsaddon.scheduler.SellScheduler;
-import me.gypopo.autosellchestsaddon.util.Logger;
-import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
-import org.bukkit.Bukkit;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.files.Config;
+import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.scheduler.SellScheduler;
+import me.gypopo.autosellchests.util.Logger;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitTask;
-import org.checkerframework.checker.units.qual.A;
 
 import java.text.ParseException;
 import java.util.*;
@@ -24,7 +20,7 @@ public class ChestManager {
 
     public static String chestName;
 
-    private AutosellChests plugin;
+    private AutoSellChests plugin;
 
     private final SellScheduler scheduler;
 
@@ -38,7 +34,7 @@ public class ChestManager {
     // Only for quick access
     private Map<UUID, ArrayList<Chest>> loadedChestsByPlayer = new HashMap<>();
 
-    public ChestManager(AutosellChests plugin) {
+    public ChestManager(AutoSellChests plugin) {
         this.plugin = plugin;
 
         this.soldItemsLoggingPlayer = Config.get().getBoolean("sold-items-logging-player");

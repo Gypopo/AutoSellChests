@@ -6,7 +6,7 @@
 
     <groupId>me.gypopo</groupId>
     <artifactId>autosellchestsaddon</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>AutosellChestsAddon</name>
@@ -37,7 +37,7 @@
                     <relocations>
                         <relocation>
                             <pattern>com.cryptomorin.xseries</pattern>
-                            <shadedPattern>me.gypopo.autosellchestsaddon.utils</shadedPattern>
+                            <shadedPattern>me.gypopo.autosellchests.utils</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>

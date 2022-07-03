@@ -1,4 +1,4 @@
-package me.gypopo.autosellchestsaddon.util;
+package me.gypopo.autosellchests.util;
 
 import java.text.ParseException;
 import java.time.Duration;

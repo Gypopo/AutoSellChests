@@ -1,7 +1,7 @@
-package me.gypopo.autosellchestsaddon.files;
+package me.gypopo.autosellchests.files;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.util.ConfigUtil;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.util.ConfigUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -44,7 +44,7 @@ public enum Lang {
 
     private static File configFile;
     private static FileConfiguration config;
-    private static AutosellChests plugin;
+    private static AutoSellChests plugin;
 
     private static Map<String, String> messages = new HashMap<>();
 
@@ -56,7 +56,7 @@ public enum Lang {
 
     public static void reload() {
         if (!messages.isEmpty()) messages.clear();
-        plugin = AutosellChests.getInstance();
+        plugin = AutoSellChests.getInstance();
         configFile = new File(plugin.getDataFolder(), "lang.yml");
         loadLanguageFile();
     }
@@ -108,7 +108,7 @@ public enum Lang {
 
             // Load updated config
             config = plugin.loadConfiguration(new File(plugin.getDataFolder(), "lang.yml"), "lang.yml");
-        } else AutosellChests.getInstance().saveResource("lang.yml", false);
+        } else AutoSellChests.getInstance().saveResource("lang.yml", false);
 
     }
 }

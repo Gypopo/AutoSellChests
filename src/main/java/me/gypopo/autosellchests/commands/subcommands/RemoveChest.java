@@ -1,16 +1,13 @@
-package me.gypopo.autosellchestsaddon.commands.subcommands;
+package me.gypopo.autosellchests.commands.subcommands;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.commands.SubCommad;
-import me.gypopo.autosellchestsaddon.objects.Chest;
-import me.gypopo.autosellchestsaddon.util.Logger;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.commands.SubCommad;
+import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.util.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -40,9 +37,9 @@ public class RemoveChest implements SubCommad {
                 Player player = (Player) logger;
                 Block block = player.getTargetBlockExact(10);
                 if (block.getType() == Material.TRAPPED_CHEST) {
-                    Chest chest = AutosellChests.getInstance().getManager().getChestByLocation(block.getLocation());
+                    Chest chest = AutoSellChests.getInstance().getManager().getChestByLocation(block.getLocation());
                     if (chest != null) {
-                        AutosellChests.getInstance().getManager().removeChest(chest);
+                        AutoSellChests.getInstance().getManager().removeChest(chest);
                         block.breakNaturally();
                         Logger.sendPlayerMessage(player, ChatColor.GREEN + "Successfully broken chest from " + Bukkit.getOfflinePlayer(chest.getOwner()).getName());
                         return;
@@ -55,10 +52,10 @@ public class RemoveChest implements SubCommad {
         } else {
             try {
                 int id = Integer.parseInt(args[1]);
-                Chest chest = AutosellChests.getInstance().getManager().getChestByID(id);
+                Chest chest = AutoSellChests.getInstance().getManager().getChestByID(id);
                 if (chest != null) {
                     Logger.sendMessage(logger, ChatColor.GREEN + "Successfully broken chest from " + Bukkit.getOfflinePlayer(chest.getOwner()).getName());
-                    AutosellChests.getInstance().getManager().removeChest(chest);
+                    AutoSellChests.getInstance().getManager().removeChest(chest);
                     chest.getLocation().getBlock().breakNaturally();
                 } else {
                     Logger.sendMessage(logger,  ChatColor.RED + "No sell chest found with ID " + args[1]);

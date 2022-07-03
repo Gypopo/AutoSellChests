@@ -1,7 +1,7 @@
-package me.gypopo.autosellchestsaddon.files;
+package me.gypopo.autosellchests.files;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.util.ConfigUtil;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.util.ConfigUtil;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
@@ -13,7 +13,7 @@ public class Config {
     private static final String fileName = "config.yml";
 
     public static boolean setup() {
-        file = new File(AutosellChests.getInstance().getDataFolder(), fileName);
+        file = new File(AutoSellChests.getInstance().getDataFolder(), fileName);
 
         reload();
 
@@ -32,14 +32,14 @@ public class Config {
         if (file.exists()) {
 
             // The edited config inside the data folder
-            final FileConfiguration c = AutosellChests.getInstance().loadConfiguration(file, fileName);
+            final FileConfiguration c = AutoSellChests.getInstance().loadConfiguration(file, fileName);
             if (c == null) return;
 
             // Copy the default file inside the jar with all comments
-            AutosellChests.getInstance().saveResource(fileName, true);
+            AutoSellChests.getInstance().saveResource(fileName, true);
 
             // New config in the datafolder
-            FileConfiguration conf = AutosellChests.getInstance().loadConfiguration(file, fileName);
+            FileConfiguration conf = AutoSellChests.getInstance().loadConfiguration(file, fileName);
 
             // Set the settings back
             for (String str : c.getKeys(false)) {
@@ -53,9 +53,9 @@ public class Config {
             config = conf;
 
         } else {
-            AutosellChests.getInstance().saveResource(fileName, false);
+            AutoSellChests.getInstance().saveResource(fileName, false);
             // Set the config
-            config = AutosellChests.getInstance().loadConfiguration(file, fileName);
+            config = AutoSellChests.getInstance().loadConfiguration(file, fileName);
         }
     }
 }

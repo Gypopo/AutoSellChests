@@ -1,51 +1,36 @@
-package me.gypopo.autosellchestsaddon;
+package me.gypopo.autosellchests;
 
-import me.gypopo.autosellchestsaddon.commands.SellChestCommand;
-import me.gypopo.autosellchestsaddon.commands.subcommands.GiveChest;
-import me.gypopo.autosellchestsaddon.commands.subcommands.ViewChests;
-import me.gypopo.autosellchestsaddon.database.SQLite;
-import me.gypopo.autosellchestsaddon.events.PlayerListener;
-import me.gypopo.autosellchestsaddon.files.Config;
-import me.gypopo.autosellchestsaddon.files.Lang;
-import me.gypopo.autosellchestsaddon.managers.ChestManager;
-import me.gypopo.autosellchestsaddon.metrics.Metrics;
-import me.gypopo.autosellchestsaddon.objects.Chest;
-import me.gypopo.autosellchestsaddon.util.ConfigUtil;
-import me.gypopo.autosellchestsaddon.util.Logger;
-import me.gypopo.autosellchestsaddon.util.TimeUtils;
+import me.gypopo.autosellchests.commands.SellChestCommand;
+import me.gypopo.autosellchests.database.SQLite;
+import me.gypopo.autosellchests.events.PlayerListener;
+import me.gypopo.autosellchests.files.Config;
+import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.managers.ChestManager;
+import me.gypopo.autosellchests.metrics.Metrics;
+import me.gypopo.autosellchests.util.Logger;
+import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.EconomyShopGUI;
-import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.providers.EconomyProvider;
-import net.milkbowl.vault.economy.Economy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
 
-public final class AutosellChests extends JavaPlugin {
+public final class AutoSellChests extends JavaPlugin {
 
     /**
      * Available versions: 18, 19, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119
      */
     public final int version = this.getVersion();
 
-    private static AutosellChests instance;
-    public static AutosellChests getInstance() {return instance; }
+    private static AutoSellChests instance;
+    public static AutoSellChests getInstance() {return instance; }
 
     private SQLite database;
     private final TimeUtils timeUtils = new TimeUtils();

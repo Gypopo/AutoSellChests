@@ -1,10 +1,10 @@
-package me.gypopo.autosellchestsaddon.commands.subcommands;
+package me.gypopo.autosellchests.commands.subcommands;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.commands.SubCommad;
-import me.gypopo.autosellchestsaddon.files.Config;
-import me.gypopo.autosellchestsaddon.files.Lang;
-import me.gypopo.autosellchestsaddon.util.Logger;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.commands.SubCommad;
+import me.gypopo.autosellchests.files.Config;
+import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.util.Logger;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class Reload implements SubCommad {
             long start = System.currentTimeMillis();
             Config.reload();
             Lang.reload();
-            AutosellChests.getInstance().reloadManager();
+            AutoSellChests.getInstance().reloadManager();
             Logger.sendMessage(logger, "Reloaded successful, took " + (System.currentTimeMillis()-start) + "ms to complete");
         }
 

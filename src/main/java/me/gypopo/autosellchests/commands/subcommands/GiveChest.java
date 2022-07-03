@@ -1,21 +1,13 @@
-package me.gypopo.autosellchestsaddon.commands.subcommands;
+package me.gypopo.autosellchests.commands.subcommands;
 
-import jdk.jpackage.internal.Log;
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.commands.SubCommad;
-import me.gypopo.autosellchestsaddon.files.Lang;
-import me.gypopo.autosellchestsaddon.util.Logger;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.commands.SubCommad;
+import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.util.Logger;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class GiveChest implements SubCommad {
@@ -48,7 +40,7 @@ public class GiveChest implements SubCommad {
             if (logger instanceof Player) {
                 Player player = (Player) logger;
                 if (player.getInventory().firstEmpty() != -1) {
-                    player.getInventory().addItem(AutosellChests.getInstance().getManager().getChest(1));
+                    player.getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(1));
                     Logger.sendPlayerMessage(player, Lang.PLAYER_SELL_CHEST_GIVEN.get().replace("%amount%", "1"));
                     Logger.info(Lang.SELL_CHEST_GIVEN_LOG.get().replace("%player_name%", player.getName()).replace("%amount%", "1"));
                 } else {
@@ -64,7 +56,7 @@ public class GiveChest implements SubCommad {
                 Player player = (Player) logger;
                 try {
                     qty = Integer.parseInt(args[1]);
-                    player.getInventory().addItem(AutosellChests.getInstance().getManager().getChest(qty));
+                    player.getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(qty));
                     Logger.sendPlayerMessage(player, Lang.PLAYER_SELL_CHEST_GIVEN.get().replace("%amount%", String.valueOf(qty)));
                     Logger.info(Lang.SELL_CHEST_GIVEN_LOG.get().replace("%player_name%", player.getName()).replace("%amount%", String.valueOf(qty)));
                     return;
@@ -75,7 +67,7 @@ public class GiveChest implements SubCommad {
                 if (args.length > 2) {
                     try {
                         qty = Integer.parseInt(args[2]);
-                        p.getInventory().addItem(AutosellChests.getInstance().getManager().getChest(qty));
+                        p.getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(qty));
                         Logger.info(Lang.SELL_CHEST_GIVEN_LOG.get().replace("%player_name%", p.getName()).replace("%amount%", String.valueOf(qty)));
                     } catch (NumberFormatException ex) {
                         Logger.sendMessage(logger, "Not a valid amount");

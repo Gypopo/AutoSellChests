@@ -1,18 +1,18 @@
-package me.gypopo.autosellchestsaddon.util;
+package me.gypopo.autosellchests.util;
 
-import me.gypopo.autosellchestsaddon.AutosellChests;
-import me.gypopo.autosellchestsaddon.files.Config;
-import me.gypopo.autosellchestsaddon.files.Lang;
+import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.files.Config;
+import me.gypopo.autosellchests.files.Lang;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 public final class Logger {
 
-    private static AutosellChests plugin;
+    private static AutoSellChests plugin;
     private static boolean debug;
 
-    public Logger(AutosellChests plugin) {
+    public Logger(AutoSellChests plugin) {
         Logger.plugin = plugin;
         Logger.debug = Config.get().getBoolean("debug");
     }
