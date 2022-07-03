@@ -6,12 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="autosellchestsaddon" />
         <module name="economyshopgui-spigot1_19_R1" />
+        <module name="autosellchests" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="autosellchestsaddon" target="1.8" />
+      <module name="autosellchests" target="1.8" />
       <module name="AutosellChestsAddon" target="1.8" />
       <module name="economyshopgui-core" target="1.8" />
       <module name="economyshopgui-dist" target="1.16" />

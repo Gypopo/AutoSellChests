@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.gypopo</groupId>
-    <artifactId>autosellchestsaddon</artifactId>
+    <artifactId>autosellchests</artifactId>
     <version>1.0.2</version>
     <packaging>jar</packaging>
 
-    <name>AutosellChestsAddon</name>
+    <name>AutoSellChests</name>
 
     <description>A addon for EconomyShopGUI which uses custom chests to automatically sell its contents to shop</description>
     <properties>
@@ -18,7 +18,7 @@
     </properties>
 
     <build>
-        <finalName>AutoSellChestsAddon-${project.version}</finalName>
+        <finalName>AutoSellChests-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -33,22 +33,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.2.4</version>
-                <configuration>
-                    <relocations>
-                        <relocation>
-                            <pattern>com.cryptomorin.xseries</pattern>
-                            <shadedPattern>me.gypopo.autosellchests.utils</shadedPattern>
-                        </relocation>
-                    </relocations>
-                    <filters>
-                        <filter>
-                            <artifact>com.github.cryptomorin:XSeries</artifact>
-                            <includes>
-                                <include>com/cryptomorin/xseries/XMaterial*</include>
-                            </includes>
-                        </filter>
-                    </filters>
-                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>
