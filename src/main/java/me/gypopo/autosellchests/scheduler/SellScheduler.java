@@ -1,12 +1,14 @@
 package me.gypopo.autosellchests.scheduler;
 
 import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -69,7 +71,8 @@ public class SellScheduler {
 
     private Runnable sellContents(Chest chest, int i) {
         return () -> {
-            if (Bukkit.getPlayer(chest.getOwner()) == null) {
+            Player owner = Bukkit.getPlayer(chest.getOwner());
+            if (owner == null) {
                 Logger.debug("Owner from chest " + chest.getId() + " is not online, skipping...");
                 this.processNextChest(i);
                 return;
@@ -92,7 +95,7 @@ public class SellScheduler {
             double totalPrice = 0.0;
             for (ItemStack item : block.getBlockInventory().getContents()) {
                 if (item != null && item.getType() != Material.AIR) {
-                    Double sellPrice = EconomyShopGUIHook.getItemSellPrice(item);
+                    Double sellPrice = EconomyShopGUIHook.getItemSellPrice(owner, item);
                     if (sellPrice != null && sellPrice > 0) {
                         totalPrice += sellPrice;
                         amount += item.getAmount();
@@ -104,11 +107,11 @@ public class SellScheduler {
                 this.items += amount;
                 chest.addItemsSold(amount);
                 chest.addIncome(totalPrice);
-                this.plugin.getEconomy().depositBalance(Bukkit.getPlayer(chest.getOwner()), totalPrice);
-                if (this.plugin.getManager().soldItemsLoggingPlayer && this.plugin.getServer().getPlayer(chest.getOwner()) != null)
-                    Logger.sendPlayerMessage(this.plugin.getServer().getPlayer(chest.getOwner()), Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", String.valueOf(totalPrice)));
+                this.plugin.getEconomy().depositBalance(owner, totalPrice);
+                if (this.plugin.getManager().soldItemsLoggingPlayer)
+                    Logger.sendPlayerMessage(owner, Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", String.valueOf(totalPrice)));
                 if (this.plugin.getManager().soldItemsLoggingConsole)
-                    this.plugin.getLogger().info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", Bukkit.getPlayer(chest.getOwner()).getName()).replace("%location%", "world '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ()).replace("%amount%", String.valueOf(amount)).replace("%profit%", String.valueOf(totalPrice)));
+                    Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName()).replace("%location%", "world '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ()).replace("%amount%", String.valueOf(amount)).replace("%profit%", String.valueOf(totalPrice)));
             }
 
             //this.plugin.getLogger().info("Took " + (System.currentTimeMillis() - start) + "ms to sell the contents");
@@ -130,11 +133,13 @@ public class SellScheduler {
             long finish = System.currentTimeMillis()-this.start;
             Logger.debug("Completed sell interval in " + finish + "ms(" + finish/1000*20 + " ticks)");
             if (finish > this.interval) {
-                this.plugin.getLogger().warning("This sell interval finished " + (finish-this.interval) + "ms(" + ((finish-this.interval)/1000*20) + " ticks) to late/out of schedule, this might be caused by to many server lag/missing ticks. It is recommended that you increase the sell interval inside the config!");
-                this.plugin.getLogger().info("Completed sell interval and sold all items for " + this.chests.size() + " chests, starting next interval now...");
+                if (this.items > 0) {
+                    this.plugin.getLogger().warning("This sell interval finished " + (finish - this.interval) + "ms(" + ((finish - this.interval) / 1000 * 20) + " ticks) to late/out of schedule, this might be caused by to many server lag/missing ticks. It is recommended that you increase the sell interval inside the config!");
+                    this.plugin.getLogger().info("Completed sell interval and sold all items for " + this.chests.size() + " chests, starting next interval now...");
+                }
                 this.task = this.plugin.runTask(this.startNextInterval());
             } else {
-                this.plugin.getLogger().info("Completed sell interval and sold '" + this.items + "' items for " + this.chests.size() + " chests, starting next interval in " + (this.interval-finish) + "ms(" + ((this.interval - finish)/1000*20) + " ticks)...");
+                if (this.items > 0) this.plugin.getLogger().info("Completed sell interval and sold '" + this.items + "' items for " + this.chests.size() + " chests, starting next interval in " + (this.interval-finish) + "ms(" + ((this.interval - finish)/1000*20) + " ticks)...");
                 this.items = 0;
                 this.task = this.plugin.runTaskLater(this.startNextInterval(), (this.interval - finish)/1000*20);
             }
