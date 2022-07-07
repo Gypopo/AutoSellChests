@@ -35,7 +35,7 @@ public class InformationScreen implements InventoryHolder {
         ItemMeta nsM = nextSell.getItemMeta();
         nsM.setDisplayName(Lang.SELL_CHEST_BLOCK_INFO.get());
         nsM.setLore(Arrays.asList(
-                Lang.SELL_CHEST_OWNER.get().replace("%player_name%", Bukkit.getPlayer(this.chest.getOwner()).getName()),
+                Lang.SELL_CHEST_OWNER.get().replace("%player_name%", Bukkit.getOfflinePlayer(this.chest.getOwner()).getName()),
                 Lang.SELL_CHEST_LOCATION.get().replace("%loc%", "World '" + this.chest.getLocation().getWorld().getName() + "', x" + this.chest.getLocation().getBlockX() + ", y" + this.chest.getLocation().getBlockY() + ", z" + this.chest.getLocation().getBlockZ()),
                 Lang.SELL_CHEST_ID.get().replace("%id%", String.valueOf(this.chest.getId())),
                 Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", AutoSellChests.getInstance().getTimeUtils().getReadableTime(this.chest.getNextInterval()))));

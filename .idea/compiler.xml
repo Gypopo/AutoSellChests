@@ -15,7 +15,7 @@
       <module name="AutosellChestsAddon" target="1.8" />
       <module name="economyshopgui-core" target="1.8" />
       <module name="economyshopgui-dist" target="1.16" />
-      <module name="economyshopgui-parent" target="1.16" />
+      <module name="economyshopgui-parent" target="16" />
       <module name="economyshopgui-spigot1_10_R1" target="1.8" />
       <module name="economyshopgui-spigot1_11_R1" target="1.8" />
       <module name="economyshopgui-spigot1_12_R1" target="1.8" />
