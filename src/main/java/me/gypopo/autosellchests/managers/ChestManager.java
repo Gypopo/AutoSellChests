@@ -125,7 +125,6 @@ public class ChestManager {
     private void saveChests() {
         Logger.debug("Saving '" + this.loadedChests.size() + "' chests...");
         for (Chest chest : this.loadedChests.values()) {
-            Logger.debug("Chest has items " + chest.getItemsSold());
             this.plugin.getDatabase().saveChest(chest);
         }
     }
