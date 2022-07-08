@@ -6,6 +6,7 @@ import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.scheduler.SellScheduler;
 import me.gypopo.autosellchests.util.Logger;
+import me.gypopo.economyshopgui.methodes.SendMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -121,7 +122,16 @@ public class ChestManager {
         }
     }
 
+    private void saveChests() {
+        Logger.debug("Saving '" + this.loadedChests.size() + "' chests...");
+        for (Chest chest : this.loadedChests.values()) {
+            Logger.debug("Chest has items " + chest.getItemsSold());
+            this.plugin.getDatabase().saveChest(chest);
+        }
+    }
+
     public void disable() {
+        this.saveChests();
         if (!this.loadedChests.isEmpty()) this.loadedChests.clear();
         if (!this.loadedChestsByPlayer.isEmpty()) this.loadedChestsByPlayer.clear();
         this.scheduler.stop();

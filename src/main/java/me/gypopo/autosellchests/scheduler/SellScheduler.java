@@ -38,6 +38,7 @@ public class SellScheduler {
         this.ticks = interval / 1000L * 20L;
 
         // Give the server 2 minutes to fully start before starting the interval
+        Logger.info("Starting sell interval in 15 seconds");
         this.task = this.plugin.runTaskLater(this.startNextInterval(), /*2400L*/300L);
     }
 
@@ -71,49 +72,53 @@ public class SellScheduler {
 
     private Runnable sellContents(Chest chest, int i) {
         return () -> {
-            Player owner = Bukkit.getPlayer(chest.getOwner());
-            if (owner == null) {
-                Logger.debug("Owner from chest " + chest.getId() + " is not online, skipping...");
-                this.processNextChest(i);
-                return;
-            }
-            if (!this.plugin.getManager().getLoadedChests().containsKey(chest.getLocation())) {
-                Logger.debug("Did not found sell chest with id " + chest.getId() + " while executing the sell interval, skipping...");
-                this.processNextChest(i);
-                return;
-            }
-            chest.setNextInterval(this.interval);
-            //Logger.debug("Starting sell interval for chest with id " + chest.getId());
+            try {
+                Player owner = Bukkit.getPlayer(chest.getOwner());
+                if (owner == null) {
+                    Logger.debug("Owner from chest " + chest.getId() + " is not online, skipping...");
+                    this.processNextChest(i);
+                    return;
+                }
+                if (!this.plugin.getManager().getLoadedChests().containsKey(chest.getLocation())) {
+                    Logger.debug("Did not found sell chest with id " + chest.getId() + " while executing the sell interval, skipping...");
+                    this.processNextChest(i);
+                    return;
+                }
+                chest.setNextInterval(this.interval);
+                //Logger.debug("Starting sell interval for chest with id " + chest.getId());
 
-            org.bukkit.block.Chest block = (org.bukkit.block.Chest) chest.getLocation().getBlock().getState();
-            if (block.getBlockInventory().isEmpty()) {
-                this.processNextChest(i);
-                return;
-            }
+                org.bukkit.block.Chest block = (org.bukkit.block.Chest) chest.getLocation().getBlock().getState();
+                if (block.getBlockInventory().isEmpty()) {
+                    this.processNextChest(i);
+                    return;
+                }
 
-            int amount = 0;
-            double totalPrice = 0.0;
-            for (ItemStack item : block.getBlockInventory().getContents()) {
-                if (item != null && item.getType() != Material.AIR) {
-                    Double sellPrice = EconomyShopGUIHook.getItemSellPrice(owner, item);
-                    if (sellPrice != null && sellPrice > 0) {
-                        totalPrice += sellPrice;
-                        amount += item.getAmount();
-                        block.getBlockInventory().remove(item);
+                int amount = 0;
+                double totalPrice = 0.0;
+                for (ItemStack item : block.getBlockInventory().getContents()) {
+                    if (item != null && item.getType() != Material.AIR) {
+                        Double sellPrice = EconomyShopGUIHook.getItemSellPrice(owner, item);
+                        if (sellPrice != null && sellPrice > 0) {
+                            totalPrice += sellPrice;
+                            amount += item.getAmount();
+                            block.getBlockInventory().remove(item);
+                        }
                     }
                 }
+                if (amount != 0) {
+                    this.items += amount;
+                    chest.addItemsSold(amount);
+                    chest.addIncome(totalPrice);
+                    this.plugin.getEconomy().depositBalance(owner, totalPrice);
+                    if (this.plugin.getManager().soldItemsLoggingPlayer)
+                        Logger.sendPlayerMessage(owner, Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", String.valueOf(totalPrice)));
+                    if (this.plugin.getManager().soldItemsLoggingConsole)
+                        Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName()).replace("%location%", "world '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ()).replace("%amount%", String.valueOf(amount)).replace("%profit%", String.valueOf(totalPrice)));
+                }
+            } catch (Exception e) {
+                Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome() + " | TotalItemsSold: " + chest.getItemsSold());
+                e.printStackTrace();
             }
-            if (amount != 0) {
-                this.items += amount;
-                chest.addItemsSold(amount);
-                chest.addIncome(totalPrice);
-                this.plugin.getEconomy().depositBalance(owner, totalPrice);
-                if (this.plugin.getManager().soldItemsLoggingPlayer)
-                    Logger.sendPlayerMessage(owner, Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", String.valueOf(totalPrice)));
-                if (this.plugin.getManager().soldItemsLoggingConsole)
-                    Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName()).replace("%location%", "world '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ()).replace("%amount%", String.valueOf(amount)).replace("%profit%", String.valueOf(totalPrice)));
-            }
-
             //this.plugin.getLogger().info("Took " + (System.currentTimeMillis() - start) + "ms to sell the contents");
             this.processNextChest(i);
         };

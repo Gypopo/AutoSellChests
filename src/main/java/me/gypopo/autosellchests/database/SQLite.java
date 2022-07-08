@@ -2,6 +2,7 @@ package me.gypopo.autosellchests.database;
 
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.util.Logger;
 
 import java.io.File;
 import java.sql.*;
@@ -60,6 +61,17 @@ public class SQLite {
             stmt.close();
         } catch (SQLException e ) {
             e.printStackTrace();
+        }
+    }
+
+    public void saveChest(Chest chest) {
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate("UPDATE chests SET items = '" + chest.getItemsSold() + "', income = '" + chest.getIncome() + "' WHERE location = '" + chest.getLocation().getWorld().getName() + ":" + chest.getLocation().getBlockX() + ":" + chest.getLocation().getBlockY() + ":" + chest.getLocation().getBlockZ() + "';");
+            stmt.close();
+        } catch (SQLException e ) {
+            Logger.warn("Exception occurred while saving chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome() + " | TotalItemsSold: " + chest.getItemsSold());
+            Logger.debug(e.getMessage());
         }
     }
 

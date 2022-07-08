@@ -4,7 +4,7 @@
   <groupId>me.gypopo</groupId>
   <artifactId>autosellchests</artifactId>
   <name>AutoSellChests</name>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <description>A addon for EconomyShopGUI which uses custom chests to automatically sell its contents to shop</description>
   <build>
     <finalName>AutoSellChests-${project.version}</finalName>
