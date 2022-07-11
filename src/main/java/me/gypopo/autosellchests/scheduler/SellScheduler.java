@@ -23,7 +23,7 @@ public class SellScheduler {
     private final long interval;
     private final long ticks; // The total interval for every chest
 
-    private long start;
+    private long start = System.currentTimeMillis();
 
     private final ArrayList<Chest> chests = new ArrayList<>(); // All chests that have to be sold this interval
     private int next; // The interval between each chest
@@ -38,7 +38,7 @@ public class SellScheduler {
         this.ticks = interval / 1000L * 20L;
 
         // Give the server 2 minutes to fully start before starting the interval
-        Logger.info("Starting sell interval in 15 seconds");
+        Logger.info("Starting first sell interval in 15 seconds");
         this.task = this.plugin.runTaskLater(this.startNextInterval(), /*2400L*/300L);
     }
 
@@ -84,7 +84,7 @@ public class SellScheduler {
                     this.processNextChest(i);
                     return;
                 }
-                chest.setNextInterval(this.interval);
+                chest.setNextInterval(System.currentTimeMillis() + this.interval);
                 //Logger.debug("Starting sell interval for chest with id " + chest.getId());
 
                 org.bukkit.block.Chest block = (org.bukkit.block.Chest) chest.getLocation().getBlock().getState();
@@ -149,6 +149,10 @@ public class SellScheduler {
                 this.task = this.plugin.runTaskLater(this.startNextInterval(), (this.interval - finish)/1000*20);
             }
         }
+    }
+
+    public long getStart() {
+        return this.start;
     }
 
     public void stop() {

@@ -129,6 +129,10 @@ public class ChestManager {
         }
     }
 
+    public long getNextInterval() {
+        return this.scheduler.getStart() + this.sellInterval - System.currentTimeMillis();
+    }
+
     public void disable() {
         this.saveChests();
         if (!this.loadedChests.isEmpty()) this.loadedChests.clear();

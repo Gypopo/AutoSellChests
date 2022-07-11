@@ -2,6 +2,8 @@ package me.gypopo.autosellchests.objects;
 
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.util.Logger;
+import me.gypopo.economyshopgui.methodes.SendMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -38,7 +40,7 @@ public class InformationScreen implements InventoryHolder {
                 Lang.SELL_CHEST_OWNER.get().replace("%player_name%", Bukkit.getOfflinePlayer(this.chest.getOwner()).getName()),
                 Lang.SELL_CHEST_LOCATION.get().replace("%loc%", "World '" + this.chest.getLocation().getWorld().getName() + "', x" + this.chest.getLocation().getBlockX() + ", y" + this.chest.getLocation().getBlockY() + ", z" + this.chest.getLocation().getBlockZ()),
                 Lang.SELL_CHEST_ID.get().replace("%id%", String.valueOf(this.chest.getId())),
-                Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", AutoSellChests.getInstance().getTimeUtils().getReadableTime(this.chest.getNextInterval()))));
+                Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", this.getNextInterval())));
         nextSell.setItemMeta(nsM);
 
         // Shows the total amount of money the player has made so far with this sellchest
@@ -62,6 +64,14 @@ public class InformationScreen implements InventoryHolder {
             if (this.inv.getItem(i) == null) {
                 this.inv.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
             }
+        }
+    }
+
+    private String getNextInterval() {
+        if (this.chest.getNextInterval() < System.currentTimeMillis()) {
+            return AutoSellChests.getInstance().getTimeUtils().getReadableTime(AutoSellChests.getInstance().getManager().getNextInterval());
+        } else {
+            return AutoSellChests.getInstance().getTimeUtils().getReadableTime(this.chest.getNextInterval() - System.currentTimeMillis());
         }
     }
 
