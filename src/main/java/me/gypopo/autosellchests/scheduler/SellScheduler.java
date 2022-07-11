@@ -111,9 +111,9 @@ public class SellScheduler {
                     chest.addIncome(totalPrice);
                     this.plugin.getEconomy().depositBalance(owner, totalPrice);
                     if (this.plugin.getManager().soldItemsLoggingPlayer)
-                        Logger.sendPlayerMessage(owner, Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", String.valueOf(totalPrice)));
+                        Logger.sendPlayerMessage(owner, Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
                     if (this.plugin.getManager().soldItemsLoggingConsole)
-                        Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName()).replace("%location%", "world '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ()).replace("%amount%", String.valueOf(amount)).replace("%profit%", String.valueOf(totalPrice)));
+                        Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName()).replace("%location%", "world '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ()).replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
                 }
             } catch (Exception e) {
                 Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome() + " | TotalItemsSold: " + chest.getItemsSold());

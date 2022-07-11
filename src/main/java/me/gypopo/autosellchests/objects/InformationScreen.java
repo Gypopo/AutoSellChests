@@ -44,7 +44,7 @@ public class InformationScreen implements InventoryHolder {
         // Shows the total amount of money the player has made so far with this sellchest
         ItemStack totalIncome = new ItemStack(Material.GOLD_INGOT);
         ItemMeta tiM = totalIncome.getItemMeta();
-        tiM.setDisplayName(Lang.INCOME_INFO.get().replace("%profit%", String.valueOf(this.chest.getIncome())));
+        tiM.setDisplayName(Lang.INCOME_INFO.get().replace("%profit%", AutoSellChests.getInstance().formatPrice(this.chest.getIncome())));
         totalIncome.setItemMeta(tiM);
 
         // Breaks the chest

@@ -148,4 +148,8 @@ public final class AutoSellChests extends JavaPlugin {
         String VersionName = getServer().getClass().getPackage().getName().split("\\.")[3];
         return !VersionName.equalsIgnoreCase("v1_8_R1") && !VersionName.equalsIgnoreCase("v1_8_R2");
     }
+
+    public String formatPrice(double price) {
+        return String.valueOf(String.format("%,.2f", price));
+    }
 }
