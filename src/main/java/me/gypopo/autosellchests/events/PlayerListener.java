@@ -18,6 +18,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.Arrays;
+
 public class PlayerListener implements Listener {
 
     private AutoSellChests plugin;
@@ -93,10 +95,13 @@ public class PlayerListener implements Listener {
             e.setCancelled(true);
             if (e.getSlot() == 31) {
                 e.getWhoClicked().closeInventory();
-                Location loc = e.getWhoClicked().getLocation();
                 this.plugin.getManager().removeChest(((InformationScreen) e.getClickedInventory().getHolder()).getChest());
-                ((InformationScreen) e.getClickedInventory().getHolder()).getChest().getLocation().getBlock().breakNaturally();
-                loc.add(0.5, 0.5, 0.5);
+                Location loc = ((InformationScreen) e.getClickedInventory().getHolder()).getChest().getLocation().add(0.5, 0.5, 0.5);
+                Arrays.stream(((org.bukkit.block.Chest)loc.getBlock().getState()).getBlockInventory().getContents()).forEach(item -> {
+                    if (item != null && item.getType() != Material.AIR) loc.getWorld().dropItemNaturally(loc, item);
+                });
+                loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
+                loc.getBlock().setType(Material.AIR);
                 loc.getWorld().spawnParticle(Particle.CLOUD, loc, 15);
                 loc.getWorld().playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 30L, 10L);
                 Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get());
