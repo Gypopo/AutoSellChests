@@ -94,17 +94,20 @@ public class PlayerListener implements Listener {
         if (e.getClickedInventory() != null && e.getClickedInventory().getHolder() instanceof InformationScreen) {
             e.setCancelled(true);
             if (e.getSlot() == 31) {
-                e.getWhoClicked().closeInventory();
-                this.plugin.getManager().removeChest(((InformationScreen) e.getClickedInventory().getHolder()).getChest());
-                Location loc = ((InformationScreen) e.getClickedInventory().getHolder()).getChest().getLocation().add(0.5, 0.5, 0.5);
-                Arrays.stream(((org.bukkit.block.Chest)loc.getBlock().getState()).getBlockInventory().getContents()).forEach(item -> {
-                    if (item != null && item.getType() != Material.AIR) loc.getWorld().dropItemNaturally(loc, item);
-                });
-                loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
-                loc.getBlock().setType(Material.AIR);
-                loc.getWorld().spawnParticle(Particle.CLOUD, loc, 15);
-                loc.getWorld().playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 30L, 10L);
-                Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get());
+                Chest chest = ((InformationScreen) e.getClickedInventory().getHolder()).getChest();
+                if (chest.getOwner() == e.getWhoClicked().getUniqueId() || e.getWhoClicked().hasPermission("autosellchests.break")) {
+                    e.getWhoClicked().closeInventory();
+                    this.plugin.getManager().removeChest(chest);
+                    Location loc = chest.getLocation().add(0.5, 0.5, 0.5);
+                    Arrays.stream(((org.bukkit.block.Chest) loc.getBlock().getState()).getBlockInventory().getContents()).forEach(item -> {
+                        if (item != null && item.getType() != Material.AIR) loc.getWorld().dropItemNaturally(loc, item);
+                    });
+                    loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
+                    loc.getBlock().setType(Material.AIR);
+                    loc.getWorld().spawnParticle(Particle.CLOUD, loc, 15);
+                    loc.getWorld().playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 30L, 10L);
+                    Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get());
+                }
             }
         }
     }

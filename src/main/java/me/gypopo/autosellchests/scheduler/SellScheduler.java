@@ -75,7 +75,7 @@ public class SellScheduler {
             try {
                 Player owner = Bukkit.getPlayer(chest.getOwner());
                 if (owner == null) {
-                    Logger.debug("Owner from chest " + chest.getId() + " is not online, skipping...");
+                    //Logger.debug("Owner from chest " + chest.getId() + " is not online, skipping...");
                     this.processNextChest(i);
                     return;
                 }
