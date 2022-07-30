@@ -30,6 +30,8 @@ This plugin is compatible with minecraft version 1.16-1.19.
 - [Polymart](https://polymart.org/resource/autosellchests.2583)
 
 # Contributing to the project
+All contributions should follow our [code of conduct](CODE_OF_CONDUCT.md) guidelines.
+
 Since this is a open source project there are a few possibility's how you can help make this project better.
 ## ❓ Support/Feature requests
 We will happily answer your questions and look at feature requests you may have in our [discord server](https://discord.com/invite/nPyuB4F). 
