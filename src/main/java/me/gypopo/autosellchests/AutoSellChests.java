@@ -16,13 +16,16 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public final class AutoSellChests extends JavaPlugin {
+public final class AutoSellChests extends JavaPlugin implements Listener {
 
     /**
      * Available versions: 18, 19, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119
@@ -41,14 +44,26 @@ public final class AutoSellChests extends JavaPlugin {
     public void onEnable() {
         boolean premium;
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI") != null && Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI").isEnabled()) {
+        if (Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI") != null) {
             this.getLogger().info("Found EconomyShopGUI, enabling...");
             premium = false;
-        } else  if (Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium") != null && Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium").isEnabled()) {
+            int version = Integer.parseInt(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI").getDescription().getVersion().split("-")[0].replace(".", ""));
+            if (version <= 481) {
+                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v4.8.1 or later, disabling...");
+                this.getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
+        } else  if (Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium") != null) {
             this.getLogger().info("Found EconomyShopGUI Premium, enabling...");
             premium = true;
+            int version = Integer.parseInt(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium").getDescription().getVersion().split("-")[0].replace(".", ""));
+            if (version <= 311) {
+                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v3.1.1 or later, disabling...");
+                this.getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
         } else {
-            this.getLogger().warning("Could not find EconomyShopGUI(Premium), disabling... Please make sure EconomyShopGUI is enabled and up to date!");
+            this.getLogger().warning("Could not find EconomyShopGUI(Premium), disabling...");
             return;
         }
         instance = this;
@@ -61,7 +76,6 @@ public final class AutoSellChests extends JavaPlugin {
         Config.setup();
         Lang.reload();
         new Logger(this);
-        this.economy = EconomyShopGUI.getInstance().economy;
 
         this.database = new SQLite();
         if (!this.database.connect()) {
@@ -71,14 +85,31 @@ public final class AutoSellChests extends JavaPlugin {
 
         this.getCommand("autosellchests").setExecutor(new SellChestCommand(this));
         this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        this.getServer().getPluginManager().registerEvents(this, this);
 
-        this.manager = new ChestManager(this);
+        // Alternative to the 'softdepend' tag inside the plugin.yml which doesn't always work as intended
+        this.runTaskLater(() -> {
+            if (this.economy != null) {
+                this.manager = new ChestManager(this);
+            } else {
+                this.getLogger().warning("Found EconomyShopGUI in a disabled state, please make sure it is enabled and up to date, disabling the plugin...");
+                this.getServer().getPluginManager().disablePlugin(this);
+            }
+        }, 1);
     }
 
     @Override
     public void onDisable() {
-        this.manager.disable();
-        this.database.closeConnection();
+        if (this.manager != null) this.manager.disable();
+        if (this.database != null) this.database.closeConnection();
+    }
+
+    @EventHandler
+    public void onPluginEnable(PluginEnableEvent e) {
+        // Sometimes bukkit's plugin load order is weird and EconomyShopGUI loads after AutoSellChests even if its a load before
+        if (e.getPlugin().getName().equals("EconomyShopGUI") || e.getPlugin().getName().equals("EconomyShopGUI-Premium")) {
+            this.economy = EconomyShopGUI.getInstance().economy;
+        }
     }
 
     public EconomyProvider getEconomy() {

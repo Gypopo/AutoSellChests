@@ -58,7 +58,7 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        if (this.plugin.getManager().getChestsByPlayer(e.getPlayer().getUniqueId()).size() == ChestManager.maxSellChestsPlayer && !e.getPlayer().hasPermission("autosellchests.maxchests.override")) {
+        if (this.plugin.getManager().getChestsByPlayer(e.getPlayer().getUniqueId()).size() >= ChestManager.maxSellChestsPlayer && !e.getPlayer().hasPermission("autosellchests.maxchests.override")) {
             Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(ChestManager.maxSellChestsPlayer)));
             return;
         }

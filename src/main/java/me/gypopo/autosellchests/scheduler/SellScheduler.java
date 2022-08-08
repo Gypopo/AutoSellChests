@@ -5,10 +5,11 @@ import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.util.Logger;
+import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -25,6 +26,8 @@ public class SellScheduler {
 
     private long start = System.currentTimeMillis();
 
+    private final boolean onlineOwner;
+
     private final ArrayList<Chest> chests = new ArrayList<>(); // All chests that have to be sold this interval
     private int next; // The interval between each chest
     private int amount = 1; // Amount of sell chests that should get sold in one tick
@@ -36,6 +39,7 @@ public class SellScheduler {
         this.interval = interval;
 
         this.ticks = interval / 1000L * 20L;
+        this.onlineOwner = Config.get().getBoolean("online-chest-owner");
 
         // Give the server 2 minutes to fully start before starting the interval
         Logger.info("Starting first sell interval in 15 seconds");
@@ -73,8 +77,8 @@ public class SellScheduler {
     private Runnable sellContents(Chest chest, int i) {
         return () -> {
             try {
-                Player owner = Bukkit.getPlayer(chest.getOwner());
-                if (owner == null) {
+                OfflinePlayer owner = Bukkit.getOfflinePlayer(chest.getOwner());
+                if (this.onlineOwner && !owner.isOnline()) {
                     //Logger.debug("Owner from chest " + chest.getId() + " is not online, skipping...");
                     this.processNextChest(i);
                     return;
@@ -97,11 +101,12 @@ public class SellScheduler {
                 double totalPrice = 0.0;
                 for (ItemStack item : block.getBlockInventory().getContents()) {
                     if (item != null && item.getType() != Material.AIR) {
-                        Double sellPrice = EconomyShopGUIHook.getItemSellPrice(owner, item);
+                        Double sellPrice = owner.isOnline() ? EconomyShopGUIHook.getItemSellPrice(owner.getPlayer(), item) : EconomyShopGUIHook.getItemSellPrice(item);
                         if (sellPrice != null && sellPrice > 0) {
                             totalPrice += sellPrice;
                             amount += item.getAmount();
                             block.getBlockInventory().remove(item);
+                            EconomyShopGUIHook.sellItem(item, amount);
                         }
                     }
                 }
@@ -110,10 +115,11 @@ public class SellScheduler {
                     chest.addItemsSold(amount);
                     chest.addIncome(totalPrice);
                     this.plugin.getEconomy().depositBalance(owner, totalPrice);
-                    if (this.plugin.getManager().soldItemsLoggingPlayer)
-                        Logger.sendPlayerMessage(owner, Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
-                    if (this.plugin.getManager().soldItemsLoggingConsole)
+                    if (this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline())
+                        Logger.sendPlayerMessage(owner.getPlayer(), Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
+                    if (this.plugin.getManager().soldItemsLoggingConsole) {
                         Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName()).replace("%location%", "world '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ()).replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
+                    }
                 }
             } catch (Exception e) {
                 Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome() + " | TotalItemsSold: " + chest.getItemsSold());

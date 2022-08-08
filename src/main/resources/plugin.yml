@@ -1,9 +1,10 @@
 name: AutoSellChests
-version: 1.2.0
+version: 1.3.0
 main: me.gypopo.autosellchests.AutoSellChests
 api-version: 1.16
 authors: [ Gypopo ]
 description: A addon for EconomyShopGUI which uses custom chests to automatically sell its contents to shop
+load: STARTUP
 commands:
   autosellchests:
     usage: /asc <subcommand> <args>
