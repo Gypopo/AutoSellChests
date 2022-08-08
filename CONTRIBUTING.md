@@ -2,7 +2,7 @@
 Since this is a open source project there are a few possibility's how you can help make this project better.
 
 ## ✔️ Feature requests
-You may have ideas/features which make the project even better, we will happily take suggestions for the plugin in our [discord(https://discord.com/invite/nPyuB4F).
+You may have ideas/features which make the project even better, we will happily take suggestions for the plugin in our [discord](https://discord.com/invite/nPyuB4F).
 
 ## 🐛 Reporting bugs
 If you stumble across a bug you may use the issues tab to create a new bug report.
