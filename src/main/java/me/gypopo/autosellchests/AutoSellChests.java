@@ -48,7 +48,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.getLogger().info("Found EconomyShopGUI, enabling...");
             premium = false;
             int version = Integer.parseInt(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI").getDescription().getVersion().split("-")[0].replace(".", ""));
-            if (version <= 481) {
+            if (version < 481) {
                 this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v4.8.1 or later, disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
@@ -57,7 +57,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.getLogger().info("Found EconomyShopGUI Premium, enabling...");
             premium = true;
             int version = Integer.parseInt(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium").getDescription().getVersion().split("-")[0].replace(".", ""));
-            if (version <= 311) {
+            if (version < 311) {
                 this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v3.1.1 or later, disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
