@@ -39,6 +39,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private final TimeUtils timeUtils = new TimeUtils();
     private EconomyProvider economy;
     private ChestManager manager;
+    public boolean debug;
+    //private final boolean spigotServer;
 
     @Override
     public void onEnable() {
@@ -68,6 +70,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         }
         instance = this;
 
+        //this.spigotServer = this.getServer().getBukkitVersion()
+
         if (this.checkForGson()) {
             Metrics metrics = new Metrics(this, 15605);
             metrics.addCustomChart(new Metrics.SimplePie("esgui_ver", () -> premium ? "EconomyShopGUI-Premium" : "EconomyShopGUI"));
@@ -96,6 +100,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
                 this.getServer().getPluginManager().disablePlugin(this);
             }
         }, 1);
+
+        this.debug = Config.get().getBoolean("debug");
     }
 
     @Override

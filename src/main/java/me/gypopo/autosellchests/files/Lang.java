@@ -20,7 +20,7 @@ public enum Lang {
     SOLD_ITEMS_INFO("&c&lThis chest has sold &a%amount% &c&litem(s) in total."),
     INCOME_INFO("&c&lThis chest has sold items for &a$%profit%"),
     SELLCHEST_PLACED("&aYou have successfully placed a sell chest, left click it for more info."),
-    SELLCHEST_BROKEN("&cYou have destroyed an #CDCDCDAuto#FF7070Sell#CDCDCDChest"),
+    SELLCHEST_BROKEN("&cYou have picked-up an #CDCDCDAuto#FF7070Sell#CDCDCDChest"),
     MAX_SELLCHESTS_REACHED("&cYou already have &a%maxSellChests% &cplaced and cannot place anymore"),
     ITEMS_SOLD_PLAYER_LOG("&a&lYour #CDCDCD&lAuto#FF7070&lSell#CDCDCD&lChest &a&lhas sold &6%amount% &a&litem(s) for &6%profit%"),
     ITEMS_SOLD_CONSOLE_LOG("AutoSellChest from player %player% on location %location% has sold %amount% item(s) for %profit%"),
@@ -28,9 +28,11 @@ public enum Lang {
     SELL_CHEST_GIVEN_LOG("%player_name% was given %amount% AutoSellChests"),
     PLAYER_SELL_CHEST_GIVEN("&cYou were given &7%amount% #CDCDCD&lAuto#FF7070Sell#CDCDCDChests"),
     NOT_ENOUGH_INVENTORY_SPACE("&cYou do not have enough space in your inventory"),
+    PLACED_SELL_CHESTS_ACTION_BAR("&6&lPlaced sell chests: &c%amount%&c&4/&c%limit%"),
+    PLACED_SELL_CHESTS_ACTION_BAR_MAX("∞"),
 
     // Chest information screen
-    DESTROY_CHEST("&c&lDestroy this #CDCDCD&lAuto#FF7070&lSell#CDCDCD&lChest"),
+    DESTROY_CHEST("&c&lPick up this #CDCDCD&lAuto#FF7070&lSell#CDCDCD&lChest"),
 
     // Sell chest block information
     SELL_CHEST_BLOCK_INFO("#FF7070&lChest info:"),

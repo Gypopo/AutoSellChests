@@ -6,6 +6,8 @@ import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.InformationScreen;
 import me.gypopo.autosellchests.util.Logger;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -70,6 +72,9 @@ public class PlayerListener implements Listener {
         loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 10, new Particle.DustOptions(Color.RED, 2F));
         loc.getWorld().playSound(loc, Sound.ENTITY_SPLASH_POTION_BREAK, SoundCategory.AMBIENT, 30L, 10L);
         Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get());
+        e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Lang.PLACED_SELL_CHESTS_ACTION_BAR.get()
+                .replace("%amount%", String.valueOf(this.plugin.getManager().getChestsByPlayer(e.getPlayer().getUniqueId()).size()))
+                .replace("%limit%", e.getPlayer().hasPermission("autosellchests.maxchests.override") ? Lang.PLACED_SELL_CHESTS_ACTION_BAR_MAX.get() : String.valueOf(ChestManager.maxSellChestsPlayer))));
 
         loc.subtract(0.5, 0.5, 0.5); // This line is needed, it caused me some headaches :/
     }

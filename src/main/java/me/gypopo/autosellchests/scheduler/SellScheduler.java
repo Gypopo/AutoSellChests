@@ -52,8 +52,8 @@ public class SellScheduler {
             // Get all chests in loaded chunks
             if (!this.chests.isEmpty()) this.chests.clear();
             for (Chest chest : this.plugin.getManager().getLoadedChests().values()) {
-                //this.plugin.getLogger().info("Chest " + chest.getId() + " is loaded:" + chest.getLocation().getChunk().isLoaded());
-                if (chest.getLocation().getChunk().isLoaded()) {
+                //this.plugin.getLogger().info("Chest " + chest.getId() + " is loaded:" + chest.getLocation().getWorld().isChunkLoaded(chest.getLocation().getBlockX() >> 4, chest.getLocation().getBlockZ() >> 4));
+                if (chest.getLocation().getWorld().isChunkLoaded(chest.getLocation().getBlockX() >> 4, chest.getLocation().getBlockZ() >> 4)) {
                     chests.add(chest);
                 }
             }
@@ -123,7 +123,11 @@ public class SellScheduler {
                 }
             } catch (Exception e) {
                 Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome() + " | TotalItemsSold: " + chest.getItemsSold());
-                e.printStackTrace();
+                if (e instanceof ClassCastException) {
+                    Logger.warn("The chest at this location does not longer exist, removing chest from database...");
+                    this.plugin.getManager().removeChest(chest);
+                }
+                if (this.plugin.debug) e.printStackTrace();
             }
             //this.plugin.getLogger().info("Took " + (System.currentTimeMillis() - start) + "ms to sell the contents");
             this.processNextChest(i);
@@ -134,7 +138,7 @@ public class SellScheduler {
         try {
             index++;
             Chest next = this.chests.get(index);
-            if (next.getLocation().getChunk().isLoaded()) { // See if the chest is still loaded
+            if (next.getLocation().getWorld().isChunkLoaded(next.getLocation().getBlockX() >> 4, next.getLocation().getBlockZ() >> 4)) { // See if the chest is still loaded
                 for (int i = 0; i < this.amount; i++) { // Run the amount of chests that needs to be sold at once
                     this.plugin.runTaskLater(this.sellContents(next, index), this.next);
                 }

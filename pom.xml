@@ -6,7 +6,7 @@
 
     <groupId>me.gypopo</groupId>
     <artifactId>autosellchests</artifactId>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
     <packaging>jar</packaging>
 
     <name>AutoSellChests</name>
@@ -78,7 +78,7 @@
             <artifactId>economyshopgui-parent</artifactId>
             <version>4.8.0</version>
             <scope>system</scope>
-            <systemPath>K:/libs/EconomyShopGUI-4.8.0.jar</systemPath>
+            <systemPath>K:/libs/EconomyShopGUI-4.9.0.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
