@@ -40,7 +40,6 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private EconomyProvider economy;
     private ChestManager manager;
     public boolean debug;
-    //private final boolean spigotServer;
 
     @Override
     public void onEnable() {
@@ -70,7 +69,11 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         }
         instance = this;
 
-        //this.spigotServer = this.getServer().getBukkitVersion()
+        if (!this.isSpigotServer()) {
+            this.getLogger().warning("It seems like you are using a server type which does not support spigot, please install a supported server type like Paper which can be downloaded from here: https://papermc.io/");
+            this.getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         if (this.checkForGson()) {
             Metrics metrics = new Metrics(this, 15605);
@@ -184,6 +187,15 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private boolean checkForGson() {
         String VersionName = getServer().getClass().getPackage().getName().split("\\.")[3];
         return !VersionName.equalsIgnoreCase("v1_8_R1") && !VersionName.equalsIgnoreCase("v1_8_R2");
+    }
+
+    private boolean isSpigotServer() {
+        try {
+            Class.forName("org.spigotmc.SpigotConfig");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     public String formatPrice(double price) {
