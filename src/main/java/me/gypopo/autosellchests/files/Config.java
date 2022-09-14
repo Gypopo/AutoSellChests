@@ -2,9 +2,12 @@ package me.gypopo.autosellchests.files;
 
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.util.ConfigUtil;
+import me.gypopo.economyshopgui.EconomyShopGUI;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.InputStreamReader;
 
 public class Config {
 
@@ -57,5 +60,8 @@ public class Config {
             // Set the config
             config = AutoSellChests.getInstance().loadConfiguration(file, fileName);
         }
+
+        // Set the defaults
+        config.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(AutoSellChests.getInstance().getResource("config.yml"))));
     }
 }

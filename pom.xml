@@ -76,9 +76,9 @@
         <dependency>
             <groupId>me.gypopo</groupId>
             <artifactId>economyshopgui-parent</artifactId>
-            <version>4.8.0</version>
+            <version>4.9.2</version>
             <scope>system</scope>
-            <systemPath>K:/libs/EconomyShopGUI-4.9.0.jar</systemPath>
+            <systemPath>K:/libs/EconomyShopGUI-4.9.2.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

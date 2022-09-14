@@ -21,6 +21,15 @@ sellchest-lore:
   - "&aPlace this chest down and"
   - "&aleft-click it to get more info"
 
+# The sound effects played when a player places/breaks a SellChest
+# You can visit this page for all available sound effects: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+# To disable a sound effect you can empty out the string like ""
+sound-effects:
+  volume: 30
+  pitch: 10
+  pickup-chest: "ENTITY_ENDERMAN_TELEPORT"
+  place-chest: "ENTITY_SPLASH_POTION_BREAK"
+
 # Enable or disable messages send to player when their sell chest has sold items
 sold-items-logging-player: true
 

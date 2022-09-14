@@ -1,6 +1,7 @@
 package me.gypopo.autosellchests.events;
 
 import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.objects.Chest;
@@ -25,9 +26,19 @@ import java.util.Arrays;
 public class PlayerListener implements Listener {
 
     private AutoSellChests plugin;
+    private final Sound placeSound;
+    private final Sound breakSound;
+    private final long soundVolume;
+    private final long soundPitch;
 
     public PlayerListener(AutoSellChests plugin) {
         this.plugin = plugin;
+
+        // Sounds
+        this.soundVolume = Config.get().getLong("sound-effects.volume");
+        this.soundPitch = Config.get().getLong("sound-effects.pitch");
+        this.placeSound = this.getSound("sound-effects.place-chest");
+        this.breakSound = this.getSound("sound-effects.pickup-chest");
     }
 
     @EventHandler
@@ -70,7 +81,7 @@ public class PlayerListener implements Listener {
         loc.add(0.5, 0.5, 0.5);
         loc.getWorld().spawnParticle(Particle.SPELL_WITCH, loc, 10);
         loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 10, new Particle.DustOptions(Color.RED, 2F));
-        loc.getWorld().playSound(loc, Sound.ENTITY_SPLASH_POTION_BREAK, SoundCategory.AMBIENT, 30L, 10L);
+        if (this.placeSound != null) loc.getWorld().playSound(loc, this.placeSound, this.getSoundCategory(this.placeSound), this.soundVolume, this.soundPitch);
         Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get());
         e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Lang.PLACED_SELL_CHESTS_ACTION_BAR.get()
                 .replace("%amount%", String.valueOf(this.plugin.getManager().getChestsByPlayer(e.getPlayer().getUniqueId()).size()))
@@ -110,7 +121,7 @@ public class PlayerListener implements Listener {
                     loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
                     loc.getBlock().setType(Material.AIR);
                     loc.getWorld().spawnParticle(Particle.CLOUD, loc, 15);
-                    loc.getWorld().playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 30L, 10L);
+                    if (this.breakSound != null) loc.getWorld().playSound(loc, this.breakSound, this.getSoundCategory(this.breakSound), this.soundVolume, this.soundPitch);
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get());
                 }
             }
@@ -122,5 +133,30 @@ public class PlayerListener implements Listener {
         if (e.getInventory().getHolder() instanceof InformationScreen) {
             this.plugin.runTaskLater(() -> ((Player) e.getPlayer()).updateInventory(), 1);
         }
+    }
+
+    private Sound getSound(String sound) {
+        if (!Config.get().getString(sound).isEmpty()) {
+            try {
+                return Sound.valueOf(Config.get().getString(sound));
+            } catch (IllegalArgumentException | NullPointerException e) {
+                // No sound found
+                Logger.warn("Failed to find a sound effect with name '" + Config.get().getString(sound) + "'");
+                return Sound.valueOf(Config.get().getDefaults().getString(sound));
+            }
+        }
+        return null;
+    }
+
+    private SoundCategory getSoundCategory(Sound sound) {
+        if (sound != null) {
+            try {
+                SoundCategory.valueOf(sound.getKey().getKey().split("\\.")[0]);
+            } catch (IllegalArgumentException e) {
+                // No sound category found
+                Logger.warn("Failed to find a sound category for sound effect '" + sound.name() + "'");
+            }
+        }
+        return SoundCategory.AMBIENT;
     }
 }
