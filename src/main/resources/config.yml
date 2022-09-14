@@ -25,8 +25,8 @@ sellchest-lore:
 # You can visit this page for all available sound effects: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
 # To disable a sound effect you can empty out the string like ""
 sound-effects:
-  volume: 30
-  pitch: 10
+  volume: 1
+  pitch: 1
   pickup-chest: "ENTITY_ENDERMAN_TELEPORT"
   place-chest: "ENTITY_SPLASH_POTION_BREAK"
 
