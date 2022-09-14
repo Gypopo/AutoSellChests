@@ -8,7 +8,8 @@ player-max-sellchests: 5
 
 # Whether the owner of the chest needs to be online for the chest to sell its contents
 online-chest-owner: true
-# Note: When the owner of the chest is not online, permissions for selling items to shop will not be checked
+# Warning: Chests that are in unloaded chunks will get loaded by the plugin when this setting is 'false' which can cause server lag,
+# ALSO note that permissions for selling items to shop will not be checked
 
 # The title/item name of a sell chest
 sellchest-name: "&7&lSell chest"
