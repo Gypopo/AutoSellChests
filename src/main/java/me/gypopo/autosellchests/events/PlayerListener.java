@@ -6,11 +6,15 @@ import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.InformationScreen;
+import me.gypopo.autosellchests.util.ChestConfirmation;
 import me.gypopo.autosellchests.util.Logger;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,6 +30,7 @@ import java.util.Arrays;
 public class PlayerListener implements Listener {
 
     private AutoSellChests plugin;
+    private ChestConfirmation chestConfirmation;
     private final Sound placeSound;
     private final Sound breakSound;
     private final long soundVolume;
@@ -39,6 +44,14 @@ public class PlayerListener implements Listener {
         this.soundPitch = Config.get().getLong("sound-effects.pitch");
         this.placeSound = this.getSound("sound-effects.place-chest");
         this.breakSound = this.getSound("sound-effects.pickup-chest");
+
+        // Chest confirmation effect
+        try {
+            this.chestConfirmation = ChestConfirmation.valueOf(Config.get().getString("chest-confirmation-effect"));
+        } catch (IllegalArgumentException e) {
+            this.chestConfirmation = ChestConfirmation.BOSS_BAR;
+            Logger.warn("Could not find a valid confirmation effect with name '" + Config.get().getString("chest-confirmation-effect") + "'");
+        }
     }
 
     @EventHandler
@@ -83,9 +96,7 @@ public class PlayerListener implements Listener {
         loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 10, new Particle.DustOptions(Color.RED, 2F));
         if (this.placeSound != null) loc.getWorld().playSound(loc, this.placeSound, this.getSoundCategory(this.placeSound), this.soundVolume, this.soundPitch);
         Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get());
-        e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Lang.PLACED_SELL_CHESTS_ACTION_BAR.get()
-                .replace("%amount%", String.valueOf(this.plugin.getManager().getChestsByPlayer(e.getPlayer().getUniqueId()).size()))
-                .replace("%limit%", e.getPlayer().hasPermission("autosellchests.maxchests.override") ? Lang.PLACED_SELL_CHESTS_ACTION_BAR_MAX.get() : String.valueOf(ChestManager.maxSellChestsPlayer))));
+        this.chestConfirmation.playEffect(e.getPlayer());
 
         loc.subtract(0.5, 0.5, 0.5); // This line is needed, it caused me some headaches :/
     }

@@ -21,6 +21,15 @@ sellchest-lore:
   - "&aPlace this chest down and"
   - "&aleft-click it to get more info"
 
+# A visual effect shown to the player when they place a sell chest,
+# this is additional above the message that is s  ent to the player but shows the maximum amount of chests they may place
+# Available options are: 'NONE', 'BOSS_BAR' and 'ACTION_BAR'
+chest-confirmation-effect: BOSS_BAR
+
+# Additionally you can set the boss bar color
+# Available colors are 'PINK', 'BLUE', 'RED', 'GREEN', 'YELLOW', 'PURPLE' and 'WHITE'
+chest-confirmation-boss-bar-color: GREEN
+
 # The sound effects played when a player places/breaks a SellChest
 # You can visit this page for all available sound effects: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
 # To disable a sound effect you can empty out the string like ""

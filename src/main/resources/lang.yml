@@ -10,6 +10,8 @@ income-info: "&c&lThis chest has sold items for &a$%profit%"
 sellchest-placed: "&aYou have successfully placed a AutoSellChest, left click it for more info."
 # Action bar shown above the players inventory quick-slots which shows the amount of chests the player currently has placed
 placed-sell-chests-action-bar: "&6&lPlaced sell chests: &c%amount%&c&4/&c%limit%"
+# Boss bar shown on top of screen which shows the amount of chests the player currently has placed
+placed-sell-chests-boss-bar: "&a&lPlaced sell chests:"
 # Action bar message that is shown to players which can place unlimited amount of chests
 placed-sell-chests-action-bar-max: "∞"
 # Message send to player when a sellchest is broken
