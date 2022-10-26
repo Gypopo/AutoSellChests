@@ -29,6 +29,7 @@ public class SellScheduler {
     private long start = System.currentTimeMillis();
 
     private final boolean onlineOwner;
+    private final boolean intervalLogging;
 
     private final ArrayList<Chest> chests = new ArrayList<>(); // All chests that have to be sold this interval
     private int next; // The interval between each chest
@@ -41,7 +42,8 @@ public class SellScheduler {
         this.interval = interval;
 
         this.ticks = interval / 1000L * 20L;
-        this.onlineOwner = Config.get().getBoolean("online-chest-owner");
+        this.onlineOwner = Config.get().getBoolean("online-chest-owner", true);
+        this.intervalLogging = Config.get().getBoolean("sell-interval-logging");
 
         // Give the server 2 minutes to fully start before starting the interval
         Logger.info("Starting first sell interval in 15 seconds");
@@ -158,9 +160,10 @@ public class SellScheduler {
                     this.plugin.getLogger().warning("This sell interval finished " + (finish - this.interval) + "ms(" + ((finish - this.interval) / 1000 * 20) + " ticks) to late/out of schedule, this might be caused by to many server lag/missing ticks. It is recommended that you increase the sell interval inside the config!");
                     this.plugin.getLogger().info("Completed sell interval and sold all items for " + this.chests.size() + " chests, starting next interval now...");
                 }
+                this.items = 0;
                 this.task = this.plugin.runTask(this.startNextInterval());
             } else {
-                if (this.items > 0) this.plugin.getLogger().info("Completed sell interval and sold '" + this.items + "' items for " + this.chests.size() + " chests, starting next interval in " + (this.interval-finish) + "ms(" + ((this.interval - finish)/1000*20) + " ticks)...");
+                if (this.intervalLogging && this.items > 0) this.plugin.getLogger().info("Completed sell interval and sold '" + this.items + "' items for " + this.chests.size() + " chests, starting next interval in " + (this.interval-finish) + "ms(" + ((this.interval - finish)/1000*20) + " ticks)...");
                 this.items = 0;
                 this.task = this.plugin.runTaskLater(this.startNextInterval(), (this.interval - finish)/1000*20);
             }

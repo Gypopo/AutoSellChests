@@ -39,11 +39,14 @@ sound-effects:
   pickup-chest: "ENTITY_ENDERMAN_TELEPORT"
   place-chest: "ENTITY_SPLASH_POTION_BREAK"
 
+# Enable or disable messages send to console for when the sell interval completes
+sell-interval-logging: false
+
 # Enable or disable messages send to player when their sell chest has sold items
 sold-items-logging-player: true
 
 # Enable or disable messages send to console for when any sell chest has sold items
-sold-items-logging-console: true
+sold-items-logging-console: false
 
 # Debug mode logs extra messages to console for better debugging
 debug: false

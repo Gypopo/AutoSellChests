@@ -186,7 +186,7 @@ public class PlayerListener implements Listener {
                 SoundCategory.valueOf(sound.getKey().getKey().split("\\.")[0]);
             } catch (IllegalArgumentException e) {
                 // No sound category found
-                Logger.warn("Failed to find a sound category for sound effect '" + sound.name() + "'");
+                //Logger.warn("Failed to find a sound category for sound effect '" + sound.name() + "'");
             }
         }
         return SoundCategory.AMBIENT;
