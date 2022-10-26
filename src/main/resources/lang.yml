@@ -44,3 +44,5 @@ sell-chest-id: "&eChest ID: #FF7070%id%"
 sell-chest-next-sell: "&eNext sell interval: #FF7070%time%"
 # When a sell chest is placed against a regular chest or non sell chest
 cannot-form-double-chest: "&cThe sell chest cannot be a placed against a non sell chest"
+# When a player tries to remove someone's else's sell chest and doesn't have permissions
+cannot-remove-sell-chest: "&cYou do not have the required permissions to remove this sell chest"

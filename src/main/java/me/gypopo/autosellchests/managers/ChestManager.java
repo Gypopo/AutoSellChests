@@ -106,6 +106,7 @@ public class ChestManager {
     public void removeChest(ChestLocation loc) {
         Chest chest = this.loadedChests.get(loc);
         if (chest.getLocation().isDoubleChest()) {
+            this.plugin.getDatabase().removeChest(chest.getLocation().toString());
             chest.getLocation().removeLocation(loc.getLeftLocation());
             this.plugin.getDatabase().setChest(chest.getLocation().toString(), chest.getOwner().toString(), chest.getItemsSold(), chest.getIncome());
         } else {

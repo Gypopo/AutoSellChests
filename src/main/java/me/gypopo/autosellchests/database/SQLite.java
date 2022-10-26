@@ -83,7 +83,6 @@ public class SQLite {
             int id = 0; // Todo: Better solution for id's since the chest may get a different id if one is removed
             while (rs.next()) {
                 chests.add(new Chest(id, rs.getString("location"), rs.getString("owner"), rs.getInt("items"), rs.getDouble("income")));
-                System.out.println("Owner: " + rs.getString("owner"));
                 id++;
             }
             rs.close();

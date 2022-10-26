@@ -140,7 +140,7 @@ public class PlayerListener implements Listener {
             e.setCancelled(true);
             if (e.getSlot() == 31) {
                 Chest chest = ((InformationScreen) e.getClickedInventory().getHolder()).getChest();
-                if (chest.getOwner() == e.getWhoClicked().getUniqueId() || e.getWhoClicked().hasPermission("autosellchests.break")) {
+                if (chest.getOwner().equals(e.getWhoClicked().getUniqueId()) || e.getWhoClicked().hasPermission("autosellchests.break")) {
                     e.getWhoClicked().closeInventory();
                     Location loc = ((InformationScreen) e.getClickedInventory().getHolder()).getSelectedChest();
                     this.plugin.getManager().removeChest(new ChestLocation(loc));
@@ -153,6 +153,8 @@ public class PlayerListener implements Listener {
                     loc.getWorld().spawnParticle(Particle.CLOUD, loc, 15);
                     if (this.breakSound != null) loc.getWorld().playSound(loc, this.breakSound, this.getSoundCategory(this.breakSound), this.soundVolume, this.soundPitch);
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get());
+                } else {
+                    Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_REMOVE_SELL_CHEST.get());
                 }
             }
         }
