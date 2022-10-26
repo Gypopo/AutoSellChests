@@ -42,3 +42,5 @@ sell-chest-location: "&eLocation: #FF7070%loc%"
 sell-chest-id: "&eChest ID: #FF7070%id%"
 # The next interval the chest is selling its contents
 sell-chest-next-sell: "&eNext sell interval: #FF7070%time%"
+# When a sell chest is placed against a regular chest or non sell chest
+cannot-form-double-chest: "&cThe sell chest cannot be a placed against a non sell chest"

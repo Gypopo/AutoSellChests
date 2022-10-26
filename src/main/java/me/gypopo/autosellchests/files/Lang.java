@@ -31,6 +31,7 @@ public enum Lang {
     PLACED_SELL_CHESTS_ACTION_BAR("&6&lPlaced sell chests: &c%amount%&c&4/&c%limit%"),
     PLACED_SELL_CHESTS_ACTION_BAR_MAX("∞"),
     PLACED_SELL_CHESTS_BOSS_BAR("&a&lPlaced sell chests:"),
+    CANNOT_FORM_DOUBLE_CHEST("&cThe sell chest cannot be a placed against a non sell chest"),
 
     // Chest information screen
     DESTROY_CHEST("&c&lPick up this #CDCDCD&lAuto#FF7070&lSell#CDCDCD&lChest"),

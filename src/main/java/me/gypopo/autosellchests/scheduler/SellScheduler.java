@@ -4,12 +4,14 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -53,7 +55,8 @@ public class SellScheduler {
             if (!this.chests.isEmpty()) this.chests.clear();
             for (Chest chest : this.plugin.getManager().getLoadedChests().values()) {
                 //this.plugin.getLogger().info("Chest " + chest.getId() + " is loaded:" + chest.getLocation().getWorld().isChunkLoaded(chest.getLocation().getBlockX() >> 4, chest.getLocation().getBlockZ() >> 4));
-                if (chest.getLocation().getWorld().isChunkLoaded(chest.getLocation().getBlockX() >> 4, chest.getLocation().getBlockZ() >> 4)) {
+                if (chest.getLocation().getLeftLocation().getWorld()
+                        .isChunkLoaded(chest.getLocation().getLeftLocation().getBlockX() >> 4, chest.getLocation().getLeftLocation().getBlockZ() >> 4)) {
                     chests.add(chest);
                 }
             }
@@ -91,21 +94,22 @@ public class SellScheduler {
                 chest.setNextInterval(System.currentTimeMillis() + this.interval);
                 //Logger.debug("Starting sell interval for chest with id " + chest.getId());
 
-                org.bukkit.block.Chest block = (org.bukkit.block.Chest) chest.getLocation().getBlock().getState();
-                if (block.getBlockInventory().isEmpty()) {
+                org.bukkit.block.Chest block = (org.bukkit.block.Chest) chest.getLocation().getLeftLocation().getBlock().getState();
+                if (block.getInventory().isEmpty()/* ||
+                        (block instanceof DoubleChest && ((org.bukkit.block.Chest)chest.getLocation().getRightLocation().getBlock().getState()).getInventory())*/) {
                     this.processNextChest(i);
                     return;
                 }
 
                 int amount = 0;
                 double totalPrice = 0.0;
-                for (ItemStack item : block.getBlockInventory().getContents()) {
+                for (ItemStack item : block.getInventory().getContents()) {
                     if (item != null && item.getType() != Material.AIR) {
                         Double sellPrice = owner.isOnline() ? EconomyShopGUIHook.getItemSellPrice(owner.getPlayer(), item) : EconomyShopGUIHook.getItemSellPrice(item);
                         if (sellPrice != null && sellPrice > 0) {
                             totalPrice += sellPrice;
                             amount += item.getAmount();
-                            block.getBlockInventory().remove(item);
+                            block.getInventory().remove(item);
                             EconomyShopGUIHook.sellItem(item, amount);
                         }
                     }
@@ -118,14 +122,16 @@ public class SellScheduler {
                     if (this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline())
                         Logger.sendPlayerMessage(owner.getPlayer(), Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
                     if (this.plugin.getManager().soldItemsLoggingConsole) {
-                        Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName()).replace("%location%", "world '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ()).replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
+                        Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName())
+                                .replace("%location%", "world '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ())
+                                .replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
                     }
                 }
             } catch (Exception e) {
-                Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome() + " | TotalItemsSold: " + chest.getItemsSold());
+                Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome() + " | TotalItemsSold: " + chest.getItemsSold());
                 if (e instanceof ClassCastException) {
                     Logger.warn("The chest at this location does not longer exist, removing chest from database...");
-                    this.plugin.getManager().removeChest(chest);
+                    this.plugin.getManager().removeChest(new ChestLocation(chest.getLocation().getLeftLocation()));
                 }
                 if (this.plugin.debug) e.printStackTrace();
             }
@@ -138,7 +144,7 @@ public class SellScheduler {
         try {
             index++;
             Chest next = this.chests.get(index);
-            if (next.getLocation().getWorld().isChunkLoaded(next.getLocation().getBlockX() >> 4, next.getLocation().getBlockZ() >> 4)) { // See if the chest is still loaded
+            if (next.getLocation().getLeftLocation().getWorld().isChunkLoaded(next.getLocation().getLeftLocation().getBlockX() >> 4, next.getLocation().getLeftLocation().getBlockZ() >> 4)) { // See if the chest is still loaded
                 for (int i = 0; i < this.amount; i++) { // Run the amount of chests that needs to be sold at once
                     this.plugin.runTaskLater(this.sellContents(next, index), this.next);
                 }

@@ -5,6 +5,7 @@ import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.economyshopgui.methodes.SendMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -18,9 +19,11 @@ public class InformationScreen implements InventoryHolder {
 
     private final Inventory inv;
     private final Chest chest;
+    private final Location selectedChest;
 
-    public InformationScreen(Chest chest) {
+    public InformationScreen(Chest chest, Location location) {
         this.inv = Bukkit.createInventory(this, 45, Lang.INFO_SCREEN_TITLE.get());
+        this.selectedChest = location;
         this.chest = chest;
         this.init();
     }
@@ -38,7 +41,7 @@ public class InformationScreen implements InventoryHolder {
         nsM.setDisplayName(Lang.SELL_CHEST_BLOCK_INFO.get());
         nsM.setLore(Arrays.asList(
                 Lang.SELL_CHEST_OWNER.get().replace("%player_name%", Bukkit.getOfflinePlayer(this.chest.getOwner()).getName()),
-                Lang.SELL_CHEST_LOCATION.get().replace("%loc%", "World '" + this.chest.getLocation().getWorld().getName() + "', x" + this.chest.getLocation().getBlockX() + ", y" + this.chest.getLocation().getBlockY() + ", z" + this.chest.getLocation().getBlockZ()),
+                Lang.SELL_CHEST_LOCATION.get().replace("%loc%", "World '" + this.selectedChest.getWorld().getName() + "', x" + this.selectedChest.getBlockX() + ", y" + this.selectedChest.getBlockY() + ", z" + this.selectedChest.getBlockZ()),
                 Lang.SELL_CHEST_ID.get().replace("%id%", String.valueOf(this.chest.getId())),
                 Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", this.getNextInterval())));
         nextSell.setItemMeta(nsM);
@@ -77,6 +80,10 @@ public class InformationScreen implements InventoryHolder {
 
     public Chest getChest() {
         return this.chest;
+    }
+
+    public Location getSelectedChest() {
+        return this.selectedChest;
     }
 
     public void open(Player p) {

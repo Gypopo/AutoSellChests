@@ -32,9 +32,9 @@ public class ViewChests implements SubCommad {
         if (args.length > 1) {
             List<Chest> chests = AutoSellChests.getInstance().getManager().getChestsByPlayer(Bukkit.getOfflinePlayer(args[1]).getUniqueId());
             if (!chests.isEmpty()) {
-                Logger.sendMessage(logger, ChatColor.translateAlternateColorCodes('&',"&aFound %7%qty% &aAutoSellChests for " + args[0] + "(" + Bukkit.getOfflinePlayer(args[0]).getUniqueId() + ")".replace("%qty%", String.valueOf(chests.size()))));
+                Logger.sendMessage(logger, ChatColor.translateAlternateColorCodes('&',"&aFound &7%qty% &aAutoSellChests for " + args[1] + "(" + Bukkit.getOfflinePlayer(args[0]).getUniqueId() + ")").replace("%qty%", String.valueOf(chests.size())));
                 for (Chest chest : chests) {
-                    Logger.sendMessage(logger, ChatColor.translateAlternateColorCodes('&', "&eID: &c" + chest.getId() + " &7| &eLocation: &cWorld '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ() + " &7| &eTotalProfit: &c$" + AutoSellChests.getInstance().formatPrice(chest.getIncome()) + " &7| &eTotalItemsSold: &c" + chest.getItemsSold()));
+                    Logger.sendMessage(logger, ChatColor.translateAlternateColorCodes('&', "&eID: &c" + chest.getId() + " &7| &eLocation: &cWorld '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ() + " &7| &eTotalProfit: &c$" + AutoSellChests.getInstance().formatPrice(chest.getIncome()) + " &7| &eTotalItemsSold: &c" + chest.getItemsSold() + " &7| &eDoubleChest: &c" + chest.getLocation().isDoubleChest()));
                 }
             } else {
                 Logger.sendMessage(logger, ChatColor.RED + "This player has no placed AutoSellChests");

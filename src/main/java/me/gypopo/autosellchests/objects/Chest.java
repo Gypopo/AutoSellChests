@@ -1,6 +1,5 @@
 package me.gypopo.autosellchests.objects;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -9,7 +8,7 @@ import java.util.UUID;
 public class Chest {
 
     private final int id;
-    private final Location location;
+    private final ChestLocation location;
     private final UUID owner;
     private int itemsSold;
     private double income;
@@ -17,13 +16,13 @@ public class Chest {
 
     public Chest(int id, String location, String owner, int itemsSold, double income) {
         this.id = id;
-        this.location = new Location(Bukkit.getWorld(location.split(":")[0]), Double.parseDouble(location.split(":")[1]), Double.parseDouble(location.split(":")[2]), Double.parseDouble(location.split(":")[3]));
+        this.location = new ChestLocation(location);
         this.owner = UUID.fromString(owner);
         this.itemsSold = itemsSold;
         this.income = income;
     }
 
-    public Chest(int id, Location location, Player owner, int itemsSold, double income) {
+    public Chest(int id, ChestLocation location, Player owner, int itemsSold, double income) {
         this.id = id;
         this.location = location;
         this.owner = owner.getUniqueId();
@@ -47,8 +46,8 @@ public class Chest {
         return this.id;
     }
 
-    public Location getLocation() {
-        return location;
+    public ChestLocation getLocation() {
+        return this.location;
     }
 
     public UUID getOwner() {

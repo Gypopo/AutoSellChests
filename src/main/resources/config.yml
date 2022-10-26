@@ -3,13 +3,13 @@
 autosell-interval: "10m"
 # Note: This plugin isn't tested on servers with over 200+ players, we do not recommend using a short interval if you do not have the resources for this!
 
-# Maximum amount of sell chests a player can place
+# Maximum amount of sell chests a player can actively use
 player-max-sellchests: 5
 
 # Whether the owner of the chest needs to be online for the chest to sell its contents
 online-chest-owner: true
 # Warning: Chests that are in unloaded chunks will get loaded by the plugin when this setting is 'false' which can cause server lag,
-# ALSO note that permissions for selling items to shop will not be checked
+# ALSO note that permissions for selling items to shop will not be checked, NOR item discounts + any sell multipliers
 
 # The title/item name of a sell chest
 sellchest-name: "&7&lSell chest"

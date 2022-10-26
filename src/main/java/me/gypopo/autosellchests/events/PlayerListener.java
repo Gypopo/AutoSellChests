@@ -5,6 +5,7 @@ import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.objects.InformationScreen;
 import me.gypopo.autosellchests.util.ChestConfirmation;
 import me.gypopo.autosellchests.util.Logger;
@@ -12,6 +13,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -24,6 +26,9 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.DoubleChestInventory;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.util.Arrays;
 
@@ -71,7 +76,7 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        new InformationScreen(chest).open(e.getPlayer());
+        new InformationScreen(chest, clicked.getLocation()).open(e.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -84,21 +89,34 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        if (this.plugin.getManager().getChestsByPlayer(e.getPlayer().getUniqueId()).size() >= ChestManager.maxSellChestsPlayer && !e.getPlayer().hasPermission("autosellchests.maxchests.override")) {
+        if (this.plugin.getManager().getOwnedChests(e.getPlayer()) >= ChestManager.maxSellChestsPlayer && !e.getPlayer().hasPermission("autosellchests.maxchests.override")) {
             Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(ChestManager.maxSellChestsPlayer)));
+            e.setCancelled(true);
             return;
         }
 
         Location loc = e.getBlockPlaced().getLocation();
-        this.plugin.getManager().addChest(loc, e.getPlayer());
-        loc.add(0.5, 0.5, 0.5);
-        loc.getWorld().spawnParticle(Particle.SPELL_WITCH, loc, 10);
-        loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 10, new Particle.DustOptions(Color.RED, 2F));
-        if (this.placeSound != null) loc.getWorld().playSound(loc, this.placeSound, this.getSoundCategory(this.placeSound), this.soundVolume, this.soundPitch);
-        Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get());
-        this.chestConfirmation.playEffect(e.getPlayer());
+        this.plugin.runTaskLater(() -> {
+            if (((org.bukkit.block.Chest)e.getBlockPlaced().getState()).getInventory() instanceof DoubleChestInventory) {
+                DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest)e.getBlockPlaced().getState()).getInventory();
+                Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
+                System.out.println(original);
+                if (this.plugin.getManager().getChestByLocation(original) == null) {
+                    Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST.get());
+                    return;
+                }
+                this.plugin.getManager().addChest(new ChestLocation(original, loc), e.getPlayer());
+            } else this.plugin.getManager().addChest(new ChestLocation(loc), e.getPlayer());
 
-        loc.subtract(0.5, 0.5, 0.5); // This line is needed, it caused me some headaches :/
+            loc.add(0.5, 0.5, 0.5);
+            loc.getWorld().spawnParticle(Particle.SPELL_WITCH, loc, 10);
+            loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 10, new Particle.DustOptions(Color.RED, 2F));
+            if (this.placeSound != null) loc.getWorld().playSound(loc, this.placeSound, this.getSoundCategory(this.placeSound), this.soundVolume, this.soundPitch);
+            Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get());
+            this.chestConfirmation.playEffect(e.getPlayer());
+
+            loc.subtract(0.5, 0.5, 0.5); // This line is needed, it caused me some headaches :/
+        }, 1);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -124,11 +142,12 @@ public class PlayerListener implements Listener {
                 Chest chest = ((InformationScreen) e.getClickedInventory().getHolder()).getChest();
                 if (chest.getOwner() == e.getWhoClicked().getUniqueId() || e.getWhoClicked().hasPermission("autosellchests.break")) {
                     e.getWhoClicked().closeInventory();
-                    this.plugin.getManager().removeChest(chest);
-                    Location loc = chest.getLocation().add(0.5, 0.5, 0.5);
+                    Location loc = ((InformationScreen) e.getClickedInventory().getHolder()).getSelectedChest();
+                    this.plugin.getManager().removeChest(new ChestLocation(loc));
                     Arrays.stream(((org.bukkit.block.Chest) loc.getBlock().getState()).getBlockInventory().getContents()).forEach(item -> {
                         if (item != null && item.getType() != Material.AIR) loc.getWorld().dropItemNaturally(loc, item);
                     });
+                    loc.add(0.5, 0.5, 0.5);
                     loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
                     loc.getBlock().setType(Material.AIR);
                     loc.getWorld().spawnParticle(Particle.CLOUD, loc, 15);

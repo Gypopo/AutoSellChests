@@ -4,6 +4,7 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.scheduler.SellScheduler;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.economyshopgui.methodes.SendMessage;
@@ -31,7 +32,7 @@ public class ChestManager {
     public final boolean soldItemsLoggingPlayer;
     public final boolean soldItemsLoggingConsole;
 
-    private Map<Location, Chest> loadedChests = new HashMap<>();
+    private Map<ChestLocation, Chest> loadedChests = new HashMap<>();
     // Only for quick access
     private Map<UUID, ArrayList<Chest>> loadedChestsByPlayer = new HashMap<>();
 
@@ -50,7 +51,7 @@ public class ChestManager {
         this.scheduler = new SellScheduler(plugin, this.sellInterval);
     }
 
-    public Map<Location, Chest> getLoadedChests() {
+    public Map<ChestLocation, Chest> getLoadedChests() {
         return this.loadedChests;
     }
 
@@ -59,7 +60,7 @@ public class ChestManager {
     }
 
     public Chest getChestByLocation(Location loc) {
-        return this.loadedChests.get(loc);
+        return this.loadedChests.get(new ChestLocation(loc));
     }
 
     public Chest getChestByID(int id) {
@@ -84,23 +85,46 @@ public class ChestManager {
         Logger.debug("Took " + (System.currentTimeMillis()-start) + "ms to load " + i + " sell chests from the database");
     }
 
-    public void addChest(Location loc, Player p) {
-        this.plugin.getDatabase().setChest(loc.getWorld().getName() + ":" + loc.getBlockX() + ":" + loc.getBlockY() + ":" + loc.getBlockZ(), p.getUniqueId().toString(), 0, 0.0);
-        Chest chest = new Chest(this.loadedChests.size() + 1, loc, p, 0, 0.0);
-        this.loadedChests.put(loc, chest);
-        if (this.loadedChestsByPlayer.containsKey(p.getUniqueId())) {
-            this.loadedChestsByPlayer.get(p.getUniqueId()).add(chest);
-        } else this.loadedChestsByPlayer.put(p.getUniqueId(), new ArrayList<>(Collections.singletonList(chest)));
-        Logger.debug("Added SellChest for '" + p.getUniqueId() + "' on location: " + "World '" + loc.getWorld().getName() + "', x" + loc.getBlockX() + ", y" + loc.getBlockY() + ", z" + loc.getBlockZ());
+    public void addChest(ChestLocation loc, Player p) {
+        Chest chest;
+        if (this.loadedChests.containsKey(loc)) {
+            chest = this.loadedChests.get(loc);
+            this.plugin.getDatabase().removeChest(chest.getLocation().toString());
+            this.plugin.getDatabase().setChest(loc.toString(), p.getUniqueId().toString(), chest.getItemsSold(), chest.getIncome());
+            chest.getLocation().addLocation(loc.getRightLocation());
+        } else {
+            this.plugin.getDatabase().setChest(loc.toString(), p.getUniqueId().toString(), 0, 0.0);
+            chest = new Chest(this.loadedChests.size() + 1, loc, p, 0, 0.0);
+            this.loadedChests.put(loc, chest);
+            if (this.loadedChestsByPlayer.containsKey(p.getUniqueId())) {
+                this.loadedChestsByPlayer.get(p.getUniqueId()).add(chest);
+            } else this.loadedChestsByPlayer.put(p.getUniqueId(), new ArrayList<>(Collections.singletonList(chest)));
+        }
+        Logger.debug("Added SellChest for '" + p.getUniqueId() + "' on location: " + "World '" + loc.getLeftLocation().getWorld().getName() + "', x" + loc.getLeftLocation().getBlockX() + ", y" + loc.getLeftLocation().getBlockY() + ", z" + loc.getLeftLocation().getBlockZ());
+    }
+
+    public void removeChest(ChestLocation loc) {
+        Chest chest = this.loadedChests.get(loc);
+        if (chest.getLocation().isDoubleChest()) {
+            chest.getLocation().removeLocation(loc.getLeftLocation());
+            this.plugin.getDatabase().setChest(chest.getLocation().toString(), chest.getOwner().toString(), chest.getItemsSold(), chest.getIncome());
+        } else {
+            this.plugin.getDatabase().removeChest(loc.toString());
+            this.loadedChests.remove(loc);
+            if (this.loadedChestsByPlayer.get(chest.getOwner()).size() > 1) {
+                this.loadedChestsByPlayer.get(chest.getOwner()).remove(chest);
+            } else this.loadedChestsByPlayer.remove(chest.getOwner());
+        }
+        Logger.debug("Removed SellChest from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ());
     }
 
     public void removeChest(Chest chest) {
-        this.plugin.getDatabase().removeChest(chest.getLocation().getWorld().getName() + ":" + chest.getLocation().getBlockX() + ":" + chest.getLocation().getBlockY() + ":" + chest.getLocation().getBlockZ());
+        this.plugin.getDatabase().removeChest(chest.getLocation().toString());
         this.loadedChests.remove(chest.getLocation());
         if (this.loadedChestsByPlayer.containsKey(chest.getOwner())) {
             this.loadedChestsByPlayer.get(chest.getOwner()).remove(chest);
         } else this.loadedChestsByPlayer.remove(chest.getOwner());
-        Logger.debug("Removed SellChest from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ());
+        Logger.debug("Removed SellChest from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ());
     }
 
     public ItemStack getChest(int amount) {
@@ -138,5 +162,13 @@ public class ChestManager {
         if (!this.loadedChests.isEmpty()) this.loadedChests.clear();
         if (!this.loadedChestsByPlayer.isEmpty()) this.loadedChestsByPlayer.clear();
         this.scheduler.stop();
+    }
+
+    public int getOwnedChests(Player p) {
+        int i = 0;
+        for (Chest chest : this.loadedChestsByPlayer.getOrDefault(p.getUniqueId(), new ArrayList<>())) {
+            i += chest.getLocation().isDoubleChest() ? 2 : 1;
+        }
+        return i;
     }
 }

@@ -67,10 +67,10 @@ public class SQLite {
     public void saveChest(Chest chest) {
         try {
             Statement stmt = conn.createStatement();
-            stmt.executeUpdate("UPDATE chests SET items = '" + chest.getItemsSold() + "', income = '" + chest.getIncome() + "' WHERE location = '" + chest.getLocation().getWorld().getName() + ":" + chest.getLocation().getBlockX() + ":" + chest.getLocation().getBlockY() + ":" + chest.getLocation().getBlockZ() + "';");
+            stmt.executeUpdate("UPDATE chests SET items = '" + chest.getItemsSold() + "', income = '" + chest.getIncome() + "' WHERE location = '" + chest.getLocation().getLeftLocation().getWorld().getName() + ":" + chest.getLocation().getLeftLocation().getBlockX() + ":" + chest.getLocation().getLeftLocation().getBlockY() + ":" + chest.getLocation().getLeftLocation().getBlockZ() + "';");
             stmt.close();
         } catch (SQLException e ) {
-            Logger.warn("Exception occurred while saving chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getWorld().getName() + "', x" + chest.getLocation().getBlockX() + ", y" + chest.getLocation().getBlockY() + ", z" + chest.getLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome() + " | TotalItemsSold: " + chest.getItemsSold());
+            Logger.warn("Exception occurred while saving chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome() + " | TotalItemsSold: " + chest.getItemsSold());
             Logger.debug(e.getMessage());
         }
     }
@@ -83,6 +83,7 @@ public class SQLite {
             int id = 0; // Todo: Better solution for id's since the chest may get a different id if one is removed
             while (rs.next()) {
                 chests.add(new Chest(id, rs.getString("location"), rs.getString("owner"), rs.getInt("items"), rs.getDouble("income")));
+                System.out.println("Owner: " + rs.getString("owner"));
                 id++;
             }
             rs.close();
