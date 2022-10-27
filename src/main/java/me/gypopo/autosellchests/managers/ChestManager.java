@@ -94,7 +94,7 @@ public class ChestManager {
             chest.getLocation().addLocation(loc.getRightLocation());
         } else {
             this.plugin.getDatabase().setChest(loc.toString(), p.getUniqueId().toString(), 0, 0.0);
-            chest = new Chest(this.loadedChests.size() + 1, loc, p, 0, 0.0);
+            chest = new Chest(this.loadedChests.size() + 1, loc, p, 0, 0.0, true);
             this.loadedChests.put(loc, chest);
             if (this.loadedChestsByPlayer.containsKey(p.getUniqueId())) {
                 this.loadedChestsByPlayer.get(p.getUniqueId()).add(chest);

@@ -2,6 +2,8 @@
 plugin-prefix: "#CDCDCD&lAuto#FF7070&lSell#CDCDCD&lChests &8>>"
 # The inventory title of the screen when someone right-clicks a AutoSellChest
 info-screen-title: "&8&lChest information"
+# The inventory title of the chest settings menu
+chest-settings-title: "&8&lChest settings"
 # This message shows how many items a single chest has sold
 sold-items-info: "&c&lThis chest has sold &a%amount% &c&litem(s) in total."
 # This will display the current amount of money they player has made using this chest
@@ -42,6 +44,12 @@ sell-chest-location: "&eLocation: #FF7070%loc%"
 sell-chest-id: "&eChest ID: #FF7070%id%"
 # The next interval the chest is selling its contents
 sell-chest-next-sell: "&eNext sell interval: #FF7070%time%"
+# The displayname of the chest settings item in the info screen
+sell-chest-settings: "&c&lChest settings"
+# Toggle sold items logging
+toggle-sold-items-logging: "&cToggle whether sold items should be logged"
+# The current value for a toggle able action
+current-value: "&cToggle sold items messages"
 # When a sell chest is placed against a regular chest or non sell chest
 cannot-form-double-chest: "&cThe sell chest cannot be a placed against a non sell chest"
 # When a player tries to remove someone's else's sell chest and doesn't have permissions

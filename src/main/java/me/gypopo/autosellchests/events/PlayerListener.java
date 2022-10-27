@@ -7,6 +7,7 @@ import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.objects.InformationScreen;
+import me.gypopo.autosellchests.objects.SettingsScreen;
 import me.gypopo.autosellchests.util.ChestConfirmation;
 import me.gypopo.autosellchests.util.Logger;
 import net.md_5.bungee.api.ChatMessageType;
@@ -136,13 +137,14 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onMenuClick(InventoryClickEvent e) {
-        if (e.getClickedInventory() != null && e.getClickedInventory().getHolder() instanceof InformationScreen) {
-            e.setCancelled(true);
-            if (e.getSlot() == 31) {
-                Chest chest = ((InformationScreen) e.getClickedInventory().getHolder()).getChest();
+        if (e.getClickedInventory() == null) return;
+
+        if (e.getClickedInventory().getHolder() instanceof InformationScreen) {
+            Chest chest = ((InformationScreen) e.getClickedInventory().getHolder()).getChest();
+            Location loc = ((InformationScreen) e.getClickedInventory().getHolder()).getSelectedChest();
+            if (e.getSlot() == 32) {
                 if (chest.getOwner().equals(e.getWhoClicked().getUniqueId()) || e.getWhoClicked().hasPermission("autosellchests.break")) {
                     e.getWhoClicked().closeInventory();
-                    Location loc = ((InformationScreen) e.getClickedInventory().getHolder()).getSelectedChest();
                     this.plugin.getManager().removeChest(new ChestLocation(loc));
                     Arrays.stream(((org.bukkit.block.Chest) loc.getBlock().getState()).getBlockInventory().getContents()).forEach(item -> {
                         if (item != null && item.getType() != Material.AIR) loc.getWorld().dropItemNaturally(loc, item);
@@ -151,12 +153,26 @@ public class PlayerListener implements Listener {
                     loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
                     loc.getBlock().setType(Material.AIR);
                     loc.getWorld().spawnParticle(Particle.CLOUD, loc, 15);
-                    if (this.breakSound != null) loc.getWorld().playSound(loc, this.breakSound, this.getSoundCategory(this.breakSound), this.soundVolume, this.soundPitch);
+                    if (this.breakSound != null)
+                        loc.getWorld().playSound(loc, this.breakSound, this.getSoundCategory(this.breakSound), this.soundVolume, this.soundPitch);
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get());
                 } else {
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_REMOVE_SELL_CHEST.get());
                 }
+            } else if (e.getSlot() == 30) {
+                if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
+                    new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
+                }
             }
+            e.setCancelled(true);
+        } else if (e.getClickedInventory().getHolder() instanceof SettingsScreen) {
+            Chest chest = ((SettingsScreen) e.getClickedInventory().getHolder()).getChest();
+            Location loc = ((SettingsScreen) e.getClickedInventory().getHolder()).getSelectedChest();
+            if (e.getSlot() == 4) {
+                chest.setLogging(!chest.isLogging());
+                new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
+            }
+            e.setCancelled(true);
         }
     }
 

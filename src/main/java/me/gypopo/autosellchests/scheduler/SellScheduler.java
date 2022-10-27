@@ -121,7 +121,7 @@ public class SellScheduler {
                     chest.addItemsSold(amount);
                     chest.addIncome(totalPrice);
                     this.plugin.getEconomy().depositBalance(owner, totalPrice);
-                    if (this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline())
+                    if (chest.isLogging() && this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline())
                         Logger.sendPlayerMessage(owner.getPlayer(), Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
                     if (this.plugin.getManager().soldItemsLoggingConsole) {
                         Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName())

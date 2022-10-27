@@ -16,9 +16,6 @@ public enum Lang {
 
     PLUGIN_PREFIX("#CDCDCD&lAuto#FF7070&lSell#CDCDCD&lChests &8>>"),
 
-    INFO_SCREEN_TITLE("&8&lChest information"),
-    SOLD_ITEMS_INFO("&c&lThis chest has sold &a%amount% &c&litem(s) in total."),
-    INCOME_INFO("&c&lThis chest has sold items for &a$%profit%"),
     SELLCHEST_PLACED("&aYou have successfully placed a sell chest, left click it for more info."),
     SELLCHEST_BROKEN("&cYou have picked-up an #CDCDCDAuto#FF7070Sell#CDCDCDChest"),
     MAX_SELLCHESTS_REACHED("&cYou already have &a%maxSellChests% &cplaced and cannot place anymore"),
@@ -43,6 +40,17 @@ public enum Lang {
     SELL_CHEST_LOCATION("&eLocation: #FF7070%loc%"),
     SELL_CHEST_ID("&eChest ID: #FF7070%id%"),
     SELL_CHEST_NEXT_SELL("&eNext sell interval: #FF7070%time%"),
+
+    // Info menu
+    INFO_SCREEN_TITLE("&8&lChest information"),
+    SOLD_ITEMS_INFO("&c&lThis chest has sold &a%amount% &c&litem(s) in total."),
+    INCOME_INFO("&c&lThis chest has sold items for &a$%profit%"),
+    SELL_CHEST_SETTINGS("&c&lChest settings"),
+
+    // Settings menu
+    CHEST_SETTINGS_TITLE("&8&lChest settings"),
+    TOGGLE_SOLD_ITEMS_LOGGING("&cToggle sold items messages"),
+    CURRENT_VALUE("&eCurrent value: &a%value%"),
     ;
 
     private String def;

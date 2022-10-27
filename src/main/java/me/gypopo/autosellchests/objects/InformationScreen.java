@@ -52,6 +52,12 @@ public class InformationScreen implements InventoryHolder {
         tiM.setDisplayName(Lang.INCOME_INFO.get().replace("%profit%", AutoSellChests.getInstance().formatPrice(this.chest.getIncome())));
         totalIncome.setItemMeta(tiM);
 
+        // Chest settings
+        ItemStack settings = new ItemStack(Material.REDSTONE);
+        ItemMeta sM = settings.getItemMeta();
+        sM.setDisplayName(Lang.SELL_CHEST_SETTINGS.get());
+        settings.setItemMeta(sM);
+
         // Breaks the chest
         ItemStack destroy = new ItemStack(Material.BARRIER);
         ItemMeta dM = destroy.getItemMeta();
@@ -61,7 +67,8 @@ public class InformationScreen implements InventoryHolder {
         this.inv.setItem(10, soldItems);
         this.inv.setItem(13, nextSell);
         this.inv.setItem(16, totalIncome);
-        this.inv.setItem(31, destroy);
+        this.inv.setItem(30, settings);
+        this.inv.setItem(32, destroy);
 
         for (int i = 0; i < this.inv.getSize(); i++) {
             if (this.inv.getItem(i) == null) {
