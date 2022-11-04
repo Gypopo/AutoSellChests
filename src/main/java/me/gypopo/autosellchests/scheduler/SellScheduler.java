@@ -8,14 +8,19 @@ import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
+import me.gypopo.economyshopgui.objects.ShopItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.DoubleChest;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class SellScheduler {
 
@@ -97,32 +102,45 @@ public class SellScheduler {
                 //Logger.debug("Starting sell interval for chest with id " + chest.getId());
 
                 org.bukkit.block.Chest block = (org.bukkit.block.Chest) chest.getLocation().getLeftLocation().getBlock().getState();
-                if (block.getInventory().isEmpty()/* ||
-                        (block instanceof DoubleChest && ((org.bukkit.block.Chest)chest.getLocation().getRightLocation().getBlock().getState()).getInventory())*/) {
+                if (block.getInventory().isEmpty()) {
                     this.processNextChest(i);
                     return;
                 }
 
                 int amount = 0;
                 double totalPrice = 0.0;
+                Map<ShopItem, Integer> items = new HashMap<>();
                 for (ItemStack item : block.getInventory().getContents()) {
                     if (item != null && item.getType() != Material.AIR) {
-                        Double sellPrice = owner.isOnline() ? EconomyShopGUIHook.getItemSellPrice(owner.getPlayer(), item) : EconomyShopGUIHook.getItemSellPrice(item);
-                        if (sellPrice != null && sellPrice > 0) {
+                        ShopItem shopItem = EconomyShopGUIHook.getShopItem(item);
+                        if (shopItem == null) continue;
+
+                        int limit = this.getSellLimit(shopItem, owner.getUniqueId(), item.getAmount());
+                        if (limit == -1) continue; // Sell limit reached
+
+                        double sellPrice = !owner.isOnline() ? EconomyShopGUIHook.getItemSellPrice(shopItem, item) :
+                                EconomyShopGUIHook.getItemSellPrice(shopItem, item, (Player) owner);
+
+                        if (sellPrice > 0) {
                             totalPrice += sellPrice;
-                            amount += item.getAmount();
-                            block.getInventory().remove(item);
-                            EconomyShopGUIHook.sellItem(item, amount);
+                            amount += limit;
+                            if (limit < item.getAmount()) {
+                                item.setAmount(item.getAmount() - limit);
+                            } else block.getInventory().remove(item);
+                            items.put(shopItem, items.getOrDefault(shopItem, 0) + limit);
                         }
                     }
                 }
+
                 if (amount != 0) {
                     this.items += amount;
                     chest.addItemsSold(amount);
                     chest.addIncome(totalPrice);
+                    this.sellItems(items, owner.getUniqueId()); // Update DynamicPricing, limited stock and sell limits in Async
                     this.plugin.getEconomy().depositBalance(owner, totalPrice);
                     if (chest.isLogging() && this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline())
-                        Logger.sendPlayerMessage(owner.getPlayer(), Lang.ITEMS_SOLD_PLAYER_LOG.get().replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
+                        Logger.sendPlayerMessage((Player) owner, Lang.ITEMS_SOLD_PLAYER_LOG.get()
+                                .replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
                     if (this.plugin.getManager().soldItemsLoggingConsole) {
                         Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName())
                                 .replace("%location%", "world '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ())
@@ -140,6 +158,28 @@ public class SellScheduler {
             //this.plugin.getLogger().info("Took " + (System.currentTimeMillis() - start) + "ms to sell the contents");
             this.processNextChest(i);
         };
+    }
+
+    private int getSellLimit(ShopItem shopItem, UUID playerUUID, int limit) {
+        if (shopItem.getLimitedSellMode() != 0) { // Check for sell limits
+            int stock = EconomyShopGUIHook.getSellLimit(shopItem, playerUUID);
+            if (stock <= 0) {
+                return -1; // Sell limit reached
+            } else if (stock < limit) {
+                limit = stock;
+            }
+        }
+        return limit;
+    }
+
+    private void sellItems(Map<ShopItem, Integer> items, UUID playerUUID) {
+        this.plugin.runTaskAsync(() -> {
+            for (ShopItem item : items.keySet()) {
+                if (item.isRefillStock()) EconomyShopGUIHook.sellItemStock(item, playerUUID, items.get(item));
+                if (item.getLimitedSellMode() != 0) EconomyShopGUIHook.sellItemLimit(item, playerUUID, items.get(item));
+                EconomyShopGUIHook.sellItem(item, items.get(item));
+            }
+        });
     }
 
     private void processNextChest(int index) {

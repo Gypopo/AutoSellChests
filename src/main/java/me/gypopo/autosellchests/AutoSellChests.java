@@ -154,6 +154,10 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         return this.getServer().getScheduler().runTask(this, runnable);
     }
 
+    public BukkitTask runTaskAsync(Runnable runnable) {
+        return this.getServer().getScheduler().runTaskAsynchronously(this, runnable);
+    }
+
     private Integer getVersion() {
         String version = Bukkit.getBukkitVersion().split("-")[0];
 
