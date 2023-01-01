@@ -1,5 +1,5 @@
 name: AutoSellChests
-version: 2.0.1
+version: 2.1.0
 main: me.gypopo.autosellchests.AutoSellChests
 api-version: 1.16
 authors: [ Gypopo ]
@@ -13,3 +13,25 @@ commands:
 softdepend:
   - EconomyShopGUI
   - EconomyShopGUI-Premium
+
+permissions:
+  autosellchests.place:
+    default: true
+    description: "Allows to place a sell chest"
+  autosellchests.pickup:
+    default: true
+    description: "Allows to pick up your own sell chest"
+  autosellchests.show.all:
+    description: "Allows to view info of a SellChest from a different player"
+  autosellchests.maxchests.override:
+    description: "Allows to place an infinite amount of chests"
+  autosellchests.break:
+    description: "Allows to break someone else chest"
+  autosellchests.give:
+    description: "Gives access to the /asc give command"
+  autosellchests.view:
+    description: "Gives access to the /asc view command"
+  autosellchests.reload:
+    description: "Gives access to the /asc reload command"
+  autosellchests.remove:
+    description: "Gives access to the /asc remove command"

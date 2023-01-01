@@ -7,13 +7,17 @@ import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.metrics.Metrics;
+import me.gypopo.autosellchests.util.ConfigUtil;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.EconomyShopGUI;
 import me.gypopo.economyshopgui.providers.EconomyProvider;
+import me.gypopo.economyshopgui.util.EcoType;
+import me.gypopo.economyshopgui.util.EconomyHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
@@ -24,6 +28,11 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class AutoSellChests extends JavaPlugin implements Listener {
 
@@ -37,7 +46,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
     private SQLite database;
     private final TimeUtils timeUtils = new TimeUtils();
-    private EconomyProvider economy;
+    private EconomyHandler economy;
     private ChestManager manager;
     public boolean debug;
 
@@ -49,20 +58,24 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.getLogger().info("Found EconomyShopGUI, enabling...");
             premium = false;
             int version = Integer.parseInt(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI").getDescription().getVersion().split("-")[0].replace(".", ""));
-            if (version < 481) {
-                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v4.8.1 or later, disabling...");
+            if (version < 513) {
+                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v5.1.3 or later, disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
             }
+            if (Bukkit.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI"))
+                this.economy = EconomyShopGUI.getInstance().getEcoHandler();
         } else  if (Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium") != null) {
             this.getLogger().info("Found EconomyShopGUI Premium, enabling...");
             premium = true;
             int version = Integer.parseInt(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium").getDescription().getVersion().split("-")[0].replace(".", ""));
-            if (version < 311) {
-                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v3.1.1 or later, disabling...");
+            if (version < 433) {
+                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI Premium, please download version v4.3.3 or later, disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
             }
+            if (Bukkit.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI-Premium"))
+                this.economy = EconomyShopGUI.getInstance().getEcoHandler();
         } else {
             this.getLogger().warning("Could not find EconomyShopGUI(Premium), disabling...");
             return;
@@ -117,11 +130,11 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     public void onPluginEnable(PluginEnableEvent e) {
         // Sometimes bukkit's plugin load order is weird and EconomyShopGUI loads after AutoSellChests even if its a load before
         if (e.getPlugin().getName().equals("EconomyShopGUI") || e.getPlugin().getName().equals("EconomyShopGUI-Premium")) {
-            this.economy = EconomyShopGUI.getInstance().economy;
+            this.economy = EconomyShopGUI.getInstance().getEcoHandler();
         }
     }
 
-    public EconomyProvider getEconomy() {
+    public EconomyHandler getEconomy() {
         return this.economy;
     }
 
@@ -202,7 +215,57 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         }
     }
 
-    public String formatPrice(double price) {
-        return String.valueOf(String.format("%,.2f", price));
+    public String formatPrice(EcoType econ, double price) {
+        if (price == Math.floor(price)) {
+            return (price == 1 ? this.economy.getEcon(econ).getSingular() : this.economy.getEcon(econ).getPlural())
+                    .replace("%price%", String.format("%,.0f", price));
+        } else {
+            return (price == 1 ? this.economy.getEcon(econ).getSingular() : this.economy.getEcon(econ).getPlural())
+                    .replace("%price%", String.format("%,.2f", price));
+        }
+    }
+
+    public String formatPrices(EcoType type, Double price, String message) {
+        return message != null ? message.replace("%profit%", this.formatPrice(type, price) + "§r") : this.formatPrice(type, price) + "§r";
+    }
+
+    public String formatPrices(Map<EcoType, Double> prices, String message) {
+        StringBuilder builder = new StringBuilder();
+        String color = message != null && message.contains("%profit%") ? ChatColor.getLastColors(message.split("%profit%")[0]) : null;
+
+        int i = 0;
+        for (Map.Entry<EcoType, Double> entry : prices.entrySet()) {
+            builder.append(this.formatPrice(entry.getKey(), entry.getValue()));
+
+            if (color != null) builder.append("§r").append(color);
+            if (i != prices.size()-1) builder.append(", ");
+            i++;
+        }
+        return color != null ? message.replace("%profit%", builder.toString()) : builder.toString();
+    }
+
+    public static List<String> splitLongString(String string) {
+        List<String> list = new ArrayList<>();
+        String[] words = string.split(" ");
+
+        int e = 0;
+        StringBuilder line = new StringBuilder();
+        for (String word : words) {
+            e = e + (ChatColor.stripColor(word).length() + 1);
+            if (e >= 42) {
+                list.add(line.toString());
+                e = word.length();
+                line = new StringBuilder();
+                line.append(ChatColor.getLastColors(list.get(list.size()-1)));
+                // Add the first word of the new line
+                line.append(word);
+                continue;
+            }
+            if (line.length() != 0) line.append(" ");
+            line.append(word);
+        }
+        list.addAll(Arrays.asList(line.toString().split("\n")));
+
+        return list;
     }
 }

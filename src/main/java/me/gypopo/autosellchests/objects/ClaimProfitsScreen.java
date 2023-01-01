@@ -1,6 +1,8 @@
 package me.gypopo.autosellchests.objects;
 
+import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.economyshopgui.util.EcoType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -11,38 +13,37 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
-public class SettingsScreen implements InventoryHolder {
+public class ClaimProfitsScreen implements InventoryHolder {
 
     private final Inventory inv;
     private final Chest chest;
     private final Location selectedChest;
 
-    public SettingsScreen(Chest chest, Location selectedChest) {
-        this.inv = Bukkit.createInventory(this, 9, Lang.CHEST_SETTINGS_TITLE.get());
+    public ClaimProfitsScreen(Chest chest, Location selectedChest) {
+        this.inv = Bukkit.createInventory(this, (int)Math.ceil(chest.getClaimAble().size()/9.0)*9, Lang.AVAILABLE_PROFIT_MENU_TITLE.get());
         this.selectedChest = selectedChest;
         this.chest = chest;
         this.init();
     }
 
     private void init() {
-        // Toggle sold items logging
-        ItemStack logging = new ItemStack(Material.WRITABLE_BOOK);
-        ItemMeta lM = logging.getItemMeta();
-        lM.setDisplayName(Lang.TOGGLE_SOLD_ITEMS_LOGGING.get());
-        lM.setLore(Collections.singletonList(Lang.CURRENT_VALUE.get().replace("%value%", String.valueOf(chest.isLogging()))));
-        logging.setItemMeta(lM);
-
-        // Allow the chest to have a custom name
-        ItemStack name = new ItemStack(Material.NAME_TAG);
-        ItemMeta nM = name.getItemMeta();
-        nM.setDisplayName(Lang.CHANGE_CHEST_NAME.get());
-        nM.setLore(Collections.singletonList(Lang.CURRENT_DISPLAYNAME.get().replace("%chest-name%", String.valueOf(chest.getName()))));
-        name.setItemMeta(nM);
-
-        this.inv.setItem(2, logging);
-
-        this.inv.setItem(6, name);
+        int slot = 0;
+        for (EcoType claimAble : this.chest.getClaimAble().keySet()) {
+            ItemStack item;
+            try {
+                item = claimAble.getCurrency() != null && claimAble.getType().name().equals("ITEM") ?
+                        new ItemStack(Material.valueOf(claimAble.getCurrency().toUpperCase(Locale.ENGLISH))) : new ItemStack(Material.GOLD_INGOT);
+            } catch (IllegalArgumentException e) {
+                item = new ItemStack(Material.GOLD_INGOT);
+            }
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName(Lang.AVAILABLE_PROFIT.get().replace("%profit%", AutoSellChests.getInstance().formatPrice(claimAble, this.chest.getClaimAble().get(claimAble))));
+            item.setItemMeta(meta);
+            this.inv.setItem(slot++, item);
+        }
 
         for (int i = 0; i < this.inv.getSize(); i++) {
             if (this.inv.getItem(i) == null) {

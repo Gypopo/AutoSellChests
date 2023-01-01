@@ -7,13 +7,21 @@ import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.scheduler.SellScheduler;
 import me.gypopo.autosellchests.util.Logger;
+import me.gypopo.economyshopgui.EconomyShopGUI;
 import me.gypopo.economyshopgui.methodes.SendMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
+import java.io.File;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,6 +36,7 @@ public class ChestManager {
 
     private final long sellInterval;
     public static int maxSellChestsPlayer;
+    private final String defaultChestName;
 
     public final boolean soldItemsLoggingPlayer;
     public final boolean soldItemsLoggingConsole;
@@ -44,11 +53,16 @@ public class ChestManager {
         ChestManager.maxSellChestsPlayer = Config.get().getInt("player-max-sellchests");
 
         this.sellInterval = this.getSellInterval();
-        chestName = Lang.formatColors(Config.get().getString("sellchest-name"));
+        defaultChestName = Lang.formatColors(Config.get().getString("default-chest-name"), null);
+        chestName = Lang.formatColors(Config.get().getString("sellchest-name"), null);
 
         this.loadChests();
 
         this.scheduler = new SellScheduler(plugin, this.sellInterval);
+    }
+
+    public String getDefaultChestName() {
+        return this.defaultChestName;
     }
 
     public Map<ChestLocation, Chest> getLoadedChests() {
@@ -86,16 +100,14 @@ public class ChestManager {
     }
 
     public void addChest(ChestLocation loc, Player p) {
-        Chest chest;
-        if (this.loadedChests.containsKey(loc)) {
-            chest = this.loadedChests.get(loc);
-            this.plugin.getDatabase().removeChest(chest.getLocation().toString());
-            this.plugin.getDatabase().setChest(loc.toString(), p.getUniqueId().toString(), chest.getItemsSold(), chest.getIncome());
+        Chest chest = this.loadedChests.get(loc);
+        if (chest != null) { // Double chest
             chest.getLocation().addLocation(loc.getRightLocation());
+            this.plugin.getDatabase().setChest(chest);
         } else {
-            this.plugin.getDatabase().setChest(loc.toString(), p.getUniqueId().toString(), 0, 0.0);
-            chest = new Chest(this.loadedChests.size() + 1, loc, p, 0, 0.0, true);
-            this.loadedChests.put(loc, chest);
+            this.plugin.getDatabase().addChest(loc.toString(), p.getUniqueId().toString(), 0);
+            chest = this.plugin.getDatabase().loadChest(loc);
+            this.loadedChests.put(chest.getLocation(), chest);
             if (this.loadedChestsByPlayer.containsKey(p.getUniqueId())) {
                 this.loadedChestsByPlayer.get(p.getUniqueId()).add(chest);
             } else this.loadedChestsByPlayer.put(p.getUniqueId(), new ArrayList<>(Collections.singletonList(chest)));
@@ -106,9 +118,8 @@ public class ChestManager {
     public void removeChest(ChestLocation loc) {
         Chest chest = this.loadedChests.get(loc);
         if (chest.getLocation().isDoubleChest()) {
-            this.plugin.getDatabase().removeChest(chest.getLocation().toString());
             chest.getLocation().removeLocation(loc.getLeftLocation());
-            this.plugin.getDatabase().setChest(chest.getLocation().toString(), chest.getOwner().toString(), chest.getItemsSold(), chest.getIncome());
+            this.plugin.getDatabase().setChest(chest);
         } else {
             this.plugin.getDatabase().removeChest(loc.toString());
             this.loadedChests.remove(loc);
@@ -132,7 +143,17 @@ public class ChestManager {
         ItemStack chest = new ItemStack(Material.CHEST, amount);
         ItemMeta meta = chest.getItemMeta();
         meta.setDisplayName(chestName);
-        meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", this.plugin.getTimeUtils().getReadableTime(this.sellInterval)))).collect(Collectors.toList()));
+        meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", this.plugin.getTimeUtils().getReadableTime(this.sellInterval)), null)).collect(Collectors.toList()));
+        chest.setItemMeta(meta);
+        return chest;
+    }
+
+    public ItemStack getChest(int amount, double multiplier) {
+        ItemStack chest = new ItemStack(Material.CHEST, amount);
+        ItemMeta meta = chest.getItemMeta();
+        meta.setDisplayName(chestName);
+        meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", this.plugin.getTimeUtils().getReadableTime(this.sellInterval)), null).replace("%multiplier%", String.valueOf(multiplier))).collect(Collectors.toList()));
+        meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "multiplier"), PersistentDataType.DOUBLE, multiplier);
         chest.setItemMeta(meta);
         return chest;
     }

@@ -24,12 +24,12 @@ public class GiveChest implements SubCommad {
 
     @Override
     public String getSyntax() {
-        return "/asc give [player] [quantity]";
+        return "/asc give [player] [quantity] [SellMultiplier]";
     }
 
     @Override
     public void perform(Object logger, String[] args) {
-        //asc give [player] [quantity]
+        //asc give [player] [quantity] [SellMultiplier]
 
         if (args.length < 1) {
             Logger.sendMessage(logger, this.getSyntax());
@@ -37,38 +37,48 @@ public class GiveChest implements SubCommad {
         }
 
         if (args.length == 1) {
+            // asc give
             if (logger instanceof Player) {
                 Player player = (Player) logger;
-                if (player.getInventory().firstEmpty() != -1) {
-                    player.getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(1));
-                    Logger.sendPlayerMessage(player, Lang.PLAYER_SELL_CHEST_GIVEN.get().replace("%amount%", "1"));
-                    Logger.info(Lang.SELL_CHEST_GIVEN_LOG.get().replace("%player_name%", player.getName()).replace("%amount%", "1"));
-                } else {
-                    Logger.sendPlayerMessage(player, Lang.NOT_ENOUGH_INVENTORY_SPACE.get());
-                }
+                this.giveQuantity(logger, player, 1);
             } else {
                 Logger.sendMessage(logger, "You need to specify a player");
             }
         } else {
+            // asc give ...
             int qty;
             if (args.length == 2 && logger instanceof Player) {
-                // Player gives himself an amount of chests (/asc give [qty])
+                // asc give [qty]
                 Player player = (Player) logger;
                 try {
                     qty = Integer.parseInt(args[1]);
-                    player.getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(qty));
-                    Logger.sendPlayerMessage(player, Lang.PLAYER_SELL_CHEST_GIVEN.get().replace("%amount%", String.valueOf(qty)));
-                    Logger.info(Lang.SELL_CHEST_GIVEN_LOG.get().replace("%player_name%", player.getName()).replace("%amount%", String.valueOf(qty)));
+                    this.giveQuantity(logger, player, qty);
                     return;
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                    this.giveQuantity(logger, player, 1);
+                }
             }
             Player p = Bukkit.getPlayer(args[1]);
             if (p != null) {
-                if (args.length > 2) {
+                if (args.length == 3) {
+                    // asc give [player] [qty]
                     try {
                         qty = Integer.parseInt(args[2]);
-                        p.getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(qty));
-                        Logger.info(Lang.SELL_CHEST_GIVEN_LOG.get().replace("%player_name%", p.getName()).replace("%amount%", String.valueOf(qty)));
+                        this.giveQuantity(logger, p, qty);
+                    } catch (NumberFormatException ex) {
+                        Logger.sendMessage(logger, "Not a valid amount");
+                    }
+                } else if (args.length == 4) {
+                    // asc give [player] [qty] [multiplier]
+                    double multiplier;
+                    try {
+                        qty = Integer.parseInt(args[2]);
+                        try {
+                            multiplier = Double.parseDouble(args[3]);
+                            this.giveQuantity(logger, p, qty, multiplier);
+                        } catch (NumberFormatException ex) {
+                            Logger.sendMessage(logger, "Not a valid sell multiplier");
+                        }
                     } catch (NumberFormatException ex) {
                         Logger.sendMessage(logger, "Not a valid amount");
                     }
@@ -77,6 +87,28 @@ public class GiveChest implements SubCommad {
                 Logger.sendMessage(logger, "Could not find a online player with name " + args[1]);
             }
         }
+    }
+
+    private void giveQuantity(Object logger, Player player, int qty) {
+        if (player.getInventory().firstEmpty() == -1) {
+            Logger.sendMessage(logger, Lang.NOT_ENOUGH_INVENTORY_SPACE.get());
+            return;
+        }
+
+        player.getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(qty));
+        Logger.sendPlayerMessage(player, Lang.PLAYER_SELL_CHEST_GIVEN.get().replace("%amount%", String.valueOf(qty)));
+        Logger.info(Lang.SELL_CHEST_GIVEN_LOG.get().replace("%player_name%", player.getName()).replace("%amount%", String.valueOf(qty)));
+    }
+
+    private void giveQuantity(Object logger, Player player, int qty, double multiplier) {
+        if (player.getInventory().firstEmpty() == -1) {
+            Logger.sendMessage(logger, Lang.NOT_ENOUGH_INVENTORY_SPACE.get());
+            return;
+        }
+
+        player.getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(qty, multiplier));
+        Logger.sendPlayerMessage(player, Lang.PLAYER_SELL_CHEST_GIVEN.get().replace("%amount%", String.valueOf(qty)));
+        Logger.info(Lang.SELL_CHEST_MULTIPLIER_GIVEN_LOG.get().replace("%player_name%", player.getName()).replace("%amount%", String.valueOf(qty)).replace("%multiplier%", String.valueOf(multiplier)));
     }
 
     @Override

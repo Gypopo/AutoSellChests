@@ -1,17 +1,44 @@
 package me.gypopo.autosellchests.util;
 
 import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.files.Config;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ConfigUtil {
+
+    public static void updateConfig(AutoSellChests plugin) {
+        int configVer = Integer.parseInt(Config.get().getString("config-version", "1.0.0").replace(".", ""));
+        if (configVer < Integer.parseInt(YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource("config.yml"))).getString("config-version").replace(".", ""))) {
+
+            Config.get().set("config-version", getConfigVersion(configVer));
+            Config.save();
+            Config.reload();
+        }
+    }
+
+    private static String getConfigVersion(int version) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < String.valueOf(version).toCharArray().length; i++) {
+            if (String.valueOf(version).toCharArray().length != (i+1)) {
+                builder.append(String.valueOf(version).toCharArray()[i]).append(".");
+            } else {
+                builder.append(String.valueOf(version).toCharArray()[i]);
+            }
+        }
+        return builder.toString();
+    }
 
     public static void save(FileConfiguration fileConfiguration, File file) {
 

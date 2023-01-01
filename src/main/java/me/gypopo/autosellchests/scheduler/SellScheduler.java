@@ -9,7 +9,10 @@ import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.objects.ShopItem;
+import me.gypopo.economyshopgui.util.EcoType;
+import me.gypopo.economyshopgui.util.EconomyType;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.DoubleChest;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class SellScheduler {
 
@@ -108,8 +112,8 @@ public class SellScheduler {
                 }
 
                 int amount = 0;
-                double totalPrice = 0.0;
                 Map<ShopItem, Integer> items = new HashMap<>();
+                Map<EcoType, Double> prices = new HashMap<>();
                 for (ItemStack item : block.getInventory().getContents()) {
                     if (item != null && item.getType() != Material.AIR) {
                         ShopItem shopItem = EconomyShopGUIHook.getShopItem(item);
@@ -122,7 +126,7 @@ public class SellScheduler {
                                 EconomyShopGUIHook.getItemSellPrice(shopItem, item, (Player) owner);
 
                         if (sellPrice > 0) {
-                            totalPrice += sellPrice;
+                            prices.put(shopItem.getEcoType(), prices.getOrDefault(shopItem.getEcoType(), 0.0) + sellPrice);
                             amount += limit;
                             if (limit < item.getAmount()) {
                                 item.setAmount(item.getAmount() - limit);
@@ -135,20 +139,25 @@ public class SellScheduler {
                 if (amount != 0) {
                     this.items += amount;
                     chest.addItemsSold(amount);
-                    chest.addIncome(totalPrice);
+                    chest.addIncome(prices);
                     this.sellItems(items, owner.getUniqueId()); // Update DynamicPricing, limited stock and sell limits in Async
-                    this.plugin.getEconomy().depositBalance(owner, totalPrice);
+                    prices.forEach((type, price) -> {
+                        if (!type.getType().name().equals("ITEM")) {
+                            this.plugin.getEconomy().getEcon(type).depositBalance(owner, price);
+                        } else chest.addClaimAble(type, price);
+                    });
                     if (chest.isLogging() && this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline())
-                        Logger.sendPlayerMessage((Player) owner, Lang.ITEMS_SOLD_PLAYER_LOG.get()
-                                .replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
+                        Logger.sendPlayerMessage((Player) owner, this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_PLAYER_LOG.get()
+                                .replace("%chest-name%", chest.getName()).replace("%amount%", String.valueOf(amount)))
+                                .replace("%id%", String.valueOf(chest.getId())));
                     if (this.plugin.getManager().soldItemsLoggingConsole) {
-                        Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%player%", owner.getName())
+                        Logger.info(this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName())
                                 .replace("%location%", "world '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ())
-                                .replace("%amount%", String.valueOf(amount)).replace("%profit%", this.plugin.formatPrice(totalPrice)));
+                                .replace("%amount%", String.valueOf(amount)).replace("%id%", String.valueOf(chest.getId())))));
                     }
                 }
             } catch (Exception e) {
-                Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome() + " | TotalItemsSold: " + chest.getItemsSold());
+                Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome(null) + " | TotalItemsSold: " + chest.getItemsSold());
                 if (e instanceof ClassCastException) {
                     Logger.warn("The chest at this location does not longer exist, removing chest from database...");
                     this.plugin.getManager().removeChest(new ChestLocation(chest.getLocation().getLeftLocation()));
@@ -208,6 +217,20 @@ public class SellScheduler {
                 this.task = this.plugin.runTaskLater(this.startNextInterval(), (this.interval - finish)/1000*20);
             }
         }
+    }
+
+    private String getCurrencyDisplay(Map<EcoType, Double> prices) {
+        String color = ChatColor.getLastColors(Lang.ITEMS_SOLD_PLAYER_LOG.get().split("%profit%")[0]);
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for (Map.Entry<EcoType, Double> entry : prices.entrySet()) {
+            sb.append(plugin.formatPrice(entry.getKey(), entry.getValue()));
+
+            sb.append("§r");
+            if (i != prices.size()-1) sb.append(", ");
+            i++;
+        }
+        return sb.toString();
     }
 
     public long getStart() {

@@ -4,14 +4,14 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
-import me.gypopo.autosellchests.objects.Chest;
-import me.gypopo.autosellchests.objects.ChestLocation;
-import me.gypopo.autosellchests.objects.InformationScreen;
-import me.gypopo.autosellchests.objects.SettingsScreen;
+import me.gypopo.autosellchests.objects.*;
 import me.gypopo.autosellchests.util.ChestConfirmation;
 import me.gypopo.autosellchests.util.Logger;
+import me.gypopo.economyshopgui.EconomyShopGUI;
+import me.gypopo.economyshopgui.util.EcoType;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.DoubleChest;
@@ -30,12 +30,15 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class PlayerListener implements Listener {
 
-    private AutoSellChests plugin;
+    private final AutoSellChests plugin;
     private ChestConfirmation chestConfirmation;
     private final Sound placeSound;
     private final Sound breakSound;
@@ -73,7 +76,9 @@ public class PlayerListener implements Listener {
         }
 
         Chest chest = this.plugin.getManager().getChestByLocation(clicked.getLocation());
-        if (chest == null) {
+        if (chest == null) return;
+        if (!chest.getOwner().equals(e.getPlayer().getUniqueId()) && !e.getPlayer().hasPermission("autosellchests.show.all")) {
+            e.getPlayer().sendMessage(Lang.NO_PERMISSIONS.get());
             return;
         }
 
@@ -90,6 +95,12 @@ public class PlayerListener implements Listener {
             return;
         }
 
+        if (!e.getPlayer().hasPermission("autosellchests.place")) {
+            Logger.sendPlayerMessage(e.getPlayer(), Lang.NO_PERMISSIONS.get());
+            e.setCancelled(true);
+            return;
+        }
+
         if (this.plugin.getManager().getOwnedChests(e.getPlayer()) >= ChestManager.maxSellChestsPlayer && !e.getPlayer().hasPermission("autosellchests.maxchests.override")) {
             Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(ChestManager.maxSellChestsPlayer)));
             e.setCancelled(true);
@@ -101,7 +112,6 @@ public class PlayerListener implements Listener {
             if (((org.bukkit.block.Chest)e.getBlockPlaced().getState()).getInventory() instanceof DoubleChestInventory) {
                 DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest)e.getBlockPlaced().getState()).getInventory();
                 Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
-                System.out.println(original);
                 if (this.plugin.getManager().getChestByLocation(original) == null) {
                     Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST.get());
                     return;
@@ -113,7 +123,7 @@ public class PlayerListener implements Listener {
             loc.getWorld().spawnParticle(Particle.SPELL_WITCH, loc, 10);
             loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 10, new Particle.DustOptions(Color.RED, 2F));
             if (this.placeSound != null) loc.getWorld().playSound(loc, this.placeSound, this.getSoundCategory(this.placeSound), this.soundVolume, this.soundPitch);
-            Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get());
+            Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get().replace("%chest-name%", this.plugin.getManager().getDefaultChestName()));
             this.chestConfirmation.playEffect(e.getPlayer());
 
             loc.subtract(0.5, 0.5, 0.5); // This line is needed, it caused me some headaches :/
@@ -143,6 +153,12 @@ public class PlayerListener implements Listener {
             Chest chest = ((InformationScreen) e.getClickedInventory().getHolder()).getChest();
             Location loc = ((InformationScreen) e.getClickedInventory().getHolder()).getSelectedChest();
             if (e.getSlot() == 32) {
+                if (!e.getWhoClicked().hasPermission("autosellchests.pickup")) {
+                    Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.NO_PERMISSIONS.get());
+                    e.setCancelled(true);
+                    return;
+                }
+
                 if (chest.getOwner().equals(e.getWhoClicked().getUniqueId()) || e.getWhoClicked().hasPermission("autosellchests.break")) {
                     e.getWhoClicked().closeInventory();
                     this.plugin.getManager().removeChest(new ChestLocation(loc));
@@ -155,22 +171,54 @@ public class PlayerListener implements Listener {
                     loc.getWorld().spawnParticle(Particle.CLOUD, loc, 15);
                     if (this.breakSound != null)
                         loc.getWorld().playSound(loc, this.breakSound, this.getSoundCategory(this.breakSound), this.soundVolume, this.soundPitch);
-                    Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get());
+                    Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get().replace("%chest-name%", this.plugin.getManager().getDefaultChestName()));
                 } else {
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_REMOVE_SELL_CHEST.get());
                 }
             } else if (e.getSlot() == 30) {
                 if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
                     new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
-                }
+                } else e.getWhoClicked().sendMessage(Lang.NO_PERMISSIONS.get());
+            } else if (e.getSlot() == 22) {
+                if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
+                    if (!chest.getClaimAble().isEmpty())
+                        new ClaimProfitsScreen(chest, loc).open((Player) e.getWhoClicked());
+                } else e.getWhoClicked().sendMessage(Lang.NO_PERMISSIONS.get());
             }
             e.setCancelled(true);
         } else if (e.getClickedInventory().getHolder() instanceof SettingsScreen) {
             Chest chest = ((SettingsScreen) e.getClickedInventory().getHolder()).getChest();
             Location loc = ((SettingsScreen) e.getClickedInventory().getHolder()).getSelectedChest();
-            if (e.getSlot() == 4) {
+            if (e.getSlot() == 2) {
                 chest.setLogging(!chest.isLogging());
                 new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
+            } else if (e.getSlot() == 6) {
+                new AnvilGUI.Builder()
+                        .onComplete((completion) -> {
+                            if(!completion.getText().isEmpty())
+                                chest.setName(Lang.formatColors(completion.getText(), null));
+                            new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
+                            return Collections.singletonList(AnvilGUI.ResponseAction.close());
+                        })
+                        .text(chest.getName())
+                        .itemLeft(new ItemStack(Material.PAPER))
+                        .title(Lang.ENTER_NAME_MENU_TITLE.get())
+                        .plugin(this.plugin)
+                        .open((Player) e.getWhoClicked());
+            }
+            e.setCancelled(true);
+        } else if (e.getClickedInventory().getHolder() instanceof ClaimProfitsScreen) {
+            Chest chest = ((ClaimProfitsScreen) e.getClickedInventory().getHolder()).getChest();
+            Location loc = ((ClaimProfitsScreen) e.getClickedInventory().getHolder()).getSelectedChest();
+            if (chest.getClaimAble().size() >= e.getSlot()) {
+                EcoType type = new ArrayList<>(chest.getClaimAble().keySet()).get(e.getRawSlot());
+                if (this.plugin.getEconomy().getEcon(type).getType().equals(type)) {
+                    this.plugin.getEconomy().getEcon(type).depositBalance((Player) e.getWhoClicked(), chest.getClaimAble().get(type));
+                    chest.claim(type);
+                    if (!chest.getClaimAble().isEmpty()) {
+                        new ClaimProfitsScreen(chest, loc).open((Player) e.getWhoClicked());
+                    } else new InformationScreen(chest, loc).open((Player) e.getWhoClicked());
+                } else Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_CLAIM_PROFIT.get());
             }
             e.setCancelled(true);
         }

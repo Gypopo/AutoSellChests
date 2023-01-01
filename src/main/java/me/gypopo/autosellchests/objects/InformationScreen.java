@@ -2,18 +2,20 @@ package me.gypopo.autosellchests.objects;
 
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
-import me.gypopo.autosellchests.util.Logger;
-import me.gypopo.economyshopgui.methodes.SendMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class InformationScreen implements InventoryHolder {
 
@@ -39,18 +41,33 @@ public class InformationScreen implements InventoryHolder {
         ItemStack nextSell = new ItemStack(Material.ARROW);
         ItemMeta nsM = nextSell.getItemMeta();
         nsM.setDisplayName(Lang.SELL_CHEST_BLOCK_INFO.get());
-        nsM.setLore(Arrays.asList(
-                Lang.SELL_CHEST_OWNER.get().replace("%player_name%", Bukkit.getOfflinePlayer(this.chest.getOwner()).getName()),
-                Lang.SELL_CHEST_LOCATION.get().replace("%loc%", "World '" + this.selectedChest.getWorld().getName() + "', x" + this.selectedChest.getBlockX() + ", y" + this.selectedChest.getBlockY() + ", z" + this.selectedChest.getBlockZ()),
-                Lang.SELL_CHEST_ID.get().replace("%id%", String.valueOf(this.chest.getId())),
-                Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", this.getNextInterval())));
+        List<String> info = new ArrayList<>();
+        info.add(Lang.SELL_CHEST_OWNER.get().replace("%player_name%", Bukkit.getOfflinePlayer(this.chest.getOwner()).getName()));
+        info.addAll(AutoSellChests.splitLongString(Lang.SELL_CHEST_LOCATION.get().replace("%loc%", "World '" + this.selectedChest.getWorld().getName() + "', x" + this.selectedChest.getBlockX() + ", y" + this.selectedChest.getBlockY() + ", z" + this.selectedChest.getBlockZ())));
+        info.add(Lang.SELL_CHEST_ID.get().replace("%id%", String.valueOf(this.chest.getId())));
+        info.add(Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", this.getNextInterval()));
+        nsM.setLore(info);
         nextSell.setItemMeta(nsM);
 
         // Shows the total amount of money the player has made so far with this sellchest
         ItemStack totalIncome = new ItemStack(Material.GOLD_INGOT);
+        List<String> l = AutoSellChests.splitLongString(this.chest.getIncome(Lang.INCOME_INFO.get()));
         ItemMeta tiM = totalIncome.getItemMeta();
-        tiM.setDisplayName(Lang.INCOME_INFO.get().replace("%profit%", AutoSellChests.getInstance().formatPrice(this.chest.getIncome())));
+        tiM.setDisplayName(l.remove(0));
+        if (l.size() >= 1)
+            tiM.setLore(l);
         totalIncome.setItemMeta(tiM);
+
+        if (!this.chest.getClaimAble().isEmpty()) {
+            ItemStack item = new ItemStack(Material.DIAMOND);
+            item.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName(Lang.CLAIM_ABLE_INFO.get());
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            item.setItemMeta(meta);
+
+            this.inv.setItem(22, item);
+        }
 
         // Chest settings
         ItemStack settings = new ItemStack(Material.REDSTONE);
@@ -72,7 +89,11 @@ public class InformationScreen implements InventoryHolder {
 
         for (int i = 0; i < this.inv.getSize(); i++) {
             if (this.inv.getItem(i) == null) {
-                this.inv.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+                ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+                ItemMeta meta = item.getItemMeta();
+                meta.setDisplayName(" ");
+                item.setItemMeta(meta);
+                this.inv.setItem(i, item);
             }
         }
     }
