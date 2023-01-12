@@ -58,8 +58,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.getLogger().info("Found EconomyShopGUI, enabling...");
             premium = false;
             int version = Integer.parseInt(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI").getDescription().getVersion().split("-")[0].replace(".", ""));
-            if (version < 513) {
-                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v5.1.3 or later, disabling...");
+            if (version < 520) {
+                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v5.2.0 or later, disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
             }
@@ -69,8 +69,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.getLogger().info("Found EconomyShopGUI Premium, enabling...");
             premium = true;
             int version = Integer.parseInt(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium").getDescription().getVersion().split("-")[0].replace(".", ""));
-            if (version < 433) {
-                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI Premium, please download version v4.3.3 or later, disabling...");
+            if (version < 440) {
+                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI Premium, please download version v4.4.0 or later, disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
             }
@@ -130,7 +130,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     public void onPluginEnable(PluginEnableEvent e) {
         // Sometimes bukkit's plugin load order is weird and EconomyShopGUI loads after AutoSellChests even if its a load before
         if (e.getPlugin().getName().equals("EconomyShopGUI") || e.getPlugin().getName().equals("EconomyShopGUI-Premium")) {
-            this.economy = EconomyShopGUI.getInstance().getEcoHandler();
+            if (this.economy == null)
+                this.economy = EconomyShopGUI.getInstance().getEcoHandler();
         }
     }
 

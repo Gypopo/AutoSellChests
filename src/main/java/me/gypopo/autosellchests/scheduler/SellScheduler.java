@@ -117,13 +117,18 @@ public class SellScheduler {
                 for (ItemStack item : block.getInventory().getContents()) {
                     if (item != null && item.getType() != Material.AIR) {
                         ShopItem shopItem = EconomyShopGUIHook.getShopItem(item);
-                        if (shopItem == null) continue;
+                        if (shopItem == null) continue; // Shop item not found/Not inside shop
 
-                        int limit = this.getSellLimit(shopItem, owner.getUniqueId(), item.getAmount());
+                        int limit = this.getMaxSell(shopItem, item.getAmount(), items.getOrDefault(shopItem, 0));
+                        if (limit == -1) continue; // Maximum amount reached
+
+                        limit = this.getSellLimit(shopItem, owner.getUniqueId(), limit);
                         if (limit == -1) continue; // Sell limit reached
 
-                        double sellPrice = !owner.isOnline() ? EconomyShopGUIHook.getItemSellPrice(shopItem, item) :
-                                EconomyShopGUIHook.getItemSellPrice(shopItem, item, (Player) owner);
+                        ItemStack stack = new ItemStack(item);
+                        stack.setAmount(limit); // Set the final amount to the item to get the sell price
+                        double sellPrice = !owner.isOnline() ? EconomyShopGUIHook.getItemSellPrice(shopItem, stack) :
+                                EconomyShopGUIHook.getItemSellPrice(shopItem, stack, (Player) owner);
 
                         if (sellPrice > 0) {
                             prices.put(shopItem.getEcoType(), prices.getOrDefault(shopItem.getEcoType(), 0.0) + sellPrice);
@@ -169,6 +174,31 @@ public class SellScheduler {
         };
     }
 
+    /**
+     * Check for the maximum sell limit <b>per transaction</b>
+     *
+     * @return The amount of items which can be sold before reaching the limit
+     * @since EconomyShopGUI v5.2.0 || EconomyShopGUI-Premium v4.4.0
+     */
+    private int getMaxSell(ShopItem shopItem, int qty, int alreadySold) {
+        if (shopItem.isMaxSell(alreadySold + qty)) {
+            System.out.println(shopItem.getMaxSell() - alreadySold);
+            if (alreadySold >= shopItem.getMaxSell())
+                return -1; // Item already reached max sell for this transaction
+            qty = shopItem.getMaxSell() - alreadySold;
+        }
+        return qty;
+    }
+
+    /**
+     * Check for item sell stock
+     * <p>
+     * This is a Premium only feature but calls to the API can still be made
+     * on the free version without it throwing an error
+     *
+     * @return The amount of items which can be sold before reaching the limit
+     * @since EconomyShopGUI-Premium v4.1.0
+     */
     private int getSellLimit(ShopItem shopItem, UUID playerUUID, int limit) {
         if (shopItem.getLimitedSellMode() != 0) { // Check for sell limits
             int stock = EconomyShopGUIHook.getSellLimit(shopItem, playerUUID);
@@ -181,6 +211,14 @@ public class SellScheduler {
         return limit;
     }
 
+    /**
+     * Update the item's DynamicPricing and stock limit in async
+     * <p>
+     * This is a Premium only feature but calls to the API can still be made
+     * on the free version without it throwing an error
+     *
+     * @since EconomyShopGUI-Premium v4.1.0
+     */
     private void sellItems(Map<ShopItem, Integer> items, UUID playerUUID) {
         this.plugin.runTaskAsync(() -> {
             for (ShopItem item : items.keySet()) {
