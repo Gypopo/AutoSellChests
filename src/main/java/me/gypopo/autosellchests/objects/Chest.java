@@ -4,11 +4,9 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.util.Logger;
-import me.gypopo.economyshopgui.methodes.CreateItemMethodes;
-import me.gypopo.economyshopgui.methodes.SendMessage;
+import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.util.EcoType;
 import me.gypopo.economyshopgui.util.EconomyType;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
@@ -163,7 +161,7 @@ public class Chest {
         Arrays.stream(income.split(",")).forEach(s -> {
             try {
                 EcoType econ = EconomyType.getFromString(s.split(";")[0]);
-                if (!AutoSellChests.getInstance().getEconomy().getEcon(econ).getType().equals(econ))
+                if (!EconomyShopGUIHook.getEcon(econ).getType().equals(econ))
                     return; // EconomyType not active
                 if (econ == null) {
                     Logger.warn("Failed to load economy type as '" + s + "' for input string '" + income + "'");

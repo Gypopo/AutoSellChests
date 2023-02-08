@@ -1,5 +1,5 @@
 name: AutoSellChests
-version: 2.1.1
+version: 2.2.0
 main: me.gypopo.autosellchests.AutoSellChests
 api-version: 1.16
 authors: [ Gypopo ]
@@ -7,7 +7,7 @@ description: A addon for EconomyShopGUI which uses custom chests to automaticall
 load: STARTUP
 commands:
   autosellchests:
-    usage: /asc <subcommand> <args>
+    usage: /autosellchests <subcommand> <args>
     aliases: [asc]
 
 softdepend:

@@ -2,7 +2,6 @@ package me.gypopo.autosellchests.files;
 
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.util.ConfigUtil;
-import me.gypopo.economyshopgui.EconomyShopGUI;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 

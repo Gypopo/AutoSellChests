@@ -7,7 +7,7 @@ import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.objects.*;
 import me.gypopo.autosellchests.util.ChestConfirmation;
 import me.gypopo.autosellchests.util.Logger;
-import me.gypopo.economyshopgui.EconomyShopGUI;
+import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.util.EcoType;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -101,8 +101,10 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        if (this.plugin.getManager().getOwnedChests(e.getPlayer()) >= ChestManager.maxSellChestsPlayer && !e.getPlayer().hasPermission("autosellchests.maxchests.override")) {
-            Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(ChestManager.maxSellChestsPlayer)));
+        int max = this.plugin.getManager().getMaxSell(e.getPlayer());
+        if (!e.getPlayer().hasPermission("autosellchests.maxchests.override") &&
+                this.plugin.getManager().getOwnedChests(e.getPlayer()) >= max) {
+            Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(max)));
             e.setCancelled(true);
             return;
         }
@@ -212,13 +214,13 @@ public class PlayerListener implements Listener {
             Location loc = ((ClaimProfitsScreen) e.getClickedInventory().getHolder()).getSelectedChest();
             if (chest.getClaimAble().size() >= e.getSlot()) {
                 EcoType type = new ArrayList<>(chest.getClaimAble().keySet()).get(e.getRawSlot());
-                if (this.plugin.getEconomy().getEcon(type).getType().equals(type)) {
-                    this.plugin.getEconomy().getEcon(type).depositBalance((Player) e.getWhoClicked(), chest.getClaimAble().get(type));
+                if (EconomyShopGUIHook.getEcon(type).getType().equals(type)) {
+                    EconomyShopGUIHook.getEcon(type).depositBalance((Player) e.getWhoClicked(), chest.getClaimAble().get(type));
                     chest.claim(type);
                     if (!chest.getClaimAble().isEmpty()) {
                         new ClaimProfitsScreen(chest, loc).open((Player) e.getWhoClicked());
                     } else new InformationScreen(chest, loc).open((Player) e.getWhoClicked());
-                } else Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_CLAIM_PROFIT.get());
+                } else Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_CLAIM_PROFIT.get()); // EconomyType not active/not found
             }
             e.setCancelled(true);
         }

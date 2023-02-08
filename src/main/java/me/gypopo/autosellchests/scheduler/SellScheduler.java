@@ -8,9 +8,11 @@ import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
+import me.gypopo.economyshopgui.api.events.PostTransactionEvent;
 import me.gypopo.economyshopgui.objects.ShopItem;
 import me.gypopo.economyshopgui.util.EcoType;
 import me.gypopo.economyshopgui.util.EconomyType;
+import me.gypopo.economyshopgui.util.Transaction;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -147,14 +149,15 @@ public class SellScheduler {
                     chest.addIncome(prices);
                     this.sellItems(items, owner.getUniqueId()); // Update DynamicPricing, limited stock and sell limits in Async
                     prices.forEach((type, price) -> {
-                        if (!type.getType().name().equals("ITEM")) {
-                            this.plugin.getEconomy().getEcon(type).depositBalance(owner, price);
+                        if (type.getType() != EconomyType.ITEM) {
+                            EconomyShopGUIHook.getEcon(type).depositBalance(owner, price);
                         } else chest.addClaimAble(type, price);
                     });
-                    if (chest.isLogging() && this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline())
+                    if (chest.isLogging() && this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline()) {
                         Logger.sendPlayerMessage((Player) owner, this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_PLAYER_LOG.get()
-                                .replace("%chest-name%", chest.getName()).replace("%amount%", String.valueOf(amount)))
-                                .replace("%id%", String.valueOf(chest.getId())));
+                                        .replace("%chest-name%", chest.getName()).replace("%amount%", String.valueOf(amount)))
+                                        .replace("%id%", String.valueOf(chest.getId())));
+                    }
                     if (this.plugin.getManager().soldItemsLoggingConsole) {
                         Logger.info(this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName())
                                 .replace("%location%", "world '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ())

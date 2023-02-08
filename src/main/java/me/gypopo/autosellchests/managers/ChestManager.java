@@ -7,11 +7,10 @@ import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.scheduler.SellScheduler;
 import me.gypopo.autosellchests.util.Logger;
-import me.gypopo.economyshopgui.EconomyShopGUI;
-import me.gypopo.economyshopgui.methodes.SendMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -35,11 +34,13 @@ public class ChestManager {
     private final SellScheduler scheduler;
 
     private final long sellInterval;
-    public static int maxSellChestsPlayer;
+    private final int maxSellChestsPlayer;
     private final String defaultChestName;
 
     public final boolean soldItemsLoggingPlayer;
     public final boolean soldItemsLoggingConsole;
+
+    private final Map<String, Integer> maxChests = new LinkedHashMap<>();
 
     private Map<ChestLocation, Chest> loadedChests = new HashMap<>();
     // Only for quick access
@@ -50,13 +51,14 @@ public class ChestManager {
 
         this.soldItemsLoggingPlayer = Config.get().getBoolean("sold-items-logging-player");
         this.soldItemsLoggingConsole = Config.get().getBoolean("sold-items-logging-console");
-        ChestManager.maxSellChestsPlayer = Config.get().getInt("player-max-sellchests");
+        this.maxSellChestsPlayer = Config.get().getInt("max-sellchests.default");
 
         this.sellInterval = this.getSellInterval();
         defaultChestName = Lang.formatColors(Config.get().getString("default-chest-name"), null);
         chestName = Lang.formatColors(Config.get().getString("sellchest-name"), null);
 
         this.loadChests();
+        this.loadMaximumChests();
 
         this.scheduler = new SellScheduler(plugin, this.sellInterval);
     }
@@ -75,6 +77,40 @@ public class ChestManager {
 
     public Chest getChestByLocation(Location loc) {
         return this.loadedChests.get(new ChestLocation(loc));
+    }
+
+    private void loadMaximumChests() {
+        Map<String, Integer> maxChests = new LinkedHashMap<>();
+        for (String perm : Config.get().getConfigurationSection("max-sellchests.override").getKeys(false)) {
+            String max = Config.get().getString("max-sellchests.override." + perm);
+            try {
+                maxChests.put(perm, Integer.parseInt(max));
+            } catch (NumberFormatException e) {
+                Logger.warn("Failed to load max sellchest override like " + perm + "." + max + " inside config.yml");
+            } catch (NullPointerException ignored) {}
+        }
+
+        if (!this.maxChests.isEmpty())
+            this.maxChests.clear();
+        if (!maxChests.isEmpty()) {
+            // Load the maximums from highest to lowest since the highest maximum will override any lower values
+            List<Map.Entry<String, Integer>> list = new ArrayList<>(maxChests.entrySet());
+
+            list.sort((Comparator) (o1, o2) -> ((Comparable) ((Map.Entry) (o2)).getValue()).compareTo(((Map.Entry) (o1)).getValue()));
+
+            list.forEach(e -> {
+                this.maxChests.put(e.getKey(), e.getValue());
+            });
+            Logger.info("Completed loading " + this.maxChests.size() + " max chest overrides");
+        }
+    }
+
+    public int getMaxSell(Player player) {
+        for (String perm : this.maxChests.keySet()) {
+            if (player.hasPermission("autosellchests.maxchests." + perm))
+                return this.maxChests.get(perm);
+        }
+        return this.maxSellChestsPlayer;
     }
 
     public Chest getChestByID(int id) {

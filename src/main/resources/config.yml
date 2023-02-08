@@ -1,13 +1,21 @@
 # Do not change this value as it might end up in a plugin that does not work
-config-version: 1.0.0
+config-version: 1.0.1
 
 # This is the interval for when a sell chest should sell its contents
 # For example, you can use '1d 2h 3m 4s' where the interval then would be 1 day, 2 hours, 3 minutes and 4 seconds
 autosell-interval: "10m"
 # Note: This plugin isn't tested on servers with over 200+ players, we do not recommend using a short interval if you do not have the resources for this!
 
-# Maximum amount of sell chests a player can actively use
-player-max-sellchests: 5
+# By default players can actively use 5 sell chests, but this can be overriden using permissions
+# Example: Players with permission 'autosellchests.maxchests.donator' will be able to use 15 sell chests at a time
+# A player that has two or more overrides, will use the highest value
+max-sellchests:
+  default: 5
+  override:
+    vip: 10
+    donator: 15
+    devs: 20
+
 
 # Whether the owner of the chest needs to be online for the chest to sell its contents
 online-chest-owner: true
@@ -60,29 +68,3 @@ sold-items-logging-console: false
 
 # Debug mode logs extra messages to console for better debugging
 debug: false
-
-# The tier list for different kind of sell chests using a custom sell multiplier
-# When the 'upgradeable' setting is enabled, players will be able to upgrade the chest tier using ingame money
-chest-tiers:
-  enabled: true
-  upgradeable: false
-  tier-track:
-    1:
-      displayname: "&6&lTier &f&lI"
-      multiplier: 0
-    2:
-      displayname: "&6&lTier &f&lII"
-      multiplier: 2.5
-      cost: 5000
-    3:
-      displayname: "&6&lTier &f&lIII"
-      multiplier: 5
-      cost: 10000
-    4:
-      displayname: "&6&lTier &f&lIV"
-      multiplier: 10
-      cost: 20000
-    5:
-      displayname: "&6&lTier &f&lV"
-      multiplier: 15
-      cost: 35000
