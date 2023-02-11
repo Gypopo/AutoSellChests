@@ -20,7 +20,7 @@ max-sellchests:
 # Whether the owner of the chest needs to be online for the chest to sell its contents
 online-chest-owner: true
 # Warning: Chests that are in unloaded chunks will get loaded by the plugin when this setting is 'false' which can cause server lag,
-# ALSO note that permissions for selling items to shop will not be checked, NOR item discounts + any sell multipliers
+# ALSO note that permissions for selling items to shop will not be checked, NOR item discounts + any sell multipliers when the player is offline
 
 # The title/item name of a sell chest
 sellchest-name: "&7&lSell chest"
@@ -55,8 +55,13 @@ sound-effects:
   pickup-chest: "ENTITY_ENDERMAN_TELEPORT"
   place-chest: "ENTITY_SPLASH_POTION_BREAK"
 
-# Enable or disable messages send to console for when the sell interval completes
-sell-interval-logging: false
+# Controls settings for when the plugin should log sell intervals to console
+# If no interval has been set and this option is enabled, the plugin will log after each sell chest sells its contents
+interval-logs:
+  # Enable or disable interval logging completely
+  enable: true
+  # Set the interval for when the plugin should log to console
+  interval: 10m
 
 # Enable or disable messages send to player when their sell chest has sold items
 sold-items-logging-player: true

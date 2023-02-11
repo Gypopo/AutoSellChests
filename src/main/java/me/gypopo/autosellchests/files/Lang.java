@@ -22,6 +22,7 @@ public enum Lang {
     SELLCHEST_BROKEN("&cYou have picked-up an %chest-name%"),
     MAX_SELLCHESTS_REACHED("&cYou already have &a%maxSellChests% &cplaced and cannot place anymore"),
     ITEMS_SOLD_PLAYER_LOG("&a&lYour %chest-name% &a&lhas sold &6%amount% &a&litem(s) for &6%profit%"),
+    ITEMS_SOLD_CONSOLE_INTERVAL("Completed %count% sell interval(s) for %chests% loaded sell chest(s) and sold %items% item(s) in the last %interval%."),
     ITEMS_SOLD_CONSOLE_LOG("Sell chest with id '%id%' from player %player% on location %location% has sold %amount% item(s) for %profit%"),
     NO_PERMISSIONS("&cYou do not have permissions for that"),
     SELL_CHEST_GIVEN_LOG("%player_name% was given %amount% SellChests"),

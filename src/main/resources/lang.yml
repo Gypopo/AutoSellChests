@@ -26,8 +26,10 @@ placed-sell-chests-action-bar-max: "∞"
 sellchest-broken: "&cYou have picked-up a #FF7070Sell#CDCDCDChest"
 # Message send to player when the maximum amount of sell chests placed has been reached
 max-sellchests-reached: "&cYou already have &a%maxSellChests% &cplaced and cannot place anymore"
-# Message send to player when items have been sold using a chest
+# Direct message send to player when items have been sold using a chest
 items-sold-player-log: "&a&lYour %chest-name% &a&lhas sold &6%amount% &a&litem(s) for &6%profit%"
+# Message send to console when the configured interval for chest logging is set
+items-sold-console-interval: "Completed %count% sell interval(s) for %chests% loaded sell chest(s) and sold %items% item(s) in the last %interval%."
 # Message send to console when items are sold using a player's sell chest
 items-sold-console-log: "Sell chest with id '%id%' from player %player% on location %location% has sold %amount% item(s) for %profit%"
 # When player tries to use a command, place a chest, ... without permissions

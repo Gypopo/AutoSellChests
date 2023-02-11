@@ -160,6 +160,10 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         return this.getServer().getScheduler().runTaskAsynchronously(this, runnable);
     }
 
+    public BukkitTask runTaskAsyncTimer(Runnable runnable, long delay, long period) {
+        return this.getServer().getScheduler().runTaskTimerAsynchronously(this, runnable, delay, period);
+    }
+
     public void callEvent(Event event) {
         this.getServer().getPluginManager().callEvent(event);
     }

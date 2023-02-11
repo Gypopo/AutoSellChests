@@ -5,8 +5,10 @@ import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
+import me.gypopo.autosellchests.objects.IntervalLogger;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
+import me.gypopo.economyshopgui.EconomyShopGUI;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.api.events.PostTransactionEvent;
 import me.gypopo.economyshopgui.objects.ShopItem;
@@ -32,6 +34,8 @@ public class SellScheduler {
 
     private final AutoSellChests plugin;
 
+    private final IntervalLogger logger;
+
     private BukkitTask task; // The current interval that is active
 
     private final long interval;
@@ -54,11 +58,13 @@ public class SellScheduler {
 
         this.ticks = interval / 1000L * 20L;
         this.onlineOwner = Config.get().getBoolean("online-chest-owner", true);
-        this.intervalLogging = Config.get().getBoolean("sell-interval-logging");
+        this.intervalLogging = Config.get().getBoolean("interval-logs.enable");
 
         // Give the server 2 minutes to fully start before starting the interval
         Logger.info("Starting first sell interval in 15 seconds");
         this.task = this.plugin.runTaskLater(this.startNextInterval(), /*2400L*/300L);
+
+        this.logger = Config.get().getString("interval-logs.interval", "").isEmpty() ? null : new IntervalLogger(plugin);
     }
 
     private Runnable startNextInterval() {
@@ -118,7 +124,8 @@ public class SellScheduler {
                 Map<EcoType, Double> prices = new HashMap<>();
                 for (ItemStack item : block.getInventory().getContents()) {
                     if (item != null && item.getType() != Material.AIR) {
-                        ShopItem shopItem = EconomyShopGUIHook.getShopItem(item);
+                        ShopItem shopItem = !owner.isOnline() ? EconomyShopGUIHook.getShopItem(item) :
+                                EconomyShopGUI.getInstance().createItem.matchShopItem((Player) owner, item);
                         if (shopItem == null) continue; // Shop item not found/Not inside shop
 
                         int limit = this.getMaxSell(shopItem, item.getAmount(), items.getOrDefault(shopItem, 0));
@@ -185,7 +192,6 @@ public class SellScheduler {
      */
     private int getMaxSell(ShopItem shopItem, int qty, int alreadySold) {
         if (shopItem.isMaxSell(alreadySold + qty)) {
-            System.out.println(shopItem.getMaxSell() - alreadySold);
             if (alreadySold >= shopItem.getMaxSell())
                 return -1; // Item already reached max sell for this transaction
             qty = shopItem.getMaxSell() - alreadySold;
@@ -253,7 +259,12 @@ public class SellScheduler {
                 this.items = 0;
                 this.task = this.plugin.runTask(this.startNextInterval());
             } else {
-                if (this.intervalLogging && this.items > 0) this.plugin.getLogger().info("Completed sell interval and sold '" + this.items + "' items for " + this.chests.size() + " chests, starting next interval in " + (this.interval-finish) + "ms(" + ((this.interval - finish)/1000*20) + " ticks)...");
+                if (this.intervalLogging && this.items > 0) {
+                    if (this.logger == null) {
+                        // Log every interval
+                        this.plugin.getLogger().info("Completed sell interval and sold '" + this.items + "' items for " + this.chests.size() + " chests, starting next interval in " + (this.interval - finish) + "ms(" + ((this.interval - finish) / 1000 * 20) + " ticks)...");
+                    } else this.logger.addContents(this.items, this.chests.stream().map(Chest::getId).collect(Collectors.toSet()));
+                }
                 this.items = 0;
                 this.task = this.plugin.runTaskLater(this.startNextInterval(), (this.interval - finish)/1000*20);
             }
@@ -281,6 +292,8 @@ public class SellScheduler {
     public void stop() {
         this.plugin.getLogger().info("Canceling sell interval...");
         this.task.cancel();
+        if (this.logger != null)
+            this.logger.stop();
     }
 
 }
