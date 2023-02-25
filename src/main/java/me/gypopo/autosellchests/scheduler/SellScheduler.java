@@ -156,7 +156,7 @@ public class SellScheduler {
                     chest.addIncome(prices);
                     this.sellItems(items, owner.getUniqueId()); // Update DynamicPricing, limited stock and sell limits in Async
                     prices.forEach((type, price) -> {
-                        if (type.getType() != EconomyType.ITEM) {
+                        if (!type.getType().name().equalsIgnoreCase("ITEM") && !type.getType().name().equalsIgnoreCase("LEVELS")) {
                             EconomyShopGUIHook.getEcon(type).depositBalance(owner, price);
                         } else chest.addClaimAble(type, price);
                     });
