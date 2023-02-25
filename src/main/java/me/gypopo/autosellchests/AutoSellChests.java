@@ -228,7 +228,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     }
 
     public String formatPrice(EcoType econ, double price) {
-        if (econ != null && (econ.getType() == EconomyType.ITEM || econ.getType() == EconomyType.PLAYER_POINTS))
+        if (econ != null && (econ.getType().name().equalsIgnoreCase("ITEM") || econ.getType().name().equalsIgnoreCase("LEVELS") || econ.getType().name().equalsIgnoreCase("PLAYER_POINTS")))
             price = (double)Math.round(price);
 
         if (price == Math.floor(price)) {

@@ -161,7 +161,7 @@ public class Chest {
         Arrays.stream(income.split(",")).forEach(s -> {
             try {
                 EcoType econ = EconomyType.getFromString(s.split(";")[0]);
-                if (!EconomyShopGUIHook.getEcon(econ).getType().equals(econ))
+                if (EconomyShopGUIHook.getEcon(econ) == null)
                     return; // EconomyType not active
                 if (econ == null) {
                     Logger.warn("Failed to load economy type as '" + s + "' for input string '" + income + "'");
