@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandMap;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Event;
@@ -28,6 +29,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,7 +106,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             return;
         }
 
-        this.getCommand("autosellchests").setExecutor(new SellChestCommand(this));
+        this.registerCommands();
         this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         this.getServer().getPluginManager().registerEvents(this, this);
 
@@ -125,6 +127,19 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     public void onDisable() {
         if (this.manager != null) this.manager.disable();
         if (this.database != null) this.database.closeConnection();
+    }
+
+    private void registerCommands() {
+        try {
+            Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            bukkitCommandMap.setAccessible(true);
+            CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+
+            commandMap.register("autosellchests", new SellChestCommand(this));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Logger.warn("Exception occurred registering commands.");
+            e.printStackTrace();
+        }
     }
 
     public TimeUtils getTimeUtils() {

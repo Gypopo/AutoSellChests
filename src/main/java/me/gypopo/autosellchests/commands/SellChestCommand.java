@@ -12,6 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
@@ -19,13 +20,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SellChestCommand implements TabExecutor {
+public class SellChestCommand extends BukkitCommand {
 
     private final ArrayList<SubCommad> subCommads = new ArrayList<>();
 
     private final AutoSellChests plugin;
 
     public SellChestCommand(AutoSellChests plugin) {
+        super("autosellchests");
+        this.description = "The main command of AutoSellChests";
+        this.setPermission("autosellchests.use");
+        this.usageMessage = "/autosellchests <subcommand> <args>";
+        this.setAliases(Collections.singletonList("asc"));
+
         subCommads.add(new GiveChest());
         subCommads.add(new ViewChests());
         subCommads.add(new RemoveChest());
@@ -35,7 +42,7 @@ public class SellChestCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean execute(CommandSender sender, String label, String[] args) {
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
@@ -77,11 +84,13 @@ public class SellChestCommand implements TabExecutor {
 
     private boolean hasPermission(Player p) {
         return p.hasPermission("autosellchests.give") ||
-                p.hasPermission("autosellchests.view");
+                p.hasPermission("autosellchests.view") ||
+                p.hasPermission("autosellchests.reload") ||
+                p.hasPermission("autosellchests.remove");
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+    public List<String> tabComplete(CommandSender commandSender, String s, String[] args) {
         List<String> tabCompletions = new ArrayList<>();
 
         if (args.length == 1) {
