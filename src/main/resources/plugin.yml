@@ -1,5 +1,5 @@
 name: AutoSellChests
-version: 2.2.3
+version: 2.2.4
 main: me.gypopo.autosellchests.AutoSellChests
 api-version: 1.16
 authors: [ Gypopo ]

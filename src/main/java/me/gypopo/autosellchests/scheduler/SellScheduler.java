@@ -8,7 +8,6 @@ import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.objects.IntervalLogger;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
-import me.gypopo.economyshopgui.EconomyShopGUI;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.api.events.PostTransactionEvent;
 import me.gypopo.economyshopgui.objects.ShopItem;
@@ -125,7 +124,7 @@ public class SellScheduler {
                 for (ItemStack item : block.getInventory().getContents()) {
                     if (item != null && item.getType() != Material.AIR) {
                         ShopItem shopItem = !owner.isOnline() ? EconomyShopGUIHook.getShopItem(item) :
-                                EconomyShopGUI.getInstance().createItem.matchShopItem((Player) owner, item);
+                                EconomyShopGUIHook.getShopItem((Player) owner, item);
                         if (shopItem == null) continue; // Shop item not found/Not inside shop
 
                         int limit = this.getMaxSell(shopItem, item.getAmount(), items.getOrDefault(shopItem, 0));
