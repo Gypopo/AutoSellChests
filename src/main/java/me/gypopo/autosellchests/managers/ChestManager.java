@@ -7,6 +7,7 @@ import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.scheduler.SellScheduler;
 import me.gypopo.autosellchests.util.Logger;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -250,7 +251,7 @@ public class ChestManager {
         ItemMeta meta = item.getItemMeta();
 
         String name = Config.get().getString("fill-item.name");
-        meta.setDisplayName(name != null ? name : " ");
+        meta.setDisplayName(name != null ? ChatColor.translateAlternateColorCodes('&', name) : " ");
 
         item.setItemMeta(meta);
         return item;
