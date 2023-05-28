@@ -10,6 +10,7 @@ import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.api.events.PostTransactionEvent;
+import me.gypopo.economyshopgui.api.prices.AdvancedSellPrice;
 import me.gypopo.economyshopgui.objects.ShopItem;
 import me.gypopo.economyshopgui.util.EcoType;
 import me.gypopo.economyshopgui.util.EconomyType;
@@ -133,13 +134,12 @@ public class SellScheduler {
                         limit = this.getSellLimit(shopItem, owner.getUniqueId(), limit);
                         if (limit == -1) continue; // Sell limit reached
 
-                        ItemStack stack = new ItemStack(item);
-                        stack.setAmount(limit); // Set the final amount to the item to get the sell price
-                        double sellPrice = !owner.isOnline() ? EconomyShopGUIHook.getItemSellPrice(shopItem, stack) :
-                                EconomyShopGUIHook.getItemSellPrice(shopItem, stack, (Player) owner);
+                        if (EconomyShopGUIHook.isSellAble(shopItem)) {
+                            ItemStack stack = new ItemStack(item);
+                            stack.setAmount(limit); // Set the final amount to the item to get the sell price
 
-                        if (sellPrice > 0) {
-                            prices.put(shopItem.getEcoType(), prices.getOrDefault(shopItem.getEcoType(), 0.0) + sellPrice);
+                            this.calculateSellPrice(prices, shopItem, owner, item, limit, amount);
+
                             amount += limit;
                             if (limit < item.getAmount()) {
                                 item.setAmount(item.getAmount() - limit);
@@ -155,7 +155,7 @@ public class SellScheduler {
                     chest.addIncome(prices);
                     this.sellItems(items, owner.getUniqueId()); // Update DynamicPricing, limited stock and sell limits in Async
                     prices.forEach((type, price) -> {
-                        if (!type.getType().name().equalsIgnoreCase("ITEM") && !type.getType().name().equalsIgnoreCase("LEVELS")) {
+                        if (!this.isClaimableCurrency(type)) {
                             EconomyShopGUIHook.getEcon(type).depositBalance(owner, price);
                         } else chest.addClaimAble(type, price);
                     });
@@ -181,6 +181,38 @@ public class SellScheduler {
             //this.plugin.getLogger().info("Took " + (System.currentTimeMillis() - start) + "ms to sell the contents");
             this.processNextChest(i);
         };
+    }
+
+    /**
+     * A simple helper method to calculates the sell price of a shop item.
+     * <p>
+     * Since EconomyShopGUI-Premium v4.9.0 allows shop items to have multiple sell prices at once, we should check for that.
+     *
+     * @param prices The Map that stores the price(s) of the item
+     * @param shopItem The shopItem to calculate the price for
+     * @param p The player selling the item
+     * @param item The {@link ItemStack} that is being sold
+     * @param amount The amount that is being sold
+     * @param sold The amount of items that have been sold this batch(Useful for DynamicPricing)
+     */
+    private void calculateSellPrice(Map<EcoType, Double> prices, ShopItem shopItem, OfflinePlayer p, ItemStack item, int amount, int sold) {
+        if (EconomyShopGUIHook.hasMultipleSellPrices(shopItem)) {
+            // Get the sell price of every single registered sell price this item has
+            AdvancedSellPrice sellPrice = EconomyShopGUIHook.getMultipleSellPrices(shopItem);
+
+            if (p.isOnline()) { // Check discounts of player only when they are online
+                sellPrice.getSellPrices(sellPrice.giveAll() ? null : sellPrice.getSellTypes().get(0), (Player) p, item, amount, sold)
+                        .forEach((type, price) -> prices.put(type, prices.getOrDefault(type, 0d) + price));
+            } else sellPrice.getSellPrices(sellPrice.giveAll() ? null : sellPrice.getSellTypes().get(0), item)
+                    .forEach((type, price) -> prices.put(type, prices.getOrDefault(type, 0d) + price));
+
+        } else {
+            // The shop item only has one sell price
+            double sellPrice = !p.isOnline() ? EconomyShopGUIHook.getItemSellPrice(shopItem, item) :
+                        EconomyShopGUIHook.getItemSellPrice(shopItem, item, (Player) p, amount, sold);
+
+            prices.put(shopItem.getEcoType(), prices.getOrDefault(shopItem.getEcoType(), 0d) + sellPrice);
+        }
     }
 
     /**
@@ -230,11 +262,21 @@ public class SellScheduler {
     private void sellItems(Map<ShopItem, Integer> items, UUID playerUUID) {
         this.plugin.runTaskAsync(() -> {
             for (ShopItem item : items.keySet()) {
-                if (item.isRefillStock()) EconomyShopGUIHook.sellItemStock(item, playerUUID, items.get(item));
-                if (item.getLimitedSellMode() != 0) EconomyShopGUIHook.sellItemLimit(item, playerUUID, items.get(item));
-                EconomyShopGUIHook.sellItem(item, items.get(item));
+                if (item.isRefillStock())
+                    EconomyShopGUIHook.sellItemStock(item, playerUUID, items.get(item));
+                if (item.getLimitedSellMode() != 0)
+                    EconomyShopGUIHook.sellItemLimit(item, playerUUID, items.get(item));
+                if (item.isDynamicPricing())
+                    EconomyShopGUIHook.sellItem(item, items.get(item));
             }
         });
+    }
+
+    private boolean isClaimableCurrency(EcoType ecoType) {
+        return switch (ecoType.getType().name()) {
+            case "ITEM", "LEVELS", "EXP" -> true;
+            default -> false;
+        };
     }
 
     private void processNextChest(int index) {
