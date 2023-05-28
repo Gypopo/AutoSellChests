@@ -40,6 +40,8 @@ public class ChestManager {
     public final boolean soldItemsLoggingPlayer;
     public final boolean soldItemsLoggingConsole;
 
+    private static final ItemStack fillItem = ChestManager.createFillItem();
+
     private final Map<String, Integer> maxChests = new LinkedHashMap<>();
 
     private Map<ChestLocation, Chest> loadedChests = new HashMap<>();
@@ -73,6 +75,10 @@ public class ChestManager {
 
     public ArrayList<Chest> getChestsByPlayer(UUID uuid) {
         return this.loadedChestsByPlayer.getOrDefault(uuid, new ArrayList<>());
+    }
+
+    public static ItemStack getFillItem() {
+        return ChestManager.fillItem;
     }
 
     public Chest getChestByLocation(Location loc) {
@@ -228,5 +234,25 @@ public class ChestManager {
             i += chest.getLocation().isDoubleChest() ? 2 : 1;
         }
         return i;
+    }
+
+    private static ItemStack createFillItem() {
+        Material mat = Material.GRAY_STAINED_GLASS_PANE;
+
+        String material = Config.get().getString("fill-item.material");
+        if (material != null) {
+            if (Material.getMaterial(material) != null) {
+                mat = Material.getMaterial(material);
+            } else Logger.warn(String.format("Invalid material for fill-item %s, using default...", material));
+        }
+
+        ItemStack item = new ItemStack(mat);
+        ItemMeta meta = item.getItemMeta();
+
+        String name = Config.get().getString("fill-item.name");
+        meta.setDisplayName(name != null ? name : " ");
+
+        item.setItemMeta(meta);
+        return item;
     }
 }

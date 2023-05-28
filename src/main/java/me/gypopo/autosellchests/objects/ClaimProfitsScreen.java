@@ -2,6 +2,7 @@ package me.gypopo.autosellchests.objects;
 
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.economyshopgui.util.EcoType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -47,11 +48,7 @@ public class ClaimProfitsScreen implements InventoryHolder {
 
         for (int i = 0; i < this.inv.getSize(); i++) {
             if (this.inv.getItem(i) == null) {
-                ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-                ItemMeta meta = item.getItemMeta();
-                meta.setDisplayName(" ");
-                item.setItemMeta(meta);
-                this.inv.setItem(i, item);
+                this.inv.setItem(i, ChestManager.getFillItem());
             }
         }
     }

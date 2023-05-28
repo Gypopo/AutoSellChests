@@ -8,7 +8,7 @@ autosell-interval: "10m"
 
 # By default players can actively use 5 sell chests, but this can be overriden using permissions
 # Example: Players with permission 'autosellchests.maxchests.donator' will be able to use 15 sell chests at a time
-# A player that has two or more overrides, will use the highest value
+# A player that has two or more overrides(permissions), will use the highest value
 max-sellchests:
   default: 5
   override:
@@ -71,5 +71,11 @@ sold-items-logging-player: true
 # Enable or disable messages send to console for when any sell chest has sold items
 sold-items-logging-console: false
 
+# The fill item which fills empty spots inside any GUI
+fill-item:
+  material: GRAY_STAINED_GLASS_PANE
+  name: " "
+
+# Compatibility mode enables support for chests which are created before plugin version v2.3.0
 # Debug mode logs extra messages to console for better debugging
 debug: false
