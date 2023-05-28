@@ -22,6 +22,7 @@ public class ConfigUtil {
         int configVer = Integer.parseInt(Config.get().getString("config-version", "1.0.0").replace(".", ""));
         if (configVer < Integer.parseInt(YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource("config.yml"))).getString("config-version").replace(".", ""))) {
             Logger.info("Updating configs to newer version");
+
             if (configVer == 100) {
                 int max = Config.get().getInt("player-max-sellchests");
                 if (max != 0)
@@ -29,6 +30,13 @@ public class ConfigUtil {
 
                 configVer = 101;
             }
+
+            if (configVer == 101) {
+                Config.get().set("compatibility-mode", true);
+
+                configVer = 102;
+            }
+
             Config.get().set("config-version", getConfigVersion(configVer));
             Config.save();
             Config.reload();

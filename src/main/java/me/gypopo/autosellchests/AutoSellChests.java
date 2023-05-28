@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandMap;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -49,6 +50,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
     private SQLite database;
     private final TimeUtils timeUtils = new TimeUtils();
+    private final NamespacedKey key = new NamespacedKey(this, "autosell");
     private ChestManager manager;
     public boolean debug;
 
@@ -148,6 +150,10 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
     public SQLite getDatabase() {
         return this.database;
+    }
+
+    public NamespacedKey getKey() {
+        return this.key;
     }
 
     public ChestManager getManager() {
