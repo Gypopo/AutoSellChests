@@ -5,10 +5,13 @@ import me.gypopo.autosellchests.commands.SubCommad;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.util.Logger;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GiveChest implements SubCommad {
 
@@ -115,8 +118,7 @@ public class GiveChest implements SubCommad {
     public List<String> getTabCompletion(String[] args) {
         switch (args.length) {
             case 2:
-                // No need to suggest online players because it will happen from default
-                return null;
+                return Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
             case 3:
                 return Arrays.asList("1", "2", "3", "5", "10");
             default:

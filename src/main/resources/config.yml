@@ -76,6 +76,5 @@ fill-item:
   material: GRAY_STAINED_GLASS_PANE
   name: " "
 
-# Compatibility mode enables support for chests which are created before plugin version v2.3.0
 # Debug mode logs extra messages to console for better debugging
 debug: false

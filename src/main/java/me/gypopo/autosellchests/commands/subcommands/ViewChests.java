@@ -6,8 +6,12 @@ import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.util.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.HumanEntity;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ViewChests implements SubCommad {
 
@@ -46,6 +50,11 @@ public class ViewChests implements SubCommad {
 
     @Override
     public List<String> getTabCompletion(String[] args) {
-        return null;
+        switch (args.length) {
+            case 2:
+                return Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
+            default:
+                return null;
+        }
     }
 }
