@@ -196,9 +196,9 @@ public class PlayerListener implements Listener {
                 new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
             } else if (e.getSlot() == 6) {
                 new AnvilGUI.Builder()
-                        .onComplete((completion) -> {
-                            if(!completion.getText().isEmpty())
-                                chest.setName(Lang.formatColors(completion.getText(), null));
+                        .onClick((i, state) -> {
+                            if(!state.getText().isEmpty())
+                                chest.setName(Lang.formatColors(state.getText(), null));
                             new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
                             return Collections.singletonList(AnvilGUI.ResponseAction.close());
                         })
