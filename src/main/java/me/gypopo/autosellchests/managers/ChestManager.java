@@ -7,10 +7,7 @@ import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.scheduler.SellScheduler;
 import me.gypopo.autosellchests.util.Logger;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -187,6 +184,7 @@ public class ChestManager {
         ItemMeta meta = chest.getItemMeta();
         meta.setDisplayName(chestName);
         meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", this.plugin.getTimeUtils().getReadableTime(this.sellInterval)), null)).collect(Collectors.toList()));
+        meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell"), PersistentDataType.INTEGER, 1);
         chest.setItemMeta(meta);
         return chest;
     }
@@ -197,6 +195,7 @@ public class ChestManager {
         meta.setDisplayName(chestName);
         meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", this.plugin.getTimeUtils().getReadableTime(this.sellInterval)), null).replace("%multiplier%", String.valueOf(multiplier))).collect(Collectors.toList()));
         meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "multiplier"), PersistentDataType.DOUBLE, multiplier);
+        meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell"), PersistentDataType.INTEGER, 1);
         chest.setItemMeta(meta);
         return chest;
     }

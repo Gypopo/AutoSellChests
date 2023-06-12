@@ -31,6 +31,7 @@ import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +41,7 @@ public class PlayerListener implements Listener {
 
     private final AutoSellChests plugin;
     private ChestConfirmation chestConfirmation;
+    private final boolean compatibilityMode;
     private final Sound placeSound;
     private final Sound breakSound;
     private final long soundVolume;
@@ -61,6 +63,9 @@ public class PlayerListener implements Listener {
             this.chestConfirmation = ChestConfirmation.BOSS_BAR;
             Logger.warn("Could not find a valid confirmation effect with name '" + Config.get().getString("chest-confirmation-effect") + "'");
         }
+
+        // Compatibility mode which enables support for placing chests created before 2.4.0
+        this.compatibilityMode = Config.get().getBoolean("compatibility-mode");
     }
 
     @EventHandler
@@ -91,7 +96,7 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        if (!e.getItemInHand().hasItemMeta() || !e.getItemInHand().getItemMeta().getDisplayName().equals(ChestManager.chestName)) {
+        if (!this.isChest(e.getItemInHand())) {
             return;
         }
 
@@ -256,5 +261,20 @@ public class PlayerListener implements Listener {
             }
         }
         return SoundCategory.AMBIENT;
+    }
+
+    private boolean isChest(ItemStack item) {
+        if (!item.hasItemMeta())
+            return false;
+
+        if (this.compatibilityMode) {
+            return item.getItemMeta().getDisplayName().equals(ChestManager.chestName);
+        } else {
+            try {
+                return item.getItemMeta().getPersistentDataContainer().get(this.plugin.getKey(), PersistentDataType.INTEGER) == 1;
+            } catch (Exception e) {
+                return false;
+            }
+        }
     }
 }
