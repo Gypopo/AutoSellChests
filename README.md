@@ -23,7 +23,7 @@ This is a lightweight plugin thanks to how the chests are sold, the chests get p
 
 There is a default English language file embeded which contains all messages from the plugin which then can be translated to your likings.
 
-This plugin is compatible with minecraft version 1.16-1.19.
+This plugin is compatible with minecraft version 1.16-1.20.
 
 ## Downloads:
 - [SpigotMC](https://www.spigotmc.org/resources/autosellchests.103060/)
