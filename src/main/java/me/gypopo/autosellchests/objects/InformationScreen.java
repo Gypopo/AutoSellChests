@@ -13,6 +13,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +24,7 @@ public class InformationScreen implements InventoryHolder {
     private final Inventory inv;
     private final Chest chest;
     private final Location selectedChest;
+    private BukkitTask dynamicLore;
 
     public InformationScreen(Chest chest, Location location) {
         this.inv = Bukkit.createInventory(this, 45, Lang.INFO_SCREEN_TITLE.get());
@@ -93,6 +95,8 @@ public class InformationScreen implements InventoryHolder {
                 this.inv.setItem(i, ChestManager.getFillItem());
             }
         }
+
+        this.dynamicLore = this.updateTime(nextSell);
     }
 
     private String getNextInterval() {
@@ -101,6 +105,26 @@ public class InformationScreen implements InventoryHolder {
         } else {
             return AutoSellChests.getInstance().getTimeUtils().getReadableTime(this.chest.getNextInterval() - System.currentTimeMillis());
         }
+    }
+
+    // Every second use player#getItemOnCursor() so the lore is only updated if the player hovers this item
+    private BukkitTask updateTime(ItemStack item) {
+        return AutoSellChests.getInstance().runTaskTimer(() -> {
+            if (this.inv.getViewers().isEmpty())
+                this.stopTask();
+
+            ItemMeta meta = item.getItemMeta();
+            List<String> lore = meta.getLore();
+            lore.set(lore.size()-1, Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", this.getNextInterval()));
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+
+            this.inv.setItem(13, item);
+        }, 20, 20);
+    }
+
+    private void stopTask() {
+        this.dynamicLore.cancel();
     }
 
     public Chest getChest() {

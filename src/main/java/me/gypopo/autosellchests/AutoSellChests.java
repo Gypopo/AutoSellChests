@@ -10,7 +10,9 @@ import me.gypopo.autosellchests.metrics.Metrics;
 import me.gypopo.autosellchests.util.ConfigUtil;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
+import me.gypopo.autosellchests.util.Version;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
+import me.gypopo.economyshopgui.api.events.ShopItemsLoadEvent;
 import me.gypopo.economyshopgui.providers.EconomyProvider;
 import me.gypopo.economyshopgui.util.EcoType;
 import me.gypopo.economyshopgui.util.EconomyType;
@@ -52,20 +54,22 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private final TimeUtils timeUtils = new TimeUtils();
     private final NamespacedKey key = new NamespacedKey(this, "autosell");
     private ChestManager manager;
+    private boolean ready = false;
     public boolean debug;
 
     @Override
     public void onEnable() {
         boolean premium;
 
+        Version version;
         if (Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI") != null) {
             this.getLogger().info("Found EconomyShopGUI, enabling...");
             if (!this.validateAPI()) return;
 
             premium = false;
-            int version = Integer.parseInt(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI").getDescription().getVersion().split("-")[0].replace(".", ""));
-            if (version < 551) {
-                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v5.5.1 or later, disabling...");
+            version = new Version(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI").getDescription().getVersion());
+            if (version.isSmaller(new Version("5.5.1"))) {
+                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v5.5.1 or later, found v" + version.getVer() + ", disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
             }
@@ -74,9 +78,9 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             if (!this.validateAPI()) return;
 
             premium = true;
-            int version = Integer.parseInt(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium").getDescription().getVersion().split("-")[0].replace(".", ""));
-            if (version < 4102) {
-                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI Premium, please download version v4.10.2 or later, disabling...");
+            version = new Version(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium").getDescription().getVersion());
+            if (version.isSmaller(new Version("4.10.2"))) {
+                this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI Premium, please download version v4.10.2 or later, found v" + version.getVer() + ", disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
             }
@@ -226,6 +230,11 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
     private boolean isPluginEnabled(boolean premium) {
         return this.getServer().getPluginManager().getPlugin("EconomyShopGUI" + (premium ? "-Premium" : "")).isEnabled();
+    }
+
+    @EventHandler
+    public void onShopItemsLoadEvent(final ShopItemsLoadEvent e) {
+        this.ready = true;
     }
 
     private boolean validateAPI() {
