@@ -62,7 +62,9 @@ current-value: "&eCurrent value: &a%value%"
 change-chest-name: "<gradient:#FF4A4A>Click to update the name of this chest</gradient:#FFDBDB>"
 # The current name of the AutoSellChest
 current-displaymame: "&eCurrent: &a%chest-name%"
-# When a sell chest is placed against a regular chest or non sell chest
+# When a sell chest is placed against a regular chest
 cannot-form-double-chest: "&cThe sell chest cannot be a placed against a non sell chest"
+# When a regular chest is placed against a sell chest
+cannot-place-chest-against-sell-chest: "&cThis chest cannot be placed against a sell chest"
 # When a player tries to remove someone's else's sell chest and doesn't have permissions
 cannot-remove-sell-chest: "&cYou do not have the required permissions to remove this sell chest"

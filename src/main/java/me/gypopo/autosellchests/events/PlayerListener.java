@@ -96,31 +96,34 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        if (!this.isChest(e.getItemInHand())) {
-            return;
-        }
-
-        if (!e.getPlayer().hasPermission("autosellchests.place")) {
-            Logger.sendPlayerMessage(e.getPlayer(), Lang.NO_PERMISSIONS.get());
-            e.setCancelled(true);
-            return;
-        }
-
-        int max = this.plugin.getManager().getMaxSell(e.getPlayer());
-        if (!e.getPlayer().hasPermission("autosellchests.maxchests.override") &&
-                this.plugin.getManager().getOwnedChests(e.getPlayer()) >= max) {
-            Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(max)));
-            e.setCancelled(true);
-            return;
-        }
-
-        Location loc = e.getBlockPlaced().getLocation();
         this.plugin.runTaskLater(() -> {
-            if (((org.bukkit.block.Chest)e.getBlockPlaced().getState()).getInventory() instanceof DoubleChestInventory) {
-                DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest)e.getBlockPlaced().getState()).getInventory();
+            if (!this.isChest(e.getItemInHand())) {
+                this.checkPlacement(e.getPlayer(), e.getBlockPlaced());
+                return;
+            }
+
+            if (!e.getPlayer().hasPermission("autosellchests.place")) {
+                Logger.sendPlayerMessage(e.getPlayer(), Lang.NO_PERMISSIONS.get());
+                e.setCancelled(true);
+                return;
+            }
+
+            int max = this.plugin.getManager().getMaxSell(e.getPlayer());
+            if (!e.getPlayer().hasPermission("autosellchests.maxchests.override") &&
+                    this.plugin.getManager().getOwnedChests(e.getPlayer()) >= max) {
+                Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(max)));
+                e.setCancelled(true);
+                return;
+            }
+
+            Location loc = e.getBlockPlaced().getLocation();
+            if (((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory() instanceof DoubleChestInventory) {
+                DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory();
                 Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
                 if (this.plugin.getManager().getChestByLocation(original) == null) {
                     Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST.get());
+                    e.getPlayer().getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(1));
+                    loc.getBlock().setType(Material.AIR);
                     return;
                 }
                 this.plugin.getManager().addChest(new ChestLocation(original, loc), e.getPlayer());
@@ -129,7 +132,8 @@ public class PlayerListener implements Listener {
             loc.add(0.5, 0.5, 0.5);
             loc.getWorld().spawnParticle(Particle.SPELL_WITCH, loc, 10);
             loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 10, new Particle.DustOptions(Color.RED, 2F));
-            if (this.placeSound != null) loc.getWorld().playSound(loc, this.placeSound, this.getSoundCategory(this.placeSound), this.soundVolume, this.soundPitch);
+            if (this.placeSound != null)
+                loc.getWorld().playSound(loc, this.placeSound, this.getSoundCategory(this.placeSound), this.soundVolume, this.soundPitch);
             Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get().replace("%chest-name%", this.plugin.getManager().getDefaultChestName()));
             this.chestConfirmation.playEffect(e.getPlayer());
 
@@ -276,5 +280,20 @@ public class PlayerListener implements Listener {
                 return false;
             }
         }
+    }
+
+    private boolean checkPlacement(Player player, Block block) {
+        Location loc = block.getLocation();
+        if (((org.bukkit.block.Chest) block.getState()).getInventory() instanceof DoubleChestInventory) {
+            DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) block.getState()).getInventory();
+            Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
+            if (this.plugin.getManager().getChestByLocation(original) != null) {
+                Logger.sendPlayerMessage(player, Lang.CANNOT_PLACE_CHEST_AGAINST_SELL_CHEST.get());
+                block.breakNaturally();
+                return false;
+            }
+        }
+
+        return true;
     }
 }
