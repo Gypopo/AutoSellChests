@@ -59,6 +59,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        instance = this;
         boolean premium;
 
         Version version;
@@ -88,7 +89,6 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.getLogger().warning("Could not find EconomyShopGUI(Premium), disabling...");
             return;
         }
-        instance = this;
 
         if (!this.isSpigotServer()) {
             this.getLogger().warning("It seems like you are using a server type which does not support spigot, please install a supported server type like Paper which can be downloaded from here: https://papermc.io/");

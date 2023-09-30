@@ -36,7 +36,7 @@ public class Version {
             this.patch = parts.length >= 3 ? Integer.parseInt(parts[2]) : 0;
             this.beta = parts.length >= 4 ? Integer.parseInt(parts[3]) : 0;
         } catch (NumberFormatException e) {
-            AutoSellChests.getInstance().getServer().getLogger().warning("Invalid version numbering for '" + version + "'");
+            AutoSellChests.getInstance().getServer().getLogger().warning("[AutoSellChests] Invalid version numbering for '" + version + "'");
         }
     }
 
