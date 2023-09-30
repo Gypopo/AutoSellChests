@@ -6,12 +6,11 @@ api-version: '1.19'
 has-open-classloader: true
 
 dependencies:
-  - name: EconomyShopGUI
-    required: false
-    bootstrap: false
-  - name: EconomyShopGUI-Premium
-    required: false
-    bootstrap: false
+  server:
+    EconomyShopGUI:
+      required: false
+    EconomyShopGUI-Premium:
+      required: false
 
 permissions:
   autosellchests.use:
