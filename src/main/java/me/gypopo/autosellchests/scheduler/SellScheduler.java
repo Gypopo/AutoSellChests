@@ -119,28 +119,40 @@ public class SellScheduler {
                     return;
                 }
 
-                ItemStack[] items = block.getInventory().getContents(); // Retrieve the items from the inventory
-                SellPrices prices = EconomyShopGUIHook.getCutSellPrices(owner, items, true); // Get the sell prices of the items, and modify the array
-                block.getInventory().setContents(items); // Update the inventory with the updated array of items
+                Map<EcoType, Double> prices = new HashMap<>();
+                for (ItemStack item : block.getInventory().getContents()) {
+                    if (item == null || item.getType() == Material.AIR)
+                        continue;
+
+                    Optional<SellPrice> optional = EconomyShopGUIHook.getSellPrice(owner, item);
+                    if (!optional.isPresent())
+                        continue;
+                    // The item was able to be sold, according all item limits
+                    SellPrice price = optional.get();
+
+                    price.updateLimits(); // Update all item limits set on items
+                    for (Map.Entry<EcoType, Double> entry : price.getPrices().entrySet()) {
+                        prices.put(entry.getKey(), prices.getOrDefault(entry.getKey(), 0d) + entry.getValue());
+                    }
+                }
 
                 if (!prices.isEmpty()) {
-                    int total = prices.getItems().values().stream().mapToInt(Integer::intValue).sum();
+                    int total = 0;
                     this.items += total;
                     chest.addItemsSold(total);
-                    chest.addIncome(prices.getPrices());
-                    prices.updateLimits(); // Update DynamicPricing, limited stock and sell limits in Async
-                    prices.getPrices().forEach((type, price) -> {
+                    chest.addIncome(prices);
+                    prices.forEach((type, price) -> {
                         if (!this.isClaimableCurrency(type)) {
                             EconomyShopGUIHook.getEcon(type).depositBalance(owner, price);
                         } else chest.addClaimAble(type, price);
                     });
                     if (chest.isLogging() && this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline()) {
-                        Logger.sendPlayerMessage((Player) owner, this.plugin.formatPrices(prices.getPrices(), Lang.ITEMS_SOLD_PLAYER_LOG.get()
+                        Logger.sendPlayerMessage((Player) owner, this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_PLAYER_LOG.get()
                                         .replace("%chest-name%", chest.getName()).replace("%amount%", String.valueOf(total)))
                                         .replace("%id%", String.valueOf(chest.getId())));
                     }
                     if (this.plugin.getManager().soldItemsLoggingConsole) {
-                        Logger.info(this.plugin.formatPrices(prices.getPrices(), Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName())
+                        Logger.info(this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName())
                                 .replace("%location%", "world '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ())
                                 .replace("%amount%", String.valueOf(total)).replace("%id%", String.valueOf(chest.getId())))));
                     }
