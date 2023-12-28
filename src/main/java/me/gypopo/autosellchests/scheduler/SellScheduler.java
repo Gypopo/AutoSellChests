@@ -10,6 +10,7 @@ import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.api.events.PostTransactionEvent;
+import me.gypopo.economyshopgui.api.objects.SellPrices;
 import me.gypopo.economyshopgui.api.prices.AdvancedSellPrice;
 import me.gypopo.economyshopgui.objects.ShopItem;
 import me.gypopo.economyshopgui.util.EcoType;
@@ -45,6 +46,7 @@ public class SellScheduler {
 
     private final boolean onlineOwner;
     private final boolean intervalLogging;
+    private final boolean supportsNewAPI; // Whether we can use EconomyShopGUI API v1.7.0+
 
     private final ArrayList<Chest> chests = new ArrayList<>(); // All chests that have to be sold this interval
     private int next; // The interval between each chest
@@ -59,6 +61,7 @@ public class SellScheduler {
         this.ticks = interval / 1000L * 20L;
         this.onlineOwner = Config.get().getBoolean("online-chest-owner", true);
         this.intervalLogging = Config.get().getBoolean("interval-logs.enable");
+        this.supportsNewAPI = this.plugin.supportsNewAPI;
 
         // Give the server 2 minutes to fully start before starting the interval
         Logger.info("Starting first sell interval in 15 seconds");
@@ -92,11 +95,75 @@ public class SellScheduler {
             }
             this.next = Math.max(1, (int) i); // This makes it so not all chests get sold at once, but spread over the full interval
             // Start the actual loop
-            this.plugin.runTask(this.sellContents(this.chests.get(0), 0));
+            this.plugin.runTask(this.supportsNewAPI ? this.sellContents1_7(this.chests.get(0), 0) : this.sellContents1_6(this.chests.get(0), 0));
         };
     }
 
-    private Runnable sellContents(Chest chest, int i) {
+    // Sell the chest contents using API methods available in EconomyShopGUI v6.2.6/EconomyShopGUI Premium v5.5.4 and older versions(API v1.7.0 and above)
+    private Runnable sellContents1_7(Chest chest, int i) {
+        return () -> {
+            try {
+                OfflinePlayer owner = Bukkit.getOfflinePlayer(chest.getOwner());
+                if (this.onlineOwner && !owner.isOnline()) {
+                    //Logger.debug("Owner from chest " + chest.getId() + " is not online, skipping...");
+                    this.processNextChest(i);
+                    return;
+                }
+                if (!this.plugin.getManager().getLoadedChests().containsKey(chest.getLocation())) {
+                    Logger.debug("Did not found sell chest with id " + chest.getId() + " while executing the sell interval, skipping...");
+                    this.processNextChest(i);
+                    return;
+                }
+                chest.setNextInterval(System.currentTimeMillis() + this.interval);
+                //Logger.debug("Starting sell interval for chest with id " + chest.getId());
+
+                org.bukkit.block.Chest block = (org.bukkit.block.Chest) chest.getLocation().getLeftLocation().getBlock().getState();
+                if (block.getInventory().isEmpty()) {
+                    this.processNextChest(i);
+                    return;
+                }
+
+                ItemStack[] items = block.getInventory().getContents(); // Retrieve the items from the inventory
+                SellPrices prices = EconomyShopGUIHook.getCutSellPrices(owner, items, true); // Get the sell prices of the items, and modify the array
+                block.getInventory().setContents(items); // Update the inventory with the updated array of items
+
+                if (!prices.isEmpty()) {
+                    int total = prices.getItems().values().stream().mapToInt(Integer::intValue).sum();
+                    this.items += total;
+                    chest.addItemsSold(total);
+                    chest.addIncome(prices.getPrices());
+                    prices.updateLimits(); // Update DynamicPricing, limited stock and sell limits **in sync** | Should be fairly safe to call synchronous
+                    prices.getPrices().forEach((type, price) -> {
+                        if (!this.isClaimableCurrency(type)) {
+                            EconomyShopGUIHook.getEcon(type).depositBalance(owner, price);
+                        } else chest.addClaimAble(type, price);
+                    });
+                    if (chest.isLogging() && this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline()) {
+                        Logger.sendPlayerMessage((Player) owner, this.plugin.formatPrices(prices.getPrices(), Lang.ITEMS_SOLD_PLAYER_LOG.get()
+                                        .replace("%chest-name%", chest.getName()).replace("%amount%", String.valueOf(total)))
+                                .replace("%id%", String.valueOf(chest.getId())));
+                    }
+                    if (this.plugin.getManager().soldItemsLoggingConsole) {
+                        Logger.info(this.plugin.formatPrices(prices.getPrices(), Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName())
+                                .replace("%location%", "world '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ())
+                                .replace("%amount%", String.valueOf(total)).replace("%id%", String.valueOf(chest.getId())))));
+                    }
+                }
+            } catch (Exception e) {
+                Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome(null) + " | TotalItemsSold: " + chest.getItemsSold());
+                if (e instanceof ClassCastException) {
+                    Logger.warn("The chest at this location does not longer exist, removing chest from database...");
+                    this.plugin.getManager().removeChest(new ChestLocation(chest.getLocation().getLeftLocation()));
+                }
+                if (this.plugin.debug) e.printStackTrace();
+            }
+            //this.plugin.getLogger().info("Took " + (System.currentTimeMillis() - start) + "ms to sell the contents");
+            this.processNextChest(i);
+        };
+    }
+
+    // Sell the chest contents using API methods available in EconomyShopGUI v6.2.5/EconomyShopGUI Premium v5.5.3 and earlier versions(API v1.6.2 and earlier)
+    private Runnable sellContents1_6(Chest chest, int i) {
         return () -> {
             try {
                 OfflinePlayer owner = Bukkit.getOfflinePlayer(chest.getOwner());
@@ -285,7 +352,7 @@ public class SellScheduler {
             Chest next = this.chests.get(index);
             if (next.getLocation().getLeftLocation().getWorld().isChunkLoaded(next.getLocation().getLeftLocation().getBlockX() >> 4, next.getLocation().getLeftLocation().getBlockZ() >> 4)) { // See if the chest is still loaded
                 for (int i = 0; i < this.amount; i++) { // Run the amount of chests that needs to be sold at once
-                    this.plugin.runTaskLater(this.sellContents(next, index), this.next);
+                    this.plugin.runTaskLater(this.supportsNewAPI ? this.sellContents1_7(next, index) : this.sellContents1_6(next, index), this.next);
                 }
             } else this.processNextChest(index); // Skip this chest
         } catch (IndexOutOfBoundsException e) {

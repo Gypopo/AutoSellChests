@@ -55,12 +55,13 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private final NamespacedKey key = new NamespacedKey(this, "autosell");
     private ChestManager manager;
     private boolean ready = false;
+    public boolean supportsNewAPI; // Whether we can use EconomyShopGUI API v1.7.0+
     public boolean debug;
 
     @Override
     public void onEnable() {
         instance = this;
-        boolean premium;
+        boolean premium; // Whether we use the premium version of the plugin
 
         Version version;
         if (Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI") != null) {
@@ -69,6 +70,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
             premium = false;
             version = new Version(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI").getDescription().getVersion());
+            supportsNewAPI = version.isGreater(new Version("6.2.5"));
             if (version.isSmaller(new Version("5.5.1"))) {
                 this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v5.5.1 or later, found v" + version.getVer() + ", disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
@@ -80,6 +82,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
             premium = true;
             version = new Version(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium").getDescription().getVersion());
+            supportsNewAPI = version.isGreater(new Version("5.5.3"));
             if (version.isSmaller(new Version("4.10.2"))) {
                 this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI Premium, please download version v4.10.2 or later, found v" + version.getVer() + ", disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
@@ -99,6 +102,10 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         if (this.checkForGson()) {
             Metrics metrics = new Metrics(this, 15605);
             metrics.addCustomChart(new Metrics.SimplePie("esgui_ver", () -> premium ? "EconomyShopGUI-Premium" : "EconomyShopGUI"));
+        }
+
+        if (supportsNewAPI) {
+            this.getLogger().info("Using new API methods for improved performance...");
         }
 
         Config.setup();
