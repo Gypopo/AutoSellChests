@@ -96,6 +96,7 @@ public class PlayerListener implements Listener {
             return;
         }
 
+        // Run task on 1 tick delay to check whether this forms a double chest
         this.plugin.runTaskLater(() -> {
             if (!this.isChest(e.getItemInHand())) {
                 this.checkPlacement(e.getPlayer(), e.getBlockPlaced());
@@ -120,10 +121,13 @@ public class PlayerListener implements Listener {
             if (((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory() instanceof DoubleChestInventory) {
                 DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory();
                 Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
-                if (this.plugin.getManager().getChestByLocation(original) == null) {
-                    Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST.get());
-                    e.getPlayer().getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(1));
-                    loc.getBlock().setType(Material.AIR);
+                Chest left = this.plugin.getManager().getChestByLocation(original);
+                if (left == null || left.getOwner() != e.getPlayer().getUniqueId()) {
+                    if (left == null) {
+                        Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST.get());
+                    } else Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_PLACE_SELL_CHEST_HERE.get());
+
+                    e.getBlockPlaced().breakNaturally();
                     return;
                 }
                 this.plugin.getManager().addChest(new ChestLocation(original, loc), e.getPlayer());

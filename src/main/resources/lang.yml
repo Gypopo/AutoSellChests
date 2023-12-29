@@ -64,6 +64,8 @@ change-chest-name: "<gradient:#FF4A4A>Click to update the name of this chest</gr
 current-displaymame: "&eCurrent: &a%chest-name%"
 # When a sell chest is placed against a regular chest
 cannot-form-double-chest: "&cThe sell chest cannot be a placed against a non sell chest"
+# When a sell chest is placed against someone else's sell chest
+cannot-place-sell-chest-here: "&cYou may not place a #FF7070Sell#CDCDCDChest &chere"
 # When a regular chest is placed against a sell chest
 cannot-place-chest-against-sell-chest: "&cThis chest cannot be placed against a sell chest"
 # When a player tries to remove someone's else's sell chest and doesn't have permissions

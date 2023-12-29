@@ -25,6 +25,7 @@ public enum Lang {
     ITEMS_SOLD_CONSOLE_INTERVAL("Completed %count% sell interval(s) for %chests% loaded sell chest(s) and sold %items% item(s) in the last %interval%."),
     ITEMS_SOLD_CONSOLE_LOG("Sell chest with id '%id%' from player %player% on location %location% has sold %amount% item(s) for %profit%"),
     NO_PERMISSIONS("&cYou do not have permissions for that"),
+    NO_PERMISSIONS_FOR_CHEST("&cYou do not have permissions to access this #FF7070Sell#CDCDCDChest"),
     SELL_CHEST_GIVEN_LOG("%player_name% was given %amount% SellChests"),
     SELL_CHEST_MULTIPLIER_GIVEN_LOG("%player_name% was given %amount% SellChests with a %multiplier%% sell multiplier"),
     PLAYER_SELL_CHEST_GIVEN("&cYou were given &7%amount% #FF7070Sell#CDCDCDChests"),
@@ -33,6 +34,7 @@ public enum Lang {
     PLACED_SELL_CHESTS_ACTION_BAR_MAX("∞"),
     PLACED_SELL_CHESTS_BOSS_BAR("&a&lPlaced sell chests:"),
     CANNOT_FORM_DOUBLE_CHEST("&cThe sell chest cannot be a placed against a non sell chest"),
+    CANNOT_PLACE_SELL_CHEST_HERE("&cYou may not place a #FF7070Sell#CDCDCDChest &chere"),
     CANNOT_PLACE_CHEST_AGAINST_SELL_CHEST("&cThis chest cannot be placed against a sell chest"),
     CANNOT_REMOVE_SELL_CHEST("&cYou do not have the required permissions to remove this sell chest"),
 
