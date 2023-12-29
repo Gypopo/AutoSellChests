@@ -122,7 +122,7 @@ public class PlayerListener implements Listener {
                 DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory();
                 Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
                 Chest left = this.plugin.getManager().getChestByLocation(original);
-                if (left == null || left.getOwner() != e.getPlayer().getUniqueId()) {
+                if (left == null || !left.getOwner().equals(e.getPlayer().getUniqueId())) {
                     if (left == null) {
                         Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST.get());
                     } else Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_PLACE_SELL_CHEST_HERE.get());
