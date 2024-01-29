@@ -127,7 +127,9 @@ public class PlayerListener implements Listener {
                         Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST.get());
                     } else Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_PLACE_SELL_CHEST_HERE.get());
 
-                    e.getBlockPlaced().breakNaturally();
+                    loc.add(0.5, 0.5, 0.5);
+                    loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
+                    loc.getBlock().setType(Material.AIR);
                     return;
                 }
                 this.plugin.getManager().addChest(new ChestLocation(original, loc), e.getPlayer());
