@@ -61,7 +61,7 @@ current-value: "&eCurrent value: &a%value%"
 # Change the chest name
 change-chest-name: "<gradient:#FF4A4A>Click to update the name of this chest</gradient:#FFDBDB>"
 # The current name of the AutoSellChest
-current-displaymame: "&eCurrent: &a%chest-name%"
+current-displayname: "&eCurrent: &a%chest-name%"
 # When a sell chest is placed against a regular chest
 cannot-form-double-chest: "&cThe sell chest cannot be a placed against a non sell chest"
 # When a sell chest is placed against someone else's sell chest
