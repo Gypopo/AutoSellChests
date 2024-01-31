@@ -38,6 +38,9 @@ public enum Lang {
     CANNOT_PLACE_CHEST_AGAINST_SELL_CHEST("&cThis chest cannot be placed against a sell chest"),
     CANNOT_REMOVE_SELL_CHEST("&cYou do not have the required permissions to remove this sell chest"),
 
+    // Formats
+    LOCATION_FORMAT("World '%world%', x%pos_x%, y%pos_y%, z%pos_z%"),
+
     // Chest information screen
     DESTROY_CHEST("&c&lPick up this #CDCDCD&lAuto#FF7070&lSell#CDCDCD&lChest"),
 

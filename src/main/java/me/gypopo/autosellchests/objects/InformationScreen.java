@@ -1,5 +1,6 @@
 package me.gypopo.autosellchests.objects;
 
+import eu.decentsoftware.holograms.api.utils.scheduler.S;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
@@ -46,7 +47,7 @@ public class InformationScreen implements InventoryHolder {
         nsM.setDisplayName(Lang.SELL_CHEST_BLOCK_INFO.get());
         List<String> info = new ArrayList<>();
         info.add(Lang.SELL_CHEST_OWNER.get().replace("%player_name%", Bukkit.getOfflinePlayer(this.chest.getOwner()).getName()));
-        info.addAll(AutoSellChests.splitLongString(Lang.SELL_CHEST_LOCATION.get().replace("%loc%", "World '" + this.selectedChest.getWorld().getName() + "', x" + this.selectedChest.getBlockX() + ", y" + this.selectedChest.getBlockY() + ", z" + this.selectedChest.getBlockZ())));
+        info.addAll(AutoSellChests.splitLongString(Lang.SELL_CHEST_LOCATION.get().replace("%loc%", this.getLocation(this.selectedChest))));
         info.add(Lang.SELL_CHEST_ID.get().replace("%id%", String.valueOf(this.chest.getId())));
         info.add(Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", this.getNextInterval()));
         nsM.setLore(info);
@@ -97,6 +98,14 @@ public class InformationScreen implements InventoryHolder {
         }
 
         this.dynamicLore = this.updateTime(nextSell);
+    }
+
+    private String getLocation(Location loc) {
+        return Lang.LOCATION_FORMAT.get()
+                .replace("%world%", loc.getWorld().getName())
+                .replace("%pos_x%", String.valueOf(loc.getBlockX()))
+                .replace("%pos_y%", String.valueOf(loc.getBlockY()))
+                .replace("%pos_z%", String.valueOf(loc.getBlockZ()));
     }
 
     private String getNextInterval() {
