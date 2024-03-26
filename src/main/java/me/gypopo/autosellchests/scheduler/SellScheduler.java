@@ -153,9 +153,9 @@ public class SellScheduler {
                                 .replace("%id%", String.valueOf(chest.getId())));
                     }
                     if (this.plugin.getManager().soldItemsLoggingConsole) {
-                        Logger.info(this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName())
+                        Logger.info(this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName()))
                                 .replace("%location%", "world '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ())
-                                .replace("%amount%", String.valueOf(total)).replace("%id%", String.valueOf(chest.getId())))));
+                                .replace("%amount%", String.valueOf(total)).replace("%id%", String.valueOf(chest.getId()))));
                     }
                 }
             } catch (Exception e) {
