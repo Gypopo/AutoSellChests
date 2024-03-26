@@ -1,6 +1,5 @@
 package me.gypopo.autosellchests.objects;
 
-import eu.decentsoftware.holograms.api.utils.scheduler.S;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;

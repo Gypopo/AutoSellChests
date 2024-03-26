@@ -248,6 +248,8 @@ public class ChestManager {
 
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
+        if (meta == null)
+            return item;
 
         String name = Config.get().getString("fill-item.name");
         meta.setDisplayName(name != null ? ChatColor.translateAlternateColorCodes('&', name) : " ");
