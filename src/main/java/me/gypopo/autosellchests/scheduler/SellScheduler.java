@@ -10,6 +10,7 @@ import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.api.events.PostTransactionEvent;
+import me.gypopo.economyshopgui.api.events.PreTransactionEvent;
 import me.gypopo.economyshopgui.api.objects.SellPrices;
 import me.gypopo.economyshopgui.api.prices.AdvancedSellPrice;
 import me.gypopo.economyshopgui.objects.ShopItem;
@@ -22,6 +23,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -124,27 +126,34 @@ public class SellScheduler {
                 }
 
                 ItemStack[] items = block.getInventory().getContents(); // Retrieve the items from the inventory
-                SellPrices prices = EconomyShopGUIHook.getCutSellPrices(owner, items, true); // Get the sell prices of the items, and modify the array
-                block.getInventory().setContents(items); // Update the inventory with the updated array of items
+                SellPrices transaction = EconomyShopGUIHook.getCutSellPrices(owner, items, true); // Get the sell prices of the items, and modify the array
 
-                if (!prices.isEmpty()) {
-                    int total = prices.getItems().values().stream().mapToInt(Integer::intValue).sum();
+                if (!transaction.isEmpty()) {
+                    int total = transaction.getItems().values().stream().mapToInt(Integer::intValue).sum();
+                    Map<EcoType, Double> prices = owner.isOnline() ? this.callPreTransactionEvent(transaction, total) : transaction.getPrices();
+                    if (prices == null) {
+                        this.processNextChest(i);
+                        return; // Transaction cancelled by PreTransactionEvent
+                    }
+
+                    block.getInventory().setContents(items); // Update the inventory with the updated array of items
+
                     this.items += total;
                     chest.addItemsSold(total);
-                    chest.addIncome(prices.getPrices());
-                    prices.updateLimits(); // Update DynamicPricing, limited stock and sell limits **in sync** | Should be fairly safe to call synchronous
-                    prices.getPrices().forEach((type, price) -> {
+                    chest.addIncome(transaction.getPrices());
+                    transaction.updateLimits(); // Update DynamicPricing, limited stock and sell limits **in sync** | Should be fairly safe to call synchronous
+                    prices.forEach((type, price) -> {
                         if (!this.isClaimableCurrency(type)) {
                             EconomyShopGUIHook.getEcon(type).depositBalance(owner, price);
                         } else chest.addClaimAble(type, price);
                     });
                     if (chest.isLogging() && this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline()) {
-                        Logger.sendPlayerMessage((Player) owner, this.plugin.formatPrices(prices.getPrices(), Lang.ITEMS_SOLD_PLAYER_LOG.get()
+                        Logger.sendPlayerMessage((Player) owner, this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_PLAYER_LOG.get()
                                         .replace("%chest-name%", chest.getName()).replace("%amount%", String.valueOf(total)))
                                 .replace("%id%", String.valueOf(chest.getId())));
                     }
                     if (this.plugin.getManager().soldItemsLoggingConsole) {
-                        Logger.info(this.plugin.formatPrices(prices.getPrices(), Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName())
+                        Logger.info(this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName())
                                 .replace("%location%", "world '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ())
                                 .replace("%amount%", String.valueOf(total)).replace("%id%", String.valueOf(chest.getId())))));
                     }
@@ -344,6 +353,12 @@ public class SellScheduler {
             case "ITEM", "LEVELS", "EXP" -> true;
             default -> false;
         };
+    }
+
+    private Map<EcoType, Double> callPreTransactionEvent(SellPrices prices, int amount) {
+        PreTransactionEvent preTransactionEvent = new PreTransactionEvent(prices.getItems(), prices.getPrices(), (Player) prices.getPlayer(), amount, Transaction.Type.AUTO_SELL_CHEST);
+        Bukkit.getPluginManager().callEvent(preTransactionEvent);
+        return preTransactionEvent.isCancelled() ? null : preTransactionEvent.getPrices();
     }
 
     private void processNextChest(int index) {
