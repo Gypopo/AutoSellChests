@@ -101,10 +101,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             return;
         }
 
-        if (this.checkForGson()) {
-            Metrics metrics = new Metrics(this, 15605);
-            metrics.addCustomChart(new Metrics.SimplePie("esgui_ver", () -> premium ? "EconomyShopGUI-Premium" : "EconomyShopGUI"));
-        }
+        Metrics metrics = new Metrics(this, 15605);
+        metrics.addCustomChart(new Metrics.SimplePie("esgui_ver", () -> premium ? "EconomyShopGUI-Premium" : "EconomyShopGUI"));
 
         if (supportsNewAPI) {
             this.getLogger().info("Using new API methods for improved performance...");
@@ -175,6 +173,10 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         return this.manager;
     }
 
+    public AFKManager getAFKManager() {
+        return this.afkManager;
+    }
+
     public void reloadManager() {
         this.manager.disable();
         this.manager = new ChestManager(this);
@@ -232,11 +234,6 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         }
 
         return null;
-    }
-
-    private boolean checkForGson() {
-        String VersionName = getServer().getClass().getPackage().getName().split("\\.")[3];
-        return !VersionName.equalsIgnoreCase("v1_8_R1") && !VersionName.equalsIgnoreCase("v1_8_R2");
     }
 
     private boolean isPluginEnabled(boolean premium) {

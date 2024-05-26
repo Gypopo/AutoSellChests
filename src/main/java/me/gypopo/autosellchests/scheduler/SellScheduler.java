@@ -49,6 +49,7 @@ public class SellScheduler {
     private final boolean onlineOwner;
     private final boolean intervalLogging;
     private final boolean supportsNewAPI; // Whether we can use EconomyShopGUI API v1.7.0+
+    private final boolean afkDetection;
 
     private final ArrayList<Chest> chests = new ArrayList<>(); // All chests that have to be sold this interval
     private int next; // The interval between each chest
@@ -64,6 +65,7 @@ public class SellScheduler {
         this.onlineOwner = Config.get().getBoolean("online-chest-owner", true);
         this.intervalLogging = Config.get().getBoolean("interval-logs.enable");
         this.supportsNewAPI = this.plugin.supportsNewAPI;
+        this.afkDetection = plugin.getAFKManager() != null;
 
         // Give the server 2 minutes to fully start before starting the interval
         Logger.info("Starting first sell interval in 15 seconds");
@@ -108,6 +110,10 @@ public class SellScheduler {
                 OfflinePlayer owner = Bukkit.getOfflinePlayer(chest.getOwner());
                 if (this.onlineOwner && !owner.isOnline()) {
                     //Logger.debug("Owner from chest " + chest.getId() + " is not online, skipping...");
+                    this.processNextChest(i);
+                    return;
+                } else if (this.afkDetection && this.plugin.getAFKManager().isAFK(owner.getUniqueId())) {
+                    //Logger.debug("Owner from chest " + chest.getId() + " is afk, skipping...");
                     this.processNextChest(i);
                     return;
                 }
@@ -178,6 +184,10 @@ public class SellScheduler {
                 OfflinePlayer owner = Bukkit.getOfflinePlayer(chest.getOwner());
                 if (this.onlineOwner && !owner.isOnline()) {
                     //Logger.debug("Owner from chest " + chest.getId() + " is not online, skipping...");
+                    this.processNextChest(i);
+                    return;
+                } else if (this.afkDetection && this.plugin.getAFKManager().isAFK(owner.getUniqueId())) {
+                    //Logger.debug("Owner from chest " + chest.getId() + " is afk, skipping...");
                     this.processNextChest(i);
                     return;
                 }
