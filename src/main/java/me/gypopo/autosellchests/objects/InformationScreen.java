@@ -3,10 +3,10 @@ package me.gypopo.autosellchests.objects;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
+import me.gypopo.autosellchests.util.SimpleEnchant;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -63,7 +63,7 @@ public class InformationScreen implements InventoryHolder {
 
         if (!this.chest.getClaimAble().isEmpty()) {
             ItemStack item = new ItemStack(Material.DIAMOND);
-            item.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            item.addUnsafeEnchantment(SimpleEnchant.UNBREAKING.get(), 1);
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName(Lang.CLAIM_ABLE_INFO.get());
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);

@@ -7,10 +7,9 @@ import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.objects.*;
 import me.gypopo.autosellchests.util.ChestConfirmation;
 import me.gypopo.autosellchests.util.Logger;
+import me.gypopo.autosellchests.util.SimpleParticle;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.util.EcoType;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -136,8 +135,8 @@ public class PlayerListener implements Listener {
             } else this.plugin.getManager().addChest(new ChestLocation(loc), e.getPlayer());
 
             loc.add(0.5, 0.5, 0.5);
-            loc.getWorld().spawnParticle(Particle.SPELL_WITCH, loc, 10);
-            loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 10, new Particle.DustOptions(Color.RED, 2F));
+            loc.getWorld().spawnParticle(SimpleParticle.WITCH.get(), loc, 10);
+            loc.getWorld().spawnParticle(SimpleParticle.REDSTONE.get(), loc, 10, new Particle.DustOptions(Color.RED, 2F));
             if (this.placeSound != null)
                 loc.getWorld().playSound(loc, this.placeSound, this.getSoundCategory(this.placeSound), this.soundVolume, this.soundPitch);
             Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get().replace("%chest-name%", this.plugin.getManager().getDefaultChestName()));
@@ -185,7 +184,7 @@ public class PlayerListener implements Listener {
                     loc.add(0.5, 0.5, 0.5);
                     loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
                     loc.getBlock().setType(Material.AIR);
-                    loc.getWorld().spawnParticle(Particle.CLOUD, loc, 15);
+                    loc.getWorld().spawnParticle(SimpleParticle.CLOUD.get(), loc, 15);
                     if (this.breakSound != null)
                         loc.getWorld().playSound(loc, this.breakSound, this.getSoundCategory(this.breakSound), this.soundVolume, this.soundPitch);
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get().replace("%chest-name%", this.plugin.getManager().getDefaultChestName()));
