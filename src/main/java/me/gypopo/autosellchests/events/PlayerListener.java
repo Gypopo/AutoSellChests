@@ -136,7 +136,7 @@ public class PlayerListener implements Listener {
 
             loc.add(0.5, 0.5, 0.5);
             loc.getWorld().spawnParticle(SimpleParticle.WITCH.get(), loc, 10);
-            loc.getWorld().spawnParticle(SimpleParticle.REDSTONE.get(), loc, 10, new Particle.DustOptions(Color.RED, 2F));
+            loc.getWorld().spawnParticle(SimpleParticle.DUST.get(), loc, 10, new Particle.DustOptions(Color.RED, 2F));
             if (this.placeSound != null)
                 loc.getWorld().playSound(loc, this.placeSound, this.getSoundCategory(this.placeSound), this.soundVolume, this.soundPitch);
             Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get().replace("%chest-name%", this.plugin.getManager().getDefaultChestName()));

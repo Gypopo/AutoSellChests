@@ -126,9 +126,9 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         // Alternative to the 'softdepend' tag inside the plugin.yml which doesn't always work as intended
         this.runTaskLater(() -> {
             if (this.isPluginEnabled(premium)) {
-                this.manager = new ChestManager(this);
                 if (Config.get().getBoolean("afk-prevention", false))
                     this.afkManager = this.getAfkManager();
+                this.manager = new ChestManager(this);
             } else {
                 this.getLogger().warning("Found EconomyShopGUI in a disabled state, please make sure it is enabled and up to date, disabling the plugin...");
                 this.getServer().getPluginManager().disablePlugin(this);
@@ -179,6 +179,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
     public void reloadManager() {
         this.manager.disable();
+        if (Config.get().getBoolean("afk-prevention", false))
+            this.afkManager = this.getAfkManager();
         this.manager = new ChestManager(this);
     }
 
