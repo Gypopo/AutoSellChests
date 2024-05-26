@@ -45,10 +45,9 @@ Bug reports can also be made inside our [discord server](https://discord.com/inv
 
 ## 🛠️ Building
 AutoSellChests uses `Maven` for compiling, to build the project you will need the following:
-- A copy of the free version of EconomyShopGUI as dependancy
 - A recent clone of the project
 - [Maven](https://maven.apache.org/download.cgi) (Unless you have an IDE with it build in)
-- JDK 8 or newer
+- JDK 16 or newer
 - Git
 
 The following commands can be used to build the project:
