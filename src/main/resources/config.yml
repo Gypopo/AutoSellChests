@@ -22,6 +22,12 @@ online-chest-owner: true
 # Warning: Chests that are in unloaded chunks will get loaded by the plugin when this setting is 'false' which can cause server lag,
 # ALSO note that permissions for selling items to shop will not be checked, NOR item discounts + any sell multipliers when the player is offline
 
+
+# AFK Prevention
+# When enabled, this prevents sell chests to sell whenever the owner is AFK
+afk-prevention: false
+# Note: currently AFK is detected by CMI or Essentials
+
 # The title/item name of a sell chest
 sellchest-name: "&7&lSell chest"
 

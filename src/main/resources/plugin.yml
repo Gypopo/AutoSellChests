@@ -10,6 +10,9 @@ softdepend:
   - EconomyShopGUI
   - EconomyShopGUI-Premium
 
+  - Essentials
+  - CMI
+
 permissions:
   autosellchests.use:
     default: true

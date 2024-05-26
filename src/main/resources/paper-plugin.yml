@@ -12,6 +12,11 @@ dependencies:
     EconomyShopGUI-Premium:
       required: false
 
+    Essentials:
+      required: false
+    CMI:
+      required: false
+
 permissions:
   autosellchests.use:
     default: true

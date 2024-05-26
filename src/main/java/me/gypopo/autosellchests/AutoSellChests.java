@@ -5,6 +5,9 @@ import me.gypopo.autosellchests.database.SQLite;
 import me.gypopo.autosellchests.events.PlayerListener;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionCMI;
+import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionEssentials;
+import me.gypopo.autosellchests.managers.AFKManager;
 import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.metrics.Metrics;
 import me.gypopo.autosellchests.util.ConfigUtil;
@@ -28,16 +31,14 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class AutoSellChests extends JavaPlugin implements Listener {
@@ -54,6 +55,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private final TimeUtils timeUtils = new TimeUtils();
     private final NamespacedKey key = new NamespacedKey(this, "autosell");
     private ChestManager manager;
+    private AFKManager afkManager;
     private boolean ready = false;
     public boolean supportsNewAPI; // Whether we can use EconomyShopGUI API v1.7.0+
     public boolean debug;
@@ -127,6 +129,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         this.runTaskLater(() -> {
             if (this.isPluginEnabled(premium)) {
                 this.manager = new ChestManager(this);
+                if (Config.get().getBoolean("afk-prevention", false))
+                    this.afkManager = this.getAfkManager();
             } else {
                 this.getLogger().warning("Found EconomyShopGUI in a disabled state, please make sure it is enabled and up to date, disabling the plugin...");
                 this.getServer().getPluginManager().disablePlugin(this);
@@ -319,5 +323,17 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         list.addAll(Arrays.asList(line.toString().split("\n")));
 
         return list;
+    }
+
+    private AFKManager getAfkManager() {
+        PluginManager pm = this.getServer().getPluginManager();
+
+        if (pm.getPlugin("Essentials") != null) {
+            return new AFKDetectionEssentials(this);
+        } else if (pm.getPlugin("CMI") != null) {
+            return new AFKDetectionCMI(this);
+        }
+
+        return null;
     }
 }
