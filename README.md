@@ -28,6 +28,7 @@ This plugin is compatible with minecraft version 1.16-1.20.
 ## Downloads:
 - [SpigotMC](https://www.spigotmc.org/resources/autosellchests.103060/)
 - [Polymart](https://polymart.org/resource/autosellchests.2583)
+- [Hangar](https://hangar.papermc.io/GPPlugins/AutoSellChests)
 
 # Contributing to the project
 All contributions should follow our [code of conduct](CODE_OF_CONDUCT.md) guidelines.
