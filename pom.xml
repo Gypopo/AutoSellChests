@@ -43,7 +43,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>net.wesjd.anvilgui</pattern>
-                                    <shadedPattern>me.gypopo.autosellchests.anvilgui</shadedPattern>
+                                    <shadedPattern>libs.net.wesjd.anvilgui</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
@@ -51,7 +51,7 @@
                                     <artifact>*:*</artifact>
                                     <excludeDefaults>false</excludeDefaults>
                                     <includes>
-                                        <include>me.gypopo.autosellchests.anvilgui</include>
+                                        <include>libs.*</include>
                                     </includes>
                                 </filter>
                             </filters>
@@ -123,7 +123,6 @@
             <groupId>com.Zrips.CMI</groupId>
             <artifactId>CMI</artifactId>
             <version>9.7.0.1</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
