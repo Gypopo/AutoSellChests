@@ -28,6 +28,7 @@ This plugin is compatible with minecraft version 1.16-1.20.
 ## Downloads:
 - [SpigotMC](https://www.spigotmc.org/resources/autosellchests.103060/)
 - [Polymart](https://polymart.org/resource/autosellchests.2583)
+- [Hangar](https://hangar.papermc.io/GPPlugins/AutoSellChests)
 
 # Contributing to the project
 All contributions should follow our [code of conduct](CODE_OF_CONDUCT.md) guidelines.
@@ -45,10 +46,9 @@ Bug reports can also be made inside our [discord server](https://discord.com/inv
 
 ## 🛠️ Building
 AutoSellChests uses `Maven` for compiling, to build the project you will need the following:
-- A copy of the free version of EconomyShopGUI as dependancy
 - A recent clone of the project
 - [Maven](https://maven.apache.org/download.cgi) (Unless you have an IDE with it build in)
-- JDK 8 or newer
+- JDK 16 or newer
 - Git
 
 The following commands can be used to build the project:
