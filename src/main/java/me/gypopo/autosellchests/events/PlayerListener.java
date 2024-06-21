@@ -45,6 +45,7 @@ public class PlayerListener implements Listener {
     private final Sound breakSound;
     private final long soundVolume;
     private final long soundPitch;
+    //private final boolean v1_20_R4;
 
     public PlayerListener(AutoSellChests plugin) {
         this.plugin = plugin;
@@ -95,13 +96,14 @@ public class PlayerListener implements Listener {
             return;
         }
 
+        // 1.20.5/6 requires the item to be retrieved from the event the same tick, or else it will be AIR
+        if (!this.isChest(e.getItemInHand())) {
+            this.checkPlacement(e.getPlayer(), e.getBlockPlaced());
+            return;
+        }
+
         // Run task on 1 tick delay to check whether this forms a double chest
         this.plugin.runTaskLater(() -> {
-            if (!this.isChest(e.getItemInHand())) {
-                this.checkPlacement(e.getPlayer(), e.getBlockPlaced());
-                return;
-            }
-
             if (!e.getPlayer().hasPermission("autosellchests.place")) {
                 Logger.sendPlayerMessage(e.getPlayer(), Lang.NO_PERMISSIONS.get());
                 e.setCancelled(true);
@@ -287,18 +289,18 @@ public class PlayerListener implements Listener {
         }
     }
 
-    private boolean checkPlacement(Player player, Block block) {
-        Location loc = block.getLocation();
-        if (((org.bukkit.block.Chest) block.getState()).getInventory() instanceof DoubleChestInventory) {
-            DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) block.getState()).getInventory();
-            Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
-            if (this.plugin.getManager().getChestByLocation(original) != null) {
-                Logger.sendPlayerMessage(player, Lang.CANNOT_PLACE_CHEST_AGAINST_SELL_CHEST.get());
-                block.breakNaturally();
-                return false;
+    private void checkPlacement(Player player, Block block) {
+        this.plugin.runTaskLater(() -> {
+            Location loc = block.getLocation();
+            if (((org.bukkit.block.Chest) block.getState()).getInventory() instanceof DoubleChestInventory) {
+                DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) block.getState()).getInventory();
+                Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
+                if (this.plugin.getManager().getChestByLocation(original) != null) {
+                    Logger.sendPlayerMessage(player, Lang.CANNOT_PLACE_CHEST_AGAINST_SELL_CHEST.get());
+                    block.breakNaturally();
+                }
             }
-        }
 
-        return true;
+        }, 1L);
     }
 }
