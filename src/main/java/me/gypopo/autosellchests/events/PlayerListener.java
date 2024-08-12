@@ -185,6 +185,9 @@ public class PlayerListener implements Listener {
                     });
                     loc.add(0.5, 0.5, 0.5);
                     loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
+                    // In 1.16.5, Block#setType(AIR) causes the chest to also drop its contents, so make sure its empty or the items will be duplicated
+                    if (this.plugin.version == 116)
+                        ((org.bukkit.block.Chest) loc.getBlock().getState()).getBlockInventory().clear();
                     loc.getBlock().setType(Material.AIR);
                     loc.getWorld().spawnParticle(SimpleParticle.CLOUD.get(), loc, 15);
                     if (this.breakSound != null)
