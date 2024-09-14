@@ -14,7 +14,7 @@ public class AFKDetectionCMI implements AFKManager {
 
     public AFKDetectionCMI(AutoSellChests plugin) {
         this.manager = CMI.getInstance().getAfkManager();
-        Logger.debug("Enabled AFK detection provider 'CMI'");
+        Logger.info("Enabled AFK detection provider 'CMI'");
     }
 
     @Override

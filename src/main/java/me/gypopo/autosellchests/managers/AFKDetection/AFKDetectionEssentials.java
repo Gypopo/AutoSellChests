@@ -13,7 +13,7 @@ public class AFKDetectionEssentials implements AFKManager {
 
     public AFKDetectionEssentials(AutoSellChests plugin) {
         this.ess = (Essentials) plugin.getServer().getPluginManager().getPlugin("Essentials");
-        Logger.debug("Enabled AFK detection provider 'Essentials'");
+        Logger.info("Enabled AFK detection provider 'Essentials'");
     }
 
     @Override
