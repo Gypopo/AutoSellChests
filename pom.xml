@@ -105,7 +105,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.21.1-R0.1-SNAPSHOT</version>
+            <version>1.21.3-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -117,7 +117,7 @@
         <dependency>
             <groupId>net.wesjd</groupId>
             <artifactId>anvilgui</artifactId>
-            <version>1.10.2-SNAPSHOT</version>
+            <version>1.10.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.decentsoftware-eu</groupId>
