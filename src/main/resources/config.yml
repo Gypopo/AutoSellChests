@@ -19,8 +19,8 @@ max-sellchests:
 
 # Whether the owner of the chest needs to be online for the chest to sell its contents
 online-chest-owner: true
-# Warning: Chests that are in unloaded chunks will get loaded by the plugin when this setting is 'false' which can cause server lag,
-# ALSO note that permissions for selling items to shop will not be checked, NOR item discounts + any sell multipliers when the player is offline
+# Note that permissions for selling items to shop will not be checked, NOR item discounts + any sell multipliers when the player is offline
+# Also note that this plugin will not load chunks, meaning if the sell chest is located in a unloaded chunk, the plugin will skip that chest
 
 
 # AFK Prevention
