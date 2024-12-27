@@ -3,6 +3,8 @@ package me.gypopo.autosellchests.objects;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.managers.UpgradeManager;
+import me.gypopo.autosellchests.objects.upgrades.ChestInterval;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.util.EcoType;
@@ -25,8 +27,10 @@ public class Chest {
     private int itemsSold;
     private final Map<EcoType, Double> income;
     private final Map<EcoType, Double> claimAble;
+    private long interval; // The current recurring interval of this chest in millis
+    private int intervalUpgrade; // The ID/level of the interval upgrade
     //private double multiplier = 0;
-    private long nextInterval;
+    private long nextInterval; // The time the chest is next sold in millis
 
     public Chest(int id, String location, String owner, int itemsSold, String income, String claimAble, String settings, String displayname) {
         this.id = id;
@@ -36,11 +40,13 @@ public class Chest {
         this.income = this.loadPrices(income);
         this.claimAble = this.loadPrices(claimAble);
         this.logging = settings == null || settings.split("\\|")[0].equals("1");
+        this.intervalUpgrade = settings == null ? 1 : this.getUpgradeLevel(settings.split("\\|")[1]);
+        this.interval = ((ChestInterval) UpgradeManager.getIntervalUpgrade(this.intervalUpgrade)).getInterval();
         this.displayname = displayname == null ? Lang.formatColors(Config.get().getString("default-chest-name").replace("%id%", String.valueOf(id)), null) : displayname.replace("%id%", String.valueOf(id));
         //this.multiplier = settings == null ? 0.0 : this.getMultiplier(settings);
     }
 
-    public Chest(int id, ChestLocation location, Player owner, int itemsSold, Map<EcoType, Double> income, Map<EcoType, Double> claimAble, boolean logging/*, double multiplier*/, String displayname) {
+    public Chest(int id, ChestLocation location, Player owner, int itemsSold, Map<EcoType, Double> income, Map<EcoType, Double> claimAble, boolean logging, int intervalUpgrade/*, double multiplier*/, String displayname) {
         this.id = id;
         this.location = location;
         this.owner = owner.getUniqueId();
@@ -48,8 +54,19 @@ public class Chest {
         this.income = income;
         this.claimAble = claimAble;
         this.logging = logging;
+        this.intervalUpgrade = intervalUpgrade;
+        this.interval = ((ChestInterval) UpgradeManager.getIntervalUpgrade(this.intervalUpgrade)).getInterval();
         this.displayname = displayname.replace("%id%", String.valueOf(id));
         //this.multiplier = multiplier;
+    }
+
+    private int getUpgradeLevel(String upgrade) {
+        try {
+            return Integer.parseInt(upgrade);
+        } catch (NumberFormatException e) {
+            Logger.warn("Failed to load upgrade level for '" + upgrade + "' for chest " + this.id + ", using default...");
+            return 1;
+        }
     }
 
     public void addItemsSold(int itemsSold) {
@@ -132,9 +149,25 @@ public class Chest {
         return this.nextInterval;
     }
 
+    public long getInterval() {
+        return this.interval;
+    }
+
+    public void setInterval(long interval) {
+        this.interval = interval;
+    }
+
     public boolean isLogging() {return this.logging; }
 
     public void setLogging(boolean logging) { this.logging = logging;}
+
+    public int getIntervalUpgrade() {
+        return this.intervalUpgrade;
+    }
+
+    public void setIntervalUpgrade(int upgrade) {
+        this.intervalUpgrade = upgrade;
+    }
 
     public String getName() {
         return this.displayname;
@@ -151,7 +184,8 @@ public class Chest {
                 ", Owner: " + this.owner +
                 ", ItemsSold: " + this.itemsSold +
                 ", Income: " + this.getIncome(null) +
-                ", Logging: " + this.logging + "}";
+                ", Logging: " + this.logging +
+                ", Interval upgrade: " + this.intervalUpgrade + "}";
     }
 
     private Map<EcoType, Double> loadPrices(String income) {

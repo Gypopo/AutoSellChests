@@ -4,7 +4,67 @@ config-version: 1.0.2
 # This is the interval for when a sell chest should sell its contents
 # For example, you can use '1d 2h 3m 4s' where the interval then would be 1 day, 2 hours, 3 minutes and 4 seconds
 autosell-interval: "10m"
-# Note: This plugin isn't tested on servers with over 200+ players, we do not recommend using a short interval if you do not have the resources for this!
+
+# When disabled, the option to upgrade chests is disabled and all chests will behave the same
+enable-interval-upgrades: true
+
+# The list of upgrades where the first upgrade in this track is always the default upgrade for new chests
+interval-upgrades:
+  lvl1:
+    # The upgrade item
+    item: COAL_ORE
+    # The weight of the level, where the smallest weight represents first level
+    weight: 10
+    price: 0
+    # The upgrade name
+    name: "&7&lInterval level &f&lI"
+    # The lore of the upgrade item
+    lore:
+    - "&aClick to upgrade to &e&llevel &f&l(II)"
+    - " "
+    - "&8Upgrade info:"
+    - "&8Sell interval: &f&m5m&r &f2m"
+    - "&8Cost: &f$15000"
+    # The sell interval of chests in this upgrade
+    interval: "5m"
+
+  lvl2:
+    item: IRON_INGOT
+    weight: 20
+    # The price of this upgrade
+    # If no direct currency has been specified, it will use the default currency in EconomyShopGUI
+    # It is possible to specify a direct currency like GEMS_ECONOMY:2000, but requires the currency to be registered within EconomyShopGUI
+    price: 15000
+    name: "&7&lInterval level &f&lII"
+    lore:
+      - "&aClick to upgrade to &e&llevel &f&l(III)"
+      - " "
+      - "&8Upgrade info:"
+      - "&8Sell interval: &f&m2m&r &f1m"
+      - "&8Cost: &f35000"
+    interval: "2m"
+
+  lvl3:
+    item: GOLD_INGOT
+    weight: 30
+    price: 35000
+    name: "&7&lInterval level &f&lIII"
+    lore:
+      - "&aClick to upgrade to &e&llevel &f&l(IV)"
+      - " "
+      - "&8Upgrade info:"
+      - "&8Sell interval: &f&m1m&r &f30s"
+      - "&8Cost: &f$60000"
+    interval: "1m"
+
+  lvl4:
+    item: DIAMOND
+    weight: 40
+    price: 60000
+    name: "&7&lInterval level &f&l(IV)"
+    lore:
+      - "&cAlready at max level, cannot upgrade again."
+    interval: "30s"
 
 # By default players can actively use 5 sell chests, but this can be overriden using permissions
 # Example: Players with permission 'autosellchests.maxchests.donator' will be able to use 15 sell chests at a time
@@ -73,9 +133,6 @@ interval-logs:
 sold-items-logging-player: true
 # This setting is also configurable per chest in the settings menu,
 # but when this option is disabled, it will override the per chest setting
-
-# Enable or disable messages send to console for when any sell chest has sold items
-sold-items-logging-console: false
 
 # The fill item which fills empty spots inside any GUI
 fill-item:

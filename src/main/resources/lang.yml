@@ -72,3 +72,5 @@ cannot-place-chest-against-sell-chest: "&cThis chest cannot be placed against a 
 cannot-remove-sell-chest: "&cYou do not have the required permissions to remove this sell chest"
 # The message format for locations
 location-format: "World '%world%', x%pos_x%, y%pos_y%, z%pos_z%"
+# The player does not have enough money to purchase this upgrade
+insufficient-funds-upgrade: "&cYou do not have enough %ecoType% to purchase this upgrade."

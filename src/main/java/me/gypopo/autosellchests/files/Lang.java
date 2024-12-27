@@ -72,6 +72,9 @@ public enum Lang {
 
     // Enter name menu
     ENTER_NAME_MENU_TITLE("&8&lEnter new name"),
+
+    // Upgrades
+    INSUFFICIENT_FUNDS_UPGRADE("&cYou do not have enough %ecoType% to purchase this upgrade."),
     ;
 
     private String def;

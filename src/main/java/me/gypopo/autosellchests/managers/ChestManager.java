@@ -5,21 +5,15 @@ import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
-import me.gypopo.autosellchests.scheduler.SellScheduler;
+import me.gypopo.autosellchests.scheduler.MainScheduler;
 import me.gypopo.autosellchests.util.Logger;
+import me.gypopo.autosellchests.util.TimeUtils;
 import org.bukkit.*;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.io.File;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,9 +23,9 @@ public class ChestManager {
 
     private AutoSellChests plugin;
 
-    private final SellScheduler scheduler;
+    private final UpgradeManager upgradeManager;
+    private MainScheduler scheduler;
 
-    private final long sellInterval;
     private final int maxSellChestsPlayer;
     private final String defaultChestName;
 
@@ -53,14 +47,21 @@ public class ChestManager {
         this.soldItemsLoggingConsole = Config.get().getBoolean("sold-items-logging-console");
         this.maxSellChestsPlayer = Config.get().getInt("max-sellchests.default");
 
-        this.sellInterval = this.getSellInterval();
         defaultChestName = Lang.formatColors(Config.get().getString("default-chest-name"), null);
         chestName = Lang.formatColors(Config.get().getString("sellchest-name"), null);
 
         this.loadChests();
         this.loadMaximumChests();
 
-        this.scheduler = new SellScheduler(plugin, this.sellInterval);
+        this.upgradeManager = new UpgradeManager(plugin);
+
+        this.plugin.runTaskLater(this::startIntervalWhenReady, 100L);
+    }
+
+    // Schedule the start of the loop 5 seconds after the server loads
+    // ensuring the server has finished loading most plugins/data
+    private void startIntervalWhenReady() {
+        this.scheduler = new MainScheduler(this.plugin);
     }
 
     public String getDefaultChestName() {
@@ -147,6 +148,8 @@ public class ChestManager {
         } else {
             this.plugin.getDatabase().addChest(loc.toString(), p.getUniqueId().toString(), 0);
             chest = this.plugin.getDatabase().loadChest(loc);
+
+            this.scheduler.queueChest(chest);
             this.loadedChests.put(chest.getLocation(), chest);
             if (this.loadedChestsByPlayer.containsKey(p.getUniqueId())) {
                 this.loadedChestsByPlayer.get(p.getUniqueId()).add(chest);
@@ -161,6 +164,7 @@ public class ChestManager {
             chest.getLocation().removeLocation(loc.getLeftLocation());
             this.plugin.getDatabase().setChest(chest);
         } else {
+            this.scheduler.removeFromQueue(chest);
             this.plugin.getDatabase().removeChest(loc.toString());
             this.loadedChests.remove(loc);
             if (this.loadedChestsByPlayer.get(chest.getOwner()).size() > 1) {
@@ -173,6 +177,7 @@ public class ChestManager {
     public void removeChest(Chest chest) {
         this.plugin.getDatabase().removeChest(chest.getLocation().toString());
         this.loadedChests.remove(chest.getLocation());
+        this.scheduler.removeFromQueue(chest);
         if (this.loadedChestsByPlayer.containsKey(chest.getOwner())) {
             this.loadedChestsByPlayer.get(chest.getOwner()).remove(chest);
         } else this.loadedChestsByPlayer.remove(chest.getOwner());
@@ -180,34 +185,17 @@ public class ChestManager {
     }
 
     public ItemStack getChest(int amount) {
-        ItemStack chest = new ItemStack(Material.CHEST, amount);
-        ItemMeta meta = chest.getItemMeta();
-        meta.setDisplayName(chestName);
-        meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", this.plugin.getTimeUtils().getReadableTime(this.sellInterval)), null)).collect(Collectors.toList()));
-        meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell"), PersistentDataType.INTEGER, 1);
-        chest.setItemMeta(meta);
-        return chest;
+        return this.getChest(null, amount);
     }
 
-    public ItemStack getChest(int amount, double multiplier) {
-        ItemStack chest = new ItemStack(Material.CHEST, amount);
-        ItemMeta meta = chest.getItemMeta();
+    public ItemStack getChest(Chest chest, int amount) {
+        ItemStack item = new ItemStack(Material.CHEST, amount);
+        ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(chestName);
-        meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", this.plugin.getTimeUtils().getReadableTime(this.sellInterval)), null).replace("%multiplier%", String.valueOf(multiplier))).collect(Collectors.toList()));
-        meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "multiplier"), PersistentDataType.DOUBLE, multiplier);
+        meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", TimeUtils.getReadableTime(chest != null ? chest.getInterval() : UpgradeManager.getIntervals()[0])), null)).collect(Collectors.toList()));
         meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell"), PersistentDataType.INTEGER, 1);
-        chest.setItemMeta(meta);
-        return chest;
-    }
-
-    private long getSellInterval() {
-        try {
-            return this.plugin.getTimeUtils().getTime(Config.get().getString("autosell-interval"));
-        } catch (ParseException | NullPointerException e) {
-            this.plugin.getLogger().warning("Could not read the 'autosell-interval' from config, using 10 minutes as default.");
-            e.printStackTrace();
-            return 600000; // Default to ten minutes
-        }
+        item.setItemMeta(meta);
+        return item;
     }
 
     private void saveChests() {
@@ -215,10 +203,6 @@ public class ChestManager {
         for (Chest chest : this.loadedChests.values()) {
             this.plugin.getDatabase().saveChest(chest);
         }
-    }
-
-    public long getNextInterval() {
-        return this.scheduler.getStart() + this.sellInterval - System.currentTimeMillis();
     }
 
     public void disable() {

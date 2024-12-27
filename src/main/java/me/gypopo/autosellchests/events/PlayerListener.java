@@ -133,7 +133,7 @@ public class PlayerListener implements Listener {
                     } else Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_PLACE_SELL_CHEST_HERE.get());
 
                     loc.add(0.5, 0.5, 0.5);
-                    loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
+                    loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(left,1));
                     loc.getBlock().setType(Material.AIR);
                     return;
                 }
@@ -188,7 +188,7 @@ public class PlayerListener implements Listener {
                         if (item != null && item.getType() != Material.AIR) loc.getWorld().dropItemNaturally(loc, item);
                     });
                     loc.add(0.5, 0.5, 0.5);
-                    loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
+                    loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(chest, 1));
                     // In 1.16.5, Block#setType(AIR) causes the chest to also drop its contents, so make sure its empty or the items will be duplicated
                     if (this.plugin.version == 116)
                         ((org.bukkit.block.Chest) loc.getBlock().getState()).getBlockInventory().clear();
