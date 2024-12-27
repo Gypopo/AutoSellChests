@@ -54,13 +54,14 @@ public class UpgradeManager {
             }
         }
 
-        final List<Integer> order = new LinkedList<>(levels.keySet());
+        final List<Integer> order = new ArrayList<>(levels.keySet());
+        Collections.sort(order);
         for (int i : order) {
             INTERVAL_UPGRADES.add(levels.get(i));
         }
 
         if (!INTERVAL_UPGRADES.isEmpty())
-            Logger.info("Completed loading " + INTERVAL_UPGRADES.size() + " interval upgrade(s): " + order.stream().map(String::valueOf).collect(Collectors.joining(" -> ")));
+            Logger.info("Completed loading " + INTERVAL_UPGRADES.size() + " interval upgrade(s) with weight: " + order.stream().map(String::valueOf).collect(Collectors.joining(" -> ")));
     }
 
     public static ChestUpgrade getIntervalUpgrade(int upgrade) {

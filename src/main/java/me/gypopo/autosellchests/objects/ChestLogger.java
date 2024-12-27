@@ -4,6 +4,7 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.util.Logger;
+import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.objects.ShopItem;
 import me.gypopo.economyshopgui.util.EcoType;
 import org.bukkit.scheduler.BukkitTask;
@@ -25,7 +26,7 @@ public class ChestLogger {
         try {
             String time = Config.get().getString("console-sold-items-logging.interval");
 
-            delay = plugin.getTimeUtils().getTime(time);
+            delay = TimeUtils.getTime(time);
         } catch (NullPointerException | ParseException | NumberFormatException e) {
             Logger.warn("Failed to load sell logging interval from config.yml, got '" + Config.get().getString("console-sold-items-logging.interval") + "', using default of 10 minutes");
             delay = 600000;
@@ -41,7 +42,7 @@ public class ChestLogger {
                 Logger.info(plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_INTERVAL.get()
                         .replace("%count%", String.valueOf(count.get()))
                         .replace("%amount%", String.valueOf(items.values().stream().mapToInt(Integer::intValue).sum()))
-                        .replace("%interval%", plugin.getTimeUtils().getReadableTime(delay))));
+                        .replace("%interval%", TimeUtils.getReadableTime(delay))));
                 if (!items.isEmpty())
                     items.clear();
                 if (!prices.isEmpty())
