@@ -4,6 +4,7 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.util.Logger;
+import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.objects.ShopItem;
 import me.gypopo.economyshopgui.util.EcoType;
 import org.bukkit.scheduler.BukkitTask;
@@ -25,7 +26,7 @@ public class IntervalLogger {
         try {
             String time = Config.get().getString("interval-logs.interval");
 
-            delay = plugin.getTimeUtils().getTime(time);
+            delay = TimeUtils.getTime(time);
         } catch (NullPointerException | ParseException | NumberFormatException e) {
             Logger.warn("Failed to load sell logging interval from config.yml, got '" + Config.get().getString("interval-logs.interval") + "', using default of 10 minutes");
             delay = 600000;
@@ -43,7 +44,7 @@ public class IntervalLogger {
                             .replace("%count%", String.valueOf(count.get()))
                             .replace("%items%", String.valueOf(items))
                             .replace("%chests%", String.valueOf(chests.size()))
-                            .replace("%interval%", plugin.getTimeUtils().getReadableTime(delay)));
+                            .replace("%interval%", TimeUtils.getReadableTime(delay)));
 
                     chests.clear();
                     count.set(0);
@@ -53,11 +54,11 @@ public class IntervalLogger {
         }, delay / 1000L * 20L, delay / 1000L * 20L);
     }
 
-    public void addContents(int items, Set<Integer> chests) {
+    public void addContents(int items, int chestID) {
         this.count.incrementAndGet();
 
         this.items += items;
-        this.chests.addAll(chests);
+        this.chests.add(chestID);
     }
 
     public void stop() {

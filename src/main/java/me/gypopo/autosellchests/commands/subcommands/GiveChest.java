@@ -109,7 +109,7 @@ public class GiveChest implements SubCommad {
             return;
         }
 
-        player.getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(qty, multiplier));
+        player.getInventory().addItem(AutoSellChests.getInstance().getManager().getChest(qty));
         Logger.sendPlayerMessage(player, Lang.PLAYER_SELL_CHEST_GIVEN.get().replace("%amount%", String.valueOf(qty)));
         Logger.info(Lang.SELL_CHEST_MULTIPLIER_GIVEN_LOG.get().replace("%player_name%", player.getName()).replace("%amount%", String.valueOf(qty)).replace("%multiplier%", String.valueOf(multiplier)));
     }

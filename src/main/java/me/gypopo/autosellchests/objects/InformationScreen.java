@@ -4,6 +4,7 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.util.SimpleEnchant;
+import me.gypopo.autosellchests.util.TimeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -108,11 +109,7 @@ public class InformationScreen implements InventoryHolder {
     }
 
     private String getNextInterval() {
-        if (this.chest.getNextInterval() < System.currentTimeMillis()) {
-            return AutoSellChests.getInstance().getTimeUtils().getReadableTime(AutoSellChests.getInstance().getManager().getNextInterval());
-        } else {
-            return AutoSellChests.getInstance().getTimeUtils().getReadableTime(this.chest.getNextInterval() - System.currentTimeMillis());
-        }
+        return TimeUtils.getReadableTime(this.chest.getNextInterval() - System.currentTimeMillis());
     }
 
     // Every second use player#getItemOnCursor() so the lore is only updated if the player hovers this item
