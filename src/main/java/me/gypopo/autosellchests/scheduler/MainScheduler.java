@@ -20,19 +20,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MainScheduler {
 
     private final AutoSellChests plugin;
 
-    private final ExecutorService SCHEDULER_THREAD = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("ASC_SCHEDULER_THREAD").build());
+    private final ScheduledExecutorService SCHEDULER_THREAD = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("ASC_SCHEDULER_THREAD").build());
     private final SchedulerQueue queue;
 
     private final IntervalLogger logger;
 
-    private boolean running;
+    private boolean running = true;
     private long currentTick;
 
     private long start = System.currentTimeMillis();
@@ -52,26 +53,20 @@ public class MainScheduler {
         this.logger = Config.get().getString("interval-logs.interval", "").isEmpty() ? null : new IntervalLogger(plugin);
 
         Logger.info("Starting sell interval...");
-        this.SCHEDULER_THREAD.submit(this::processChests);
+        this.SCHEDULER_THREAD.scheduleAtFixedRate(this::processChests, 50L, 50L, TimeUnit.MILLISECONDS);
     }
 
     private void processChests() {
-        while (this.running) {
-            Chest nextChest = this.queue.peek();
-            if (nextChest == null)
-                continue;
+        Chest nextChest = this.queue.peek();
+        if (nextChest == null)
+            return;
+
+        while (this.running && (nextChest.getNextInterval() - System.currentTimeMillis()) <= 50) {
             System.out.println("Processing chest with ID " + nextChest.getId());
+            Chest chest = this.queue.getNextAndUpdate();
+            this.plugin.runTask(() -> this.sellContents(chest));
 
-            long sleepTime = nextChest.getNextInterval() - System.currentTimeMillis();
-
-            if (sleepTime <= 0) {
-                this.plugin.runTask(() -> this.sellContents(this.queue.getNextAndUpdate()));
-            } else {
-                // Wait for the next chest to sell
-                try {
-                    Thread.sleep(Math.min(sleepTime, sleepTime / 2));
-                } catch (InterruptedException e) {}
-            }
+            nextChest = this.queue.peek();
         }
     }
 
