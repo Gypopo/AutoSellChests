@@ -23,7 +23,7 @@ public class SchedulerQueue {
 
     private void calculateQueue() {
         for (int i = 0; i < UpgradeManager.getDifferentIntervals(); i++) {
-            System.out.println("Scheduling chests for interval " + i + " with interval of " + UpgradeManager.getIntervals()[i] + "millis");
+            System.out.println("Queueing chests for interval " + i + " with interval of " + UpgradeManager.getIntervals()[i] + "millis");
             this.scheduleFromInterval(i);
         }
     }
@@ -37,8 +37,11 @@ public class SchedulerQueue {
                 CHESTS_BY_INTERVAL.add(chest);
         }
 
+        if (CHESTS_BY_INTERVAL.isEmpty())
+            return;
+
         List<SellPosition> sellTimes = this.schedule(CHESTS_BY_INTERVAL, UpgradeManager.getIntervals()[intervalID]);
-        sellTimes.sort(Comparator.comparingDouble(SellPosition::sellTime));
+        sellTimes.sort(Comparator.comparingLong(SellPosition::sellTime));
         this.SELL_TIMES_PER_INTERVAL.put(intervalID, sellTimes);
     }
 
@@ -59,6 +62,7 @@ public class SchedulerQueue {
             this.chests.offer(chest);
         }
 
+        sellTimes.add(new SellPosition(millis, -1));
         return sellTimes;
     }
 
@@ -81,23 +85,23 @@ public class SchedulerQueue {
 
         System.out.println("Using sell time of " + position.sellTime + "millis for " + position.chestID);
 
-        List<SellPosition> sellTimes = this.SELL_TIMES_PER_INTERVAL.computeIfAbsent(chest.getIntervalUpgrade(), k -> new ArrayList<>());
+        List<SellPosition> sellTimes = this.getSellTimes(chest.getIntervalUpgrade());
         sellTimes.add(position);
-        sellTimes.sort(Comparator.comparingDouble(SellPosition::sellTime));
+        sellTimes.sort(Comparator.comparingLong(SellPosition::sellTime));
 
         this.chests.offer(chest);
     }
 
     // When a chest is removed/destroyed
     public void removeChest(Chest chest) {
-        this.SELL_TIMES_PER_INTERVAL.computeIfAbsent(chest.getIntervalUpgrade(), k -> new ArrayList<>())
+        this.getSellTimes(chest.getIntervalUpgrade())
                 .removeIf(pos -> pos.chestID == chest.getId());
         this.chests.remove(chest);
     }
 
     // Add the chest to the queue again to update its position by its next interval
     public void updateChestInterval(Chest chest, int newIntervalID) {
-        this.SELL_TIMES_PER_INTERVAL.computeIfAbsent(chest.getIntervalUpgrade(), k -> new ArrayList<>())
+        this.getSellTimes(chest.getIntervalUpgrade())
                 .removeIf(pos -> pos.chestID == chest.getId());
         this.chests.remove(chest);
 
@@ -105,9 +109,9 @@ public class SchedulerQueue {
         chest.setNextInterval(System.currentTimeMillis() + position.sellTime);
         chest.setIntervalUpgrade(newIntervalID);
 
-        List<SellPosition> sellTimes = this.SELL_TIMES_PER_INTERVAL.computeIfAbsent(newIntervalID, k -> new ArrayList<>());
+        List<SellPosition> sellTimes = this.getSellTimes(newIntervalID);
         sellTimes.add(position);
-        sellTimes.sort(Comparator.comparingDouble(SellPosition::sellTime));
+        sellTimes.sort(Comparator.comparingLong(SellPosition::sellTime));
 
         this.chests.offer(chest);
     }
@@ -117,20 +121,29 @@ public class SchedulerQueue {
     // this approach searches the first largest 'gap' between existing intervals
     // This prevents existing chests their sell times to change when a new chest is added
     private long getBestSellTime(int newIntervalID) {
-        if (this.SELL_TIMES_PER_INTERVAL.get(newIntervalID).isEmpty())
+        if (this.SELL_TIMES_PER_INTERVAL.getOrDefault(newIntervalID, new ArrayList<>()).isEmpty())
             return UpgradeManager.getIntervals()[newIntervalID] / 2;
         long largestGap = 0;
-        long currentTime = 0;
+        long previousTime = 0;
+        long previousLargestTime = 0;
 
+        System.out.println("Calculating best sell time...");
         for (SellPosition position : this.SELL_TIMES_PER_INTERVAL.get(newIntervalID)) {
-            long currentGapSize = position.sellTime - currentTime;
-            currentTime = position.sellTime;
+            long currentGapSize = position.sellTime - previousTime;
             if (currentGapSize > largestGap) {
+                previousLargestTime = previousTime;
+                System.out.println("New largest gap of " + currentGapSize);
                 largestGap = currentGapSize;
             }
+            previousTime = position.sellTime;
+            System.out.println(previousTime);
         }
 
-        return largestGap / 2;
+        return previousLargestTime + (largestGap / 2);
+    }
+
+    private List<SellPosition> getSellTimes(int intervalID) {
+        return this.SELL_TIMES_PER_INTERVAL.computeIfAbsent(intervalID, k -> new ArrayList<>(Collections.singletonList(new SellPosition(UpgradeManager.getIntervals()[intervalID], -1))));
     }
 
     /**
