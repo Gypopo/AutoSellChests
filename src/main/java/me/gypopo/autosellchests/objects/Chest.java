@@ -40,7 +40,7 @@ public class Chest {
         this.income = this.loadPrices(income);
         this.claimAble = this.loadPrices(claimAble);
         this.logging = settings == null || settings.split("\\|")[0].equals("1");
-        this.intervalUpgrade = settings == null ? 1 : this.getUpgradeLevel(settings.split("\\|")[1]);
+        this.intervalUpgrade = settings == null ? 0 : this.getUpgradeLevel(settings);
         this.interval = ((ChestInterval) UpgradeManager.getIntervalUpgrade(this.intervalUpgrade)).getInterval();
         this.displayname = displayname == null ? Lang.formatColors(Config.get().getString("default-chest-name").replace("%id%", String.valueOf(id)), null) : displayname.replace("%id%", String.valueOf(id));
         //this.multiplier = settings == null ? 0.0 : this.getMultiplier(settings);
@@ -60,12 +60,12 @@ public class Chest {
         //this.multiplier = multiplier;
     }
 
-    private int getUpgradeLevel(String upgrade) {
+    private int getUpgradeLevel(String settings) {
         try {
-            return Integer.parseInt(upgrade);
-        } catch (NumberFormatException e) {
-            Logger.warn("Failed to load upgrade level for '" + upgrade + "' for chest " + this.id + ", using default...");
-            return 1;
+            return Integer.parseInt(settings.split("\\|")[1]);
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            Logger.warn("Failed to load upgrade level for '" + settings + "' for chest " + this.id + ", using default...");
+            return 0;
         }
     }
 
@@ -125,6 +125,7 @@ public class Chest {
     public String getSettings() {
         StringBuilder builder = new StringBuilder();
         builder.append(this.logging ? "1" : "0").append("|");
+        builder.append(this.intervalUpgrade).append("|");
 
         return builder.toString();
     }
