@@ -56,7 +56,8 @@ public enum Lang {
     SOLD_ITEMS_INFO("&c&lTotal items sold: &a%amount%"),
     INCOME_INFO("&c&lTotal profit made: &a%profit%"),
     CLAIM_ABLE_INFO( "&a&lClick to view unclaimed profits."),
-    SELL_CHEST_SETTINGS("&c&lChest settings"),
+    SELL_CHEST_SETTINGS("<gradient:#FF4A4A>Chest settings</gradient:#FFDBDB>"),
+    SELL_CHEST_UPGRADES("<gradient:#FF4A4A>Chest upgrades</gradient:#FFDBDB>"),
 
     // Profits claim menu
     AVAILABLE_PROFIT_MENU_TITLE("&8&lAvailable profits"),
@@ -73,8 +74,10 @@ public enum Lang {
     // Enter name menu
     ENTER_NAME_MENU_TITLE("&8&lEnter new name"),
 
-    // Upgrades
+    // Upgrades menu
+    CHEST_UPGRADE_TITLE("&8&lUpgrades"),
     INSUFFICIENT_FUNDS_UPGRADE("&cYou do not have enough %ecoType% to purchase this upgrade."),
+    CHEST_INTERVAL_UPGRADED("&aYou bought %upgrade-name% &afor &f%upgrade-cost%&a, this chest will now sell its contents every &e%interval%"),
     ;
 
     private String def;

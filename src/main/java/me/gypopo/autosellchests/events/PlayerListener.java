@@ -4,10 +4,12 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
+import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.objects.*;
 import me.gypopo.autosellchests.util.ChestConfirmation;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.SimpleParticle;
+import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.util.EcoType;
 import net.wesjd.anvilgui.AnvilGUI;
@@ -171,10 +173,10 @@ public class PlayerListener implements Listener {
     public void onMenuClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
 
-        if (e.getClickedInventory().getHolder() instanceof InformationScreen) {
-            Chest chest = ((InformationScreen) e.getClickedInventory().getHolder()).getChest();
-            Location loc = ((InformationScreen) e.getClickedInventory().getHolder()).getSelectedChest();
-            if (e.getSlot() == 32) {
+        if (e.getClickedInventory().getHolder() instanceof InformationScreen inv) {
+            Chest chest = inv.getChest();
+            Location loc = inv.getSelectedChest();
+            if (e.getSlot() == inv.getDestroySlot()) {
                 if (!e.getWhoClicked().hasPermission("autosellchests.pickup")) {
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.NO_PERMISSIONS.get());
                     e.setCancelled(true);
@@ -200,9 +202,13 @@ public class PlayerListener implements Listener {
                 } else {
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_REMOVE_SELL_CHEST.get());
                 }
-            } else if (e.getSlot() == 30) {
+            } else if (e.getSlot() == inv.getSettingsSlot()) {
                 if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
                     new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
+                } else e.getWhoClicked().sendMessage(Lang.NO_PERMISSIONS.get());
+            } else if (e.getSlot() == inv.getUpgradesSlot()) {
+                if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
+                    new UpgradeScreen(chest).open((Player) e.getWhoClicked());
                 } else e.getWhoClicked().sendMessage(Lang.NO_PERMISSIONS.get());
             } else if (e.getSlot() == 22) {
                 if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
@@ -220,7 +226,7 @@ public class PlayerListener implements Listener {
             } else if (e.getSlot() == 6) {
                 new AnvilGUI.Builder()
                         .onClick((i, state) -> {
-                            if(!state.getText().isEmpty())
+                            if (!state.getText().isEmpty())
                                 chest.setName(Lang.formatColors(state.getText(), null));
                             new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
                             return Collections.singletonList(AnvilGUI.ResponseAction.close());
@@ -230,6 +236,27 @@ public class PlayerListener implements Listener {
                         .title(Lang.ENTER_NAME_MENU_TITLE.get())
                         .plugin(this.plugin)
                         .open((Player) e.getWhoClicked());
+            }
+            e.setCancelled(true);
+        } else if (e.getClickedInventory().getHolder() instanceof UpgradeScreen inv) {
+            Player p = (Player) e.getWhoClicked();
+            Chest chest = inv.getChest();
+            System.out.println("test");
+            System.out.println(e.getSlot() + " - " + inv.getIntervalSlot());
+            if (e.getSlot() == inv.getIntervalSlot()) {
+                int nextInterval = chest.getIntervalUpgrade()+1;
+                ChestUpgrade nextUpgrade = UpgradeManager.getIntervalUpgrade(nextInterval);
+                if (nextUpgrade != null && nextUpgrade.buy(p)) {
+                    this.plugin.getManager().updateChestInterval(chest, nextInterval);
+                    inv.updateInventory(p);
+
+                    p.sendMessage(Lang.CHEST_INTERVAL_UPGRADED.get()
+                            .replace("%upgrade-name%", nextUpgrade.getName())
+                            .replace("%upgrade-cost%", nextUpgrade.getPrice())
+                            .replace("%interval%", TimeUtils.getReadableTime(UpgradeManager.getIntervals()[nextInterval])));
+                }
+            } else if (e.getSlot() == inv.getMultiplierSlot()) {
+                // Todo
             }
             e.setCancelled(true);
         } else if (e.getClickedInventory().getHolder() instanceof ClaimProfitsScreen) {

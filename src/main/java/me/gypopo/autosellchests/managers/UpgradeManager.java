@@ -16,7 +16,8 @@ public class UpgradeManager {
 
     private static final List<ChestInterval> INTERVAL_UPGRADES = new ArrayList<>();
     private static final List<ChestUpgrade> MULTIPLIER_UPGRADES = new ArrayList<>();
-    private static boolean intervalUpgrades = Config.get().getBoolean("enable-upgrades", true);
+    public static boolean intervalUpgrades = Config.get().getBoolean("enable-interval-upgrades", true);
+    public static boolean multiplierUpgrades = Config.get().getBoolean("enable-multiplier-upgrades", true);
 
     public UpgradeManager(AutoSellChests plugin) {
         intervalUpgrades = Config.get().getBoolean("enable-interval-upgrades", true);

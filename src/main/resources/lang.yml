@@ -54,6 +54,8 @@ sell-chest-id: "&eChest ID: #FF7070%id%"
 sell-chest-next-sell: "&eNext sell interval: #FF7070%time%"
 # The displayname of the chest settings item in the info screen
 sell-chest-settings: "<gradient:#FF4A4A>Chest settings</gradient:#FFDBDB>"
+# The displayname of the chest upgrades item in the info screen
+sell-chest-upgrades: "<gradient:#FF4A4A>Chest upgrades</gradient:#FFDBDB>"
 # Toggle sold items logging
 toggle-sold-items-logging: "<gradient:#FF4A4A>Toggle sold item logging</gradient:#FFDBDB>"
 # The current value for a toggle able action
@@ -72,5 +74,9 @@ cannot-place-chest-against-sell-chest: "&cThis chest cannot be placed against a 
 cannot-remove-sell-chest: "&cYou do not have the required permissions to remove this sell chest"
 # The message format for locations
 location-format: "World '%world%', x%pos_x%, y%pos_y%, z%pos_z%"
+# Inventory title of the upgrades menu
+chest-upgrade-title: "&8&lUpgrades"
 # The player does not have enough money to purchase this upgrade
 insufficient-funds-upgrade: "&cYou do not have enough %ecoType% to purchase this upgrade."
+# Player purchases an interval upgrade
+chest-interval-upgraded: "&aYou bought %upgrade-name% &afor &f%upgrade-cost%&a, this chest will now sell its contents every &e%interval%"

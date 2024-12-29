@@ -42,6 +42,7 @@ public class ChestManager {
 
     public ChestManager(AutoSellChests plugin) {
         this.plugin = plugin;
+        this.upgradeManager = new UpgradeManager(plugin);
 
         this.soldItemsLoggingPlayer = Config.get().getBoolean("sold-items-logging-player");
         this.soldItemsLoggingConsole = Config.get().getBoolean("sold-items-logging-console");
@@ -52,8 +53,6 @@ public class ChestManager {
 
         this.loadChests();
         this.loadMaximumChests();
-
-        this.upgradeManager = new UpgradeManager(plugin);
 
         this.plugin.runTaskLater(this::startIntervalWhenReady, 100L);
     }
@@ -82,6 +81,10 @@ public class ChestManager {
 
     public Chest getChestByLocation(Location loc) {
         return this.loadedChests.get(new ChestLocation(loc));
+    }
+
+    public void updateChestInterval(Chest chest, int newIntervalID) {
+        this.scheduler.updateChest(chest, newIntervalID);
     }
 
     private void loadMaximumChests() {

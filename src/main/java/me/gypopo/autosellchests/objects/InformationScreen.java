@@ -3,6 +3,7 @@ package me.gypopo.autosellchests.objects;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
+import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.util.SimpleEnchant;
 import me.gypopo.autosellchests.util.TimeUtils;
 import org.bukkit.Bukkit;
@@ -27,11 +28,27 @@ public class InformationScreen implements InventoryHolder {
     private final Location selectedChest;
     private BukkitTask dynamicLore;
 
+    private final int settingsSlot = UpgradeManager.intervalUpgrades || UpgradeManager.multiplierUpgrades ? 28 : 30;
+    private final int upgradesSlot = UpgradeManager.intervalUpgrades || UpgradeManager.multiplierUpgrades ? 31 : -1;
+    private final int destroySlot = UpgradeManager.intervalUpgrades || UpgradeManager.multiplierUpgrades ? 34 : 32;
+
     public InformationScreen(Chest chest, Location location) {
         this.inv = Bukkit.createInventory(this, 45, Lang.INFO_SCREEN_TITLE.get());
         this.selectedChest = location;
         this.chest = chest;
         this.init();
+    }
+
+    public int getSettingsSlot() {
+        return this.settingsSlot;
+    }
+
+    public int getUpgradesSlot() {
+        return this.upgradesSlot;
+    }
+
+    public int getDestroySlot() {
+        return this.destroySlot;
     }
 
     private void init() {
@@ -79,6 +96,12 @@ public class InformationScreen implements InventoryHolder {
         sM.setDisplayName(Lang.SELL_CHEST_SETTINGS.get());
         settings.setItemMeta(sM);
 
+        // Chest upgrades
+        ItemStack upgrades = new ItemStack(Material.BEACON);
+        ItemMeta uM = upgrades.getItemMeta();
+        uM.setDisplayName(Lang.SELL_CHEST_UPGRADES.get());
+        upgrades.setItemMeta(uM);
+
         // Breaks the chest
         ItemStack destroy = new ItemStack(Material.BARRIER);
         ItemMeta dM = destroy.getItemMeta();
@@ -88,8 +111,10 @@ public class InformationScreen implements InventoryHolder {
         this.inv.setItem(10, soldItems);
         this.inv.setItem(13, nextSell);
         this.inv.setItem(16, totalIncome);
-        this.inv.setItem(30, settings);
-        this.inv.setItem(32, destroy);
+        this.inv.setItem(this.settingsSlot, settings);
+        if (this.upgradesSlot != -1)
+            this.inv.setItem(this.upgradesSlot, upgrades);
+        this.inv.setItem(this.destroySlot, destroy);
 
         for (int i = 0; i < this.inv.getSize(); i++) {
             if (this.inv.getItem(i) == null) {
