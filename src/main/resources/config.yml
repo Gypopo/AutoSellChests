@@ -12,7 +12,7 @@ enable-interval-upgrades: true
 interval-upgrades:
   lvl1:
     # The upgrade item
-    item: COAL_ORE
+    item: COAL
     # The weight of the level, where the smallest weight represents first level
     weight: 10
     price: 0
@@ -25,6 +25,8 @@ interval-upgrades:
     - "&8Upgrade info:"
     - "&8Sell interval: &f&m5m&r &f2m"
     - "&8Cost: &f$15000"
+    # Whether the item should have a enchantment glint
+    enchanted: true
     # The sell interval of chests in this upgrade
     interval: "5m"
 
@@ -42,6 +44,7 @@ interval-upgrades:
       - "&8Upgrade info:"
       - "&8Sell interval: &f&m2m&r &f1m"
       - "&8Cost: &f35000"
+    enchanted: true
     interval: "2m"
 
   lvl3:
@@ -55,6 +58,7 @@ interval-upgrades:
       - "&8Upgrade info:"
       - "&8Sell interval: &f&m1m&r &f30s"
       - "&8Cost: &f$60000"
+    enchanted: true
     interval: "1m"
 
   lvl4:
@@ -64,6 +68,7 @@ interval-upgrades:
     name: "&7&lInterval level &f&l(IV)"
     lore:
       - "&cAlready at max level, cannot upgrade again."
+    enchanted: true
     interval: "30s"
 
 # By default players can actively use 5 sell chests, but this can be overriden using permissions

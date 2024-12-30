@@ -209,10 +209,10 @@ public class ChestManager {
     }
 
     public void disable() {
+        this.scheduler.stop();
         this.saveChests();
         if (!this.loadedChests.isEmpty()) this.loadedChests.clear();
         if (!this.loadedChestsByPlayer.isEmpty()) this.loadedChestsByPlayer.clear();
-        this.scheduler.stop();
     }
 
     public int getOwnedChests(Player p) {

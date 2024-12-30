@@ -1,6 +1,7 @@
 package me.gypopo.autosellchests.objects.upgrades.intervals;
 
 import me.gypopo.autosellchests.AutoSellChests;
+import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.objects.upgrades.ChestInterval;
 import me.gypopo.autosellchests.objects.ChestUpgrade;
@@ -14,7 +15,9 @@ import me.gypopo.economyshopgui.util.EconomyType;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -27,6 +30,7 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
     private final Material item;
     private final String name;
     private final List<String> lore;
+    private final boolean enchanted;
 
     private final double price;
     private final EcoType priceType;
@@ -38,10 +42,11 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
             throws UpgradeLoadException {
         if (section == null)
             throw new UpgradeLoadException("Failed to load upgrade data", null);
-        this.name = section.getString("name");
+        this.name = ChatColor.translateAlternateColorCodes('&', section.getString("name"));
         if (this.name == null)
             throw new UpgradeLoadException("Failed to get name of upgrade", null);
         this.lore = section.getStringList("lore").stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).collect(Collectors.toList());
+        this.enchanted = section.getBoolean("enchanted");
 
         try {
             this.item = Material.valueOf(section.getString("item"));
@@ -68,6 +73,14 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(this.name);
         meta.setLore(this.lore);
+        if (this.enchanted) {
+            if (AutoSellChests.getInstance().version >= 121) {
+                meta.setEnchantmentGlintOverride(true);
+            } else {
+                meta.addItemFlags(ItemFlag.values());
+                meta.addEnchant(Enchantment.AQUA_AFFINITY, 1, true);
+            }
+        }
         item.setItemMeta(meta);
 
         return item;
