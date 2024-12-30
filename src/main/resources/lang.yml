@@ -50,6 +50,10 @@ sell-chest-owner: "&eOwner: #FF7070%player_name%"
 sell-chest-location: "&eLocation: #FF7070%loc%"
 # The internal id of the sell chest
 sell-chest-id: "&eChest ID: #FF7070%id%"
+# The current interval upgrade of this chest
+sell-chest-interval: "&eCurrent interval: #FF7070%interval-name%"
+# The current price multiplier of this chest
+sell-chest-multiplier: "&eCurrent multiplier: #FF7070%multiplier%"
 # The next interval the chest is selling its contents
 sell-chest-next-sell: "&eNext sell interval: #FF7070%time%"
 # The displayname of the chest settings item in the info screen

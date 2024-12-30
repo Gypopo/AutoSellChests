@@ -49,6 +49,8 @@ public enum Lang {
     SELL_CHEST_OWNER("&eOwner: #FF7070%player_name%"),
     SELL_CHEST_LOCATION("&eLocation: #FF7070%loc%"),
     SELL_CHEST_ID("&eChest ID: #FF7070%id%"),
+    SELL_CHEST_INTERVAL("&eCurrent interval: #FF7070%interval-name%&f(%interval%)"),
+    SELL_CHEST_MULTIPLIER("&eCurrent multiplier: #FF7070%multiplier%"),
     SELL_CHEST_NEXT_SELL("&eNext sell interval: #FF7070%time%"),
 
     // Info menu

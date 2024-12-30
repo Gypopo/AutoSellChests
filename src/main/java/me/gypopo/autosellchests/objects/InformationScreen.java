@@ -66,6 +66,12 @@ public class InformationScreen implements InventoryHolder {
         info.add(Lang.SELL_CHEST_OWNER.get().replace("%player_name%", Bukkit.getOfflinePlayer(this.chest.getOwner()).getName()));
         info.addAll(AutoSellChests.splitLongString(Lang.SELL_CHEST_LOCATION.get().replace("%loc%", this.getLocation(this.selectedChest))));
         info.add(Lang.SELL_CHEST_ID.get().replace("%id%", String.valueOf(this.chest.getId())));
+        if (UpgradeManager.intervalUpgrades)
+            info.add(Lang.SELL_CHEST_INTERVAL.get()
+                    .replace("%interval-name%", UpgradeManager.getIntervalUpgrade(this.chest.getIntervalUpgrade()).getName())
+                    .replace("%interval%", TimeUtils.getReadableTime(this.chest.getInterval())));
+        //if (UpgradeManager.multiplierUpgrades) // TODO
+        //    info.add(Lang.SELL_CHEST_MULTIPLIER.get().replace(""))
         info.add(Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", this.getNextInterval()));
         nsM.setLore(info);
         nextSell.setItemMeta(nsM);
