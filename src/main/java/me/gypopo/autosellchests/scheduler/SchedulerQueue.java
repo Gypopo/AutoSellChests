@@ -17,6 +17,7 @@ public class SchedulerQueue {
 
     public void reload() {
         this.chests.clear();
+        this.SELL_TIMES_PER_INTERVAL.clear();
 
         this.calculateQueue();
     }
@@ -107,6 +108,7 @@ public class SchedulerQueue {
 
         SellPosition position = new SellPosition(this.getBestSellTime(newIntervalID), chest.getId());
         chest.setNextInterval(System.currentTimeMillis() + position.sellTime);
+        chest.setInterval(UpgradeManager.getIntervals()[newIntervalID]);
         chest.setIntervalUpgrade(newIntervalID);
 
         List<SellPosition> sellTimes = this.getSellTimes(newIntervalID);

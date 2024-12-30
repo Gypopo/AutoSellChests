@@ -154,6 +154,7 @@ public class MainScheduler {
 
     public void stop() {
         this.running = false;
+        this.SCHEDULER_THREAD.shutdownNow();
     }
 
     public void reload() {
