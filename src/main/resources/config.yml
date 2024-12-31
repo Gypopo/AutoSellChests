@@ -46,6 +46,7 @@ interval-upgrades:
       - "&8Cost: &f35000"
     enchanted: true
     interval: "2m"
+    permission: ""
 
   lvl3:
     item: GOLD_INGOT
@@ -60,6 +61,7 @@ interval-upgrades:
       - "&8Cost: &f$60000"
     enchanted: true
     interval: "1m"
+    permission: ""
 
   lvl4:
     item: DIAMOND
@@ -70,6 +72,7 @@ interval-upgrades:
       - "&cAlready at max level, cannot upgrade again."
     enchanted: true
     interval: "30s"
+    permission: ""
 
 # By default players can actively use 5 sell chests, but this can be overriden using permissions
 # Example: Players with permission 'autosellchests.maxchests.donator' will be able to use 15 sell chests at a time

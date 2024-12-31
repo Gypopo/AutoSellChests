@@ -34,6 +34,7 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
 
     private final double price;
     private final EcoType priceType;
+    private final String permission;
 
     private final long interval;
     private final long ticks;
@@ -57,6 +58,7 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
         SimplePair<Double, EcoType> price = this.loadPrice(section.getString("price"));
         this.price = price.key;
         this.priceType = price.value;
+        this.permission = section.getString("permission");
 
         this.interval = this.getSellInterval(section.getString("interval"));
         this.ticks = this.interval / 1000L * 20L;
@@ -92,6 +94,13 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
         if (priceProvider.getBalance(p) < this.price) {
             p.sendMessage(Lang.INSUFFICIENT_FUNDS_UPGRADE.get().replace("%ecoType%", "money"));
             return false;
+        }
+
+        if (this.permission != null && !this.permission.isEmpty()) {
+            if (!p.hasPermission(this.permission)) {
+                p.sendMessage(Lang.NO_UPGRADE_PERMISSIONS.get());
+                return false;
+            }
         }
 
         priceProvider.withdrawBalance(p, this.price);

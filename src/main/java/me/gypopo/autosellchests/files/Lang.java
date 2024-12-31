@@ -80,6 +80,7 @@ public enum Lang {
     CHEST_UPGRADE_TITLE("&8&lUpgrades"),
     INSUFFICIENT_FUNDS_UPGRADE("&cYou do not have enough %ecoType% to purchase this upgrade."),
     CHEST_INTERVAL_UPGRADED("&aYou bought %upgrade-name% &afor &f%upgrade-cost%&a, this chest will now sell its contents every &e%interval%"),
+    NO_UPGRADE_PERMISSIONS("&cYou do not have the required permission to buy this upgrade"),
     ;
 
     private String def;

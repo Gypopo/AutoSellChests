@@ -84,3 +84,5 @@ chest-upgrade-title: "&8&lUpgrades"
 insufficient-funds-upgrade: "&cYou do not have enough %ecoType% to purchase this upgrade."
 # Player purchases an interval upgrade
 chest-interval-upgraded: "&aYou bought %upgrade-name% &afor &f%upgrade-cost%&a, this chest will now sell its contents every &e%interval%"
+# Player does not have the required permission to upgrade to next upgrade
+no-upgrade-permissions: "&cYou do not have the required permission to buy this upgrade"
