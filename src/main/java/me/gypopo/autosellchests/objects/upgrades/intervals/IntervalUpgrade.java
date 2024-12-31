@@ -115,15 +115,15 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
 
     private SimplePair<Double, EcoType> loadPrice(String price) throws UpgradeLoadException {
         try {
-            if (price.contains(":")) {
-                EcoType econ = EconomyType.getFromString(price.split(":")[0]);
+            if (price.contains("::")) {
+                EcoType econ = EconomyType.getFromString(price.split("::")[0]);
                 if (econ == null)
                     throw new UpgradeLoadException("Failed to load upgrade price, economy type such as '" + price + "' is not supported", null);
 
                 if (EconomyShopGUIHook.getEcon(econ) == null) // EconomyType not active
                     throw new UpgradeLoadException("Failed to load upgrade price, economy type such as '" + price + "' was not enabled inside EconomyShopGUI", null);
 
-                return new SimplePair<>(Double.parseDouble(price.split(":")[1]), econ);
+                return new SimplePair<>(Double.parseDouble(price.split("::")[1]), econ);
             } else
                 return new SimplePair<>(Double.parseDouble(price), null);
         } catch (NumberFormatException | NullPointerException e) {

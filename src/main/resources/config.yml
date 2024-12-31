@@ -35,7 +35,7 @@ interval-upgrades:
     weight: 20
     # The price of this upgrade
     # If no direct currency has been specified, it will use the default currency in EconomyShopGUI
-    # It is possible to specify a direct currency like GEMS_ECONOMY:2000, but requires the currency to be registered within EconomyShopGUI
+    # It is possible to specify a direct currency like EXP::2000, but requires the currency to be registered within EconomyShopGUI
     price: 15000
     name: "&7&lInterval level &f&lII"
     lore:
