@@ -52,9 +52,9 @@ public class SchedulerQueue {
         long interval = millis / CHESTS_BY_INTERVAL.size();
 
         List<SellPosition> sellTimes = new ArrayList<>();
-        for (int i = 1; i < CHESTS_BY_INTERVAL.size(); i++) {
+        for (int i = 0; i < CHESTS_BY_INTERVAL.size(); i++) {
             // Spread the sell time of this chest in the complete interval so not all chests have the same interval
-            long nextInterval = (i * interval) % millis;
+            long nextInterval = ((i+1) * interval) % millis;
 
             Chest chest = CHESTS_BY_INTERVAL.get(i);
             chest.setNextInterval(currentTime + nextInterval);

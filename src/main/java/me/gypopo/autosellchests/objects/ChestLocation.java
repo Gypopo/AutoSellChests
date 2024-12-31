@@ -77,6 +77,6 @@ public class ChestLocation {
 
     @Override
     public int hashCode() {
-        return 0;
+        return Objects.hash(this.doubleChest, this.location1, this.location2);
     }
 }
