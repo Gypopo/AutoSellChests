@@ -5,6 +5,7 @@ import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
+import me.gypopo.autosellchests.objects.ChestSettings;
 import me.gypopo.autosellchests.scheduler.MainScheduler;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
@@ -13,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -143,13 +146,13 @@ public class ChestManager {
         Logger.debug("Took " + (System.currentTimeMillis()-start) + "ms to load " + i + " sell chests from the database");
     }
 
-    public void addChest(ChestLocation loc, Player p) {
+    public void addChest(ChestLocation loc, ChestSettings settings, Player p) {
         Chest chest = this.loadedChests.get(loc);
         if (chest != null) { // Double chest
             chest.getLocation().addLocation(loc.getRightLocation());
             this.plugin.getDatabase().setChest(chest);
         } else {
-            this.plugin.getDatabase().addChest(loc.toString(), p.getUniqueId().toString(), 0);
+            this.plugin.getDatabase().addChest(loc.toString(), p.getUniqueId().toString(), 0, settings);
             chest = this.plugin.getDatabase().loadChest(loc);
 
             this.scheduler.queueChest(chest);
@@ -188,15 +191,21 @@ public class ChestManager {
     }
 
     public ItemStack getChest(int amount) {
-        return this.getChest(null, amount);
+        return this.getChest((ChestSettings) null, amount);
     }
 
     public ItemStack getChest(Chest chest, int amount) {
+        return this.getChest(chest == null ? null : chest.getSettings(), amount);
+    }
+
+    public ItemStack getChest(ChestSettings settings, int amount) {
         ItemStack item = new ItemStack(Material.CHEST, amount);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(chestName);
-        meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", TimeUtils.getReadableTime(chest != null ? chest.getInterval() : UpgradeManager.getIntervals()[0])), null)).collect(Collectors.toList()));
+        meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", TimeUtils.getReadableTime(UpgradeManager.getIntervals()[settings.interval])), null)).collect(Collectors.toList()));
         meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell"), PersistentDataType.INTEGER, 1);
+        if (settings != null)
+            meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell-data"), PersistentDataType.STRING, settings.toString());
         item.setItemMeta(meta);
         return item;
     }

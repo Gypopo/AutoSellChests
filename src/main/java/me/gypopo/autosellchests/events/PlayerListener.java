@@ -104,26 +104,27 @@ public class PlayerListener implements Listener {
             return;
         }
 
+        if (!e.getPlayer().hasPermission("autosellchests.place")) {
+            Logger.sendPlayerMessage(e.getPlayer(), Lang.NO_PERMISSIONS.get());
+            e.setCancelled(true);
+            return;
+        }
+
+        ChestSettings settings = this.getSettings(e.getItemInHand());
+        int max = this.plugin.getManager().getMaxSell(e.getPlayer());
+        if (!e.getPlayer().hasPermission("autosellchests.maxchests.override") &&
+                this.plugin.getManager().getOwnedChests(e.getPlayer()) >= max) {
+            Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(max)));
+
+            Location loc = e.getBlockPlaced().getLocation();
+            loc.add(0.5, 0.5, 0.5);
+            loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(settings,1));
+            loc.getBlock().setType(Material.AIR);
+            return;
+        }
+
         // Run task on 1 tick delay to check whether this forms a double chest
         this.plugin.runTaskLater(() -> {
-            if (!e.getPlayer().hasPermission("autosellchests.place")) {
-                Logger.sendPlayerMessage(e.getPlayer(), Lang.NO_PERMISSIONS.get());
-                e.setCancelled(true);
-                return;
-            }
-
-            int max = this.plugin.getManager().getMaxSell(e.getPlayer());
-            if (!e.getPlayer().hasPermission("autosellchests.maxchests.override") &&
-                    this.plugin.getManager().getOwnedChests(e.getPlayer()) >= max) {
-                Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(max)));
-
-                Location loc = e.getBlockPlaced().getLocation();
-                loc.add(0.5, 0.5, 0.5);
-                loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(1));
-                loc.getBlock().setType(Material.AIR);
-                return;
-            }
-
             Location loc = e.getBlockPlaced().getLocation();
             if (((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory() instanceof DoubleChestInventory) {
                 DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory();
@@ -139,8 +140,8 @@ public class PlayerListener implements Listener {
                     loc.getBlock().setType(Material.AIR);
                     return;
                 }
-                this.plugin.getManager().addChest(new ChestLocation(original, loc), e.getPlayer());
-            } else this.plugin.getManager().addChest(new ChestLocation(loc), e.getPlayer());
+                this.plugin.getManager().addChest(new ChestLocation(original, loc), settings, e.getPlayer());
+            } else this.plugin.getManager().addChest(new ChestLocation(loc), settings, e.getPlayer());
 
             loc.add(0.5, 0.5, 0.5);
             loc.getWorld().spawnParticle(SimpleParticle.WITCH.get(), loc, 10);
@@ -306,6 +307,16 @@ public class PlayerListener implements Listener {
             }
         }
         return SoundCategory.AMBIENT;
+    }
+
+    private ChestSettings getSettings(ItemStack stack) {
+        if (stack.hasItemMeta()) {
+            String data = stack.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(AutoSellChests.getInstance(), "autosell-data"), PersistentDataType.STRING);
+            if (data == null)
+                return new ChestSettings();
+
+            return new ChestSettings(data);
+        } else return new ChestSettings();
     }
 
     private boolean isChest(ItemStack item) {

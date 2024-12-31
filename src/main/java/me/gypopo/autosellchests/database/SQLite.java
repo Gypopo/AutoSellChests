@@ -3,6 +3,7 @@ package me.gypopo.autosellchests.database;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
+import me.gypopo.autosellchests.objects.ChestSettings;
 import me.gypopo.autosellchests.util.Logger;
 
 import java.io.File;
@@ -75,7 +76,7 @@ public class SQLite {
 
             int i = 0;
             for (Chest chest : oldChests) {
-                this.addChest(chest.getLocation().toString(), chest.getOwner().toString(), chest.getItemsSold());
+                this.addChest(chest.getLocation().toString(), chest.getOwner().toString(), chest.getItemsSold(), new ChestSettings());
                 i++;
             }
             Logger.info("Successfully completed migrating and imported " + i + " chest(s) to new database.");
@@ -128,10 +129,10 @@ public class SQLite {
         }
     }
 
-    public void addChest(String location, String owner, int items) {
+    public void addChest(String location, String owner, int items, ChestSettings settings) {
         try {
             Statement stmt = conn.createStatement();
-            stmt.executeUpdate("REPLACE INTO chests(location, owner, items) VALUES('" + location + "', '" + owner + "', " + items + ");");
+            stmt.executeUpdate("REPLACE INTO chests(location, owner, items, settings) VALUES('" + location + "', '" + owner + "', " + items + ", '" + settings.toString() + "');");
             stmt.close();
         } catch (SQLException e ) {
             e.printStackTrace();
