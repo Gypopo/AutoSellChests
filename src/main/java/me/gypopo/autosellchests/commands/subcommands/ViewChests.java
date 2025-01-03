@@ -50,7 +50,7 @@ public class ViewChests implements SubCommad {
                                     " &7| &eTotalItemsSold: &c" + chest.getItemsSold() +
                                     " &7| &eDoubleChest: &c" + chest.getLocation().isDoubleChest() +
                                     (UpgradeManager.intervalUpgrades ? " &7| &eInterval: &c" + UpgradeManager.getIntervalUpgrade(chest.getIntervalUpgrade()).getName() + "&f(" + TimeUtils.getReadableTime(chest.getInterval()) + ")" : "") +
-                                    (UpgradeManager.multiplierUpgrades ? " &7| &eMultiplier: &c" + 105 + "%" : "")));
+                                    (UpgradeManager.multiplierUpgrades ? " &7| &eMultiplier: &c" + UpgradeManager.getMultiplierUpgrade(chest.getMultiplierUpgrade()).getName() + "&f(x" + chest.getMultiplier() + ")" : "")));
                 }
             } else {
                 Logger.sendMessage(logger, ChatColor.RED + "This player has no placed AutoSellChests");

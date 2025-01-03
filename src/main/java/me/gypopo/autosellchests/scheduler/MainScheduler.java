@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.objects.IntervalLogger;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MainScheduler {
 
@@ -102,8 +104,11 @@ public class MainScheduler {
 
                 block.getInventory().setContents(items); // Update the inventory with the updated array of items
 
+                if (UpgradeManager.multiplierUpgrades) // Apply chest sell multiplier
+                    prices = prices.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue() * chest.getMultiplier()));
+
                 chest.addItemsSold(total);
-                chest.addIncome(transaction.getPrices());
+                chest.addIncome(prices);
                 transaction.updateLimits(); // Update DynamicPricing, limited stock and sell limits **in sync** | Should be fairly safe to call synchronous, unless MySQL is used which performs direct database calls instead of cache
                 prices.forEach((type, price) -> {
                     if (!this.isClaimableCurrency(type)) {

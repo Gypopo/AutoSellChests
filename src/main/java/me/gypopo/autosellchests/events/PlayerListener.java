@@ -257,7 +257,18 @@ public class PlayerListener implements Listener {
                             .replace("%interval%", TimeUtils.getReadableTime(UpgradeManager.getIntervals()[nextInterval])));
                 }
             } else if (e.getSlot() == inv.getMultiplierSlot()) {
-                // Todo
+                int nextMultiplier = chest.getMultiplierUpgrade()+1;
+                ChestUpgrade nextUpgrade = UpgradeManager.getMultiplierUpgrade(nextMultiplier);
+                if (nextUpgrade != null && nextUpgrade.buy(p)) {
+                    chest.setMultiplierUpgrade(nextMultiplier);
+                    chest.setMultiplier(UpgradeManager.getMultipliers()[nextMultiplier]);
+                    inv.updateInventory(p);
+
+                    p.sendMessage(Lang.CHEST_INTERVAL_UPGRADED.get()
+                            .replace("%upgrade-name%", nextUpgrade.getName())
+                            .replace("%upgrade-cost%", nextUpgrade.getPrice())
+                            .replace("%multiplier%", String.valueOf(UpgradeManager.getMultipliers()[nextMultiplier])));
+                }
             }
             e.setCancelled(true);
         } else if (e.getClickedInventory().getHolder() instanceof ClaimProfitsScreen) {

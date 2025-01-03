@@ -5,7 +5,7 @@ config-version: 1.0.2
 # For example, you can use '1d 2h 3m 4s' where the interval then would be 1 day, 2 hours, 3 minutes and 4 seconds
 autosell-interval: "10m"
 
-# When disabled, the option to upgrade chests is disabled and all chests will behave the same
+# When disabled, the option to upgrade the interval per chest will be disabled and the sell interval specified above will be used
 enable-interval-upgrades: true
 
 # The list of upgrades where the first upgrade in this track is always the default upgrade for new chests
@@ -20,7 +20,7 @@ interval-upgrades:
     name: "&7&lInterval level &f&lI"
     # The lore of the upgrade item
     lore:
-    - "&aClick to upgrade to &e&llevel &f&l(II)"
+    - "&aClick to upgrade to &e&llevel &f&lII"
     - " "
     - "&8Upgrade info:"
     - "&8Sell interval: &f&m5m&r &f2m"
@@ -39,13 +39,14 @@ interval-upgrades:
     price: 15000
     name: "&7&lInterval level &f&lII"
     lore:
-      - "&aClick to upgrade to &e&llevel &f&l(III)"
+      - "&aClick to upgrade to &e&llevel &f&lIII"
       - " "
       - "&8Upgrade info:"
       - "&8Sell interval: &f&m2m&r &f1m"
       - "&8Cost: &f35000"
     enchanted: true
     interval: "2m"
+    # Can be used to set a permission required to upgrade to this level
     permission: ""
 
   lvl3:
@@ -54,25 +55,90 @@ interval-upgrades:
     price: 35000
     name: "&7&lInterval level &f&lIII"
     lore:
-      - "&aClick to upgrade to &e&llevel &f&l(IV)"
+      - "&aClick to upgrade to &e&llevel &f&lIV"
       - " "
       - "&8Upgrade info:"
       - "&8Sell interval: &f&m1m&r &f30s"
       - "&8Cost: &f$60000"
     enchanted: true
     interval: "1m"
-    permission: ""
 
   lvl4:
     item: DIAMOND
     weight: 40
     price: 60000
-    name: "&7&lInterval level &f&l(IV)"
+    name: "&7&lInterval level &f&lIV"
     lore:
       - "&cAlready at max level, cannot upgrade again."
     enchanted: true
     interval: "30s"
+
+# When disabled, the option to upgrade the multiplier of the chest is disabled and all chests will use the default prices of items
+enable-multiplier-upgrades: true
+
+# The list of upgrades where the first upgrade in this track is always the default upgrade for new chests
+multiplier-upgrades:
+  lvl1:
+    # The upgrade item
+    item: GOLD_NUGGET
+    # The weight of the level, where the smallest weight represents first level
+    weight: 10
+    price: 0
+    # The upgrade name
+    name: "&7&lMultiplier level &f&lI"
+    # The lore of the upgrade item
+    lore:
+      - "&aClick to upgrade to &e&llevel &f&lII"
+      - " "
+      - "&8Upgrade info:"
+      - "&8Price multiplier: &a&m+&f&m0%&r &a+&f10%"
+      - "&8Cost: &f$45000"
+    # Whether the item should have a enchantment glint
+    enchanted: true
+    # The price multiplier of this upgrade
+    multiplier: "1"
+
+  lvl2:
+    item: GOLD_INGOT
+    weight: 20
+    # The price of this upgrade
+    # If no direct currency has been specified, it will use the default currency in EconomyShopGUI
+    # It is possible to specify a direct currency like EXP::2000, but requires the currency to be registered within EconomyShopGUI
+    price: 45000
+    name: "&7&lMultiplier level &f&lII"
+    lore:
+      - "&aClick to upgrade to &e&llevel &f&lIII"
+      - " "
+      - "&8Upgrade info:"
+      - "&8Price multiplier: &a&m+&f&m10%&r &a+&f15%"
+      - "&8Cost: &f75000"
+    enchanted: true
+    multiplier: "1.1"
     permission: ""
+
+  lvl3:
+    item: GOLDEN_CARROT
+    weight: 30
+    price: 75000
+    name: "&7&lMultiplier level &f&lIII"
+    lore:
+      - "&aClick to upgrade to &e&llevel &f&lIV"
+      - " "
+      - "&8Upgrade info:"
+      - "&8Price multiplier: &a&m+&f&m15%&r &a+&f25%"
+      - "&8Cost: &f$110000"
+    enchanted: true
+    multiplier: "1.15"
+
+  lvl4:
+    item: GOLDEN_APPLE
+    weight: 40
+    price: 110000
+    name: "&7&lMultiplier level &f&lIV"
+    lore:
+      - "&cAlready at max level, cannot upgrade again."
+    enchanted: true
+    multiplier: "1.25"
 
 # By default players can actively use 5 sell chests, but this can be overriden using permissions
 # Example: Players with permission 'autosellchests.maxchests.donator' will be able to use 15 sell chests at a time
