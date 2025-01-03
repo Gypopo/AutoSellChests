@@ -5,6 +5,7 @@ import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.objects.upgrades.ChestInterval;
+import me.gypopo.autosellchests.objects.upgrades.PriceMultiplier;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.util.EcoType;
@@ -27,10 +28,12 @@ public class Chest {
     private int itemsSold;
     private final Map<EcoType, Double> income;
     private final Map<EcoType, Double> claimAble;
+    private int intervalUpgrade;
+    private int multiplierUpgrade;
+
     private long interval; // The current recurring interval of this chest in millis
-    private int intervalUpgrade; // The ID/level of the interval upgrade
-    //private double multiplier = 0;
     private long nextInterval; // The time the chest is next sold in millis
+    private double multiplier; // The current sell price multiplier for this chest
 
     public Chest(int id, String location, String owner, int itemsSold, String income, String claimAble, String settings, String displayname) {
         this.id = id;
@@ -40,13 +43,15 @@ public class Chest {
         this.income = this.loadPrices(income);
         this.claimAble = this.loadPrices(claimAble);
         this.logging = settings == null || settings.split("\\|")[0].equals("1");
-        this.intervalUpgrade = settings == null ? 0 : this.getUpgradeLevel(settings);
-        this.interval = ((ChestInterval) UpgradeManager.getIntervalUpgrade(this.intervalUpgrade)).getInterval();
         this.displayname = displayname == null ? Lang.formatColors(Config.get().getString("default-chest-name").replace("%id%", String.valueOf(id)), null) : displayname.replace("%id%", String.valueOf(id));
-        //this.multiplier = settings == null ? 0.0 : this.getMultiplier(settings);
+        this.intervalUpgrade = settings == null ? 0 : this.getIntervalLevel(settings);
+        this.multiplierUpgrade = settings == null ? 0 : this.getMultiplierLevel(settings);
+
+        this.interval = UpgradeManager.getIntervals()[this.intervalUpgrade];
+        this.multiplier = UpgradeManager.getMultipliers()[this.multiplierUpgrade];
     }
 
-    public Chest(int id, ChestLocation location, Player owner, int itemsSold, Map<EcoType, Double> income, Map<EcoType, Double> claimAble, boolean logging, int intervalUpgrade/*, double multiplier*/, String displayname) {
+    public Chest(int id, ChestLocation location, Player owner, int itemsSold, Map<EcoType, Double> income, Map<EcoType, Double> claimAble, boolean logging, int intervalUpgrade, int multiplierUpgrade/*, double multiplier*/, String displayname) {
         this.id = id;
         this.location = location;
         this.owner = owner.getUniqueId();
@@ -54,17 +59,28 @@ public class Chest {
         this.income = income;
         this.claimAble = claimAble;
         this.logging = logging;
-        this.intervalUpgrade = intervalUpgrade;
-        this.interval = ((ChestInterval) UpgradeManager.getIntervalUpgrade(this.intervalUpgrade)).getInterval();
         this.displayname = displayname.replace("%id%", String.valueOf(id));
-        //this.multiplier = multiplier;
+        this.intervalUpgrade = intervalUpgrade;
+        this.multiplierUpgrade = multiplierUpgrade;
+
+        this.interval = UpgradeManager.getIntervals()[this.intervalUpgrade];
+        this.multiplier = UpgradeManager.getMultipliers()[this.multiplierUpgrade];
     }
 
-    private int getUpgradeLevel(String settings) {
+    private int getIntervalLevel(String settings) {
         try {
             return Integer.parseInt(settings.split("\\|")[1]);
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            Logger.warn("Failed to load upgrade level for '" + settings + "' for chest " + this.id + ", using default...");
+            Logger.warn("Failed to load interval level for '" + settings + "' for chest " + this.id + ", using default...");
+            return 0;
+        }
+    }
+
+    private int getMultiplierLevel(String settings) {
+        try {
+            return Integer.parseInt(settings.split("\\|")[2]);
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            Logger.warn("Failed to load multiplier level for '" + settings + "' for chest " + this.id + ", using default...");
             return 0;
         }
     }
@@ -122,12 +138,8 @@ public class Chest {
         return itemsSold;
     }
 
-    public String getSettings() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(this.logging ? "1" : "0").append("|");
-        builder.append(this.intervalUpgrade).append("|");
-
-        return builder.toString();
+    public ChestSettings getSettings() {
+        return new ChestSettings(this.logging, this.intervalUpgrade, this.multiplierUpgrade);
     }
 
     public String getIncomeRaw() {
@@ -170,6 +182,22 @@ public class Chest {
         this.intervalUpgrade = upgrade;
     }
 
+    public double getMultiplier() {
+        return this.multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
+    }
+
+    public int getMultiplierUpgrade() {
+        return this.multiplierUpgrade;
+    }
+
+    public void setMultiplierUpgrade(int upgrade) {
+        this.multiplierUpgrade = upgrade;
+    }
+
     public String getName() {
         return this.displayname;
     }
@@ -186,7 +214,8 @@ public class Chest {
                 ", ItemsSold: " + this.itemsSold +
                 ", Income: " + this.getIncome(null) +
                 ", Logging: " + this.logging +
-                ", Interval upgrade: " + this.intervalUpgrade + "}";
+                ", Interval upgrade: " + this.intervalUpgrade +
+                ", Multiplier upgrade: " + this.multiplierUpgrade + "}";
     }
 
     private Map<EcoType, Double> loadPrices(String income) {
