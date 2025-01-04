@@ -54,14 +54,19 @@ public class UpgradeManager {
 
         final List<Integer> order = new ArrayList<>(levels.keySet());
         Collections.sort(order);
+
+        int lvl = 0;
         for (int i : order) {
             try {
-                INTERVAL_UPGRADES.add(new IntervalUpgrade(Config.get().getConfigurationSection("interval-upgrades." + levels.get(i))));
+                INTERVAL_UPGRADES.add(new IntervalUpgrade(Config.get().getConfigurationSection("interval-upgrades." + levels.get(i)), lvl++));
             } catch (UpgradeLoadException e) {
                 Logger.warn("Failed to enable interval upgrade '" + levels.get(i) + "': " + e.getMessage());
                 e.printStackTrace();
             }
         }
+
+        // Replace lore
+        INTERVAL_UPGRADES.forEach(u -> ((IntervalUpgrade)u).replaceLore());
 
         if (!INTERVAL_UPGRADES.isEmpty())
             Logger.info("Completed loading " + INTERVAL_UPGRADES.size() + " interval upgrade(s) with weight: " + order.stream().map(String::valueOf).collect(Collectors.joining(" -> ")));
@@ -72,14 +77,19 @@ public class UpgradeManager {
 
         final List<Integer> order = new ArrayList<>(levels.keySet());
         Collections.sort(order);
+
+        int lvl = 0;
         for (int i : order) {
             try {
-                MULTIPLIER_UPGRADES.add(new MultiplierUpgrade(Config.get().getConfigurationSection("multiplier-upgrades." + levels.get(i))));
+                MULTIPLIER_UPGRADES.add(new MultiplierUpgrade(Config.get().getConfigurationSection("multiplier-upgrades." + levels.get(i)), lvl++));
             } catch (UpgradeLoadException e) {
                 Logger.warn("Failed to enable multiplier upgrade '" + levels.get(i) + "': " + e.getMessage());
                 e.printStackTrace();
             }
         }
+
+        // Replace lore
+        MULTIPLIER_UPGRADES.forEach(u -> ((MultiplierUpgrade)u).replaceLore());
 
         if (!MULTIPLIER_UPGRADES.isEmpty())
             Logger.info("Completed loading " + MULTIPLIER_UPGRADES.size() + " multiplier upgrade(s) with weight: " + order.stream().map(String::valueOf).collect(Collectors.joining(" -> ")));
@@ -101,10 +111,19 @@ public class UpgradeManager {
     }
 
     public static ChestUpgrade getIntervalUpgrade(int upgrade) {
-        return (ChestUpgrade) INTERVAL_UPGRADES.get(upgrade);
+        try {
+            return (ChestUpgrade) INTERVAL_UPGRADES.get(upgrade);
+        } catch (IndexOutOfBoundsException e) {}
+
+        return null;
     }
+
     public static ChestUpgrade getMultiplierUpgrade(int upgrade) {
-        return (ChestUpgrade) MULTIPLIER_UPGRADES.get(upgrade);
+        try {
+            return (ChestUpgrade) MULTIPLIER_UPGRADES.get(upgrade);
+        } catch (IndexOutOfBoundsException e) {}
+
+        return null;
     }
 
     public static Long[] getIntervalsInTicks() {

@@ -2,6 +2,7 @@ package me.gypopo.autosellchests.objects.upgrades.multipliers;
 
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.objects.ChestUpgrade;
 import me.gypopo.autosellchests.objects.upgrades.ChestInterval;
 import me.gypopo.autosellchests.objects.upgrades.PriceMultiplier;
@@ -27,6 +28,8 @@ import java.util.stream.Collectors;
 
 public class MultiplierUpgrade implements PriceMultiplier, ChestUpgrade {
 
+    private final int level;
+
     private final Material item;
     private final String name;
     private final List<String> lore;
@@ -38,10 +41,12 @@ public class MultiplierUpgrade implements PriceMultiplier, ChestUpgrade {
 
     private final double multiplier;
 
-    public MultiplierUpgrade(ConfigurationSection section)
+    public MultiplierUpgrade(ConfigurationSection section, int level)
             throws UpgradeLoadException {
         if (section == null)
             throw new UpgradeLoadException("Failed to load upgrade data", null);
+        this.level = level;
+
         this.name = ChatColor.translateAlternateColorCodes('&', section.getString("name"));
         if (this.name == null)
             throw new UpgradeLoadException("Failed to get name of upgrade", null);
@@ -62,6 +67,12 @@ public class MultiplierUpgrade implements PriceMultiplier, ChestUpgrade {
         this.multiplier = this.getPriceMultiplier(section.getString("multiplier"));
     }
 
+    public void replaceLore() {
+        ChestUpgrade nextUpgrade = UpgradeManager.getMultiplierUpgrade(this.level+1);
+        if (nextUpgrade != null)
+            this.lore.replaceAll(s -> s.replace("%next-upgrade-cost%", nextUpgrade.getPrice()));
+    }
+
     @Override
     public String getName() {
         return this.name;
@@ -78,7 +89,7 @@ public class MultiplierUpgrade implements PriceMultiplier, ChestUpgrade {
                 meta.setEnchantmentGlintOverride(true);
             } else {
                 meta.addItemFlags(ItemFlag.values());
-                meta.addEnchant(Enchantment.AQUA_AFFINITY, 1, true);
+                meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
             }
         }
         item.setItemMeta(meta);

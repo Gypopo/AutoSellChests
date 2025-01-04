@@ -24,7 +24,7 @@ interval-upgrades:
     - " "
     - "&8Upgrade info:"
     - "&8Sell interval: &f&m5m&r &f2m"
-    - "&8Cost: &f$15000"
+    - "&8Cost: &f%next-upgrade-cost%"
     # Whether the item should have a enchantment glint
     enchanted: true
     # The sell interval of chests in this upgrade
@@ -43,7 +43,7 @@ interval-upgrades:
       - " "
       - "&8Upgrade info:"
       - "&8Sell interval: &f&m2m&r &f1m"
-      - "&8Cost: &f35000"
+      - "&8Cost: &f%next-upgrade-cost%"
     enchanted: true
     interval: "2m"
     # Can be used to set a permission required to upgrade to this level
@@ -59,7 +59,7 @@ interval-upgrades:
       - " "
       - "&8Upgrade info:"
       - "&8Sell interval: &f&m1m&r &f30s"
-      - "&8Cost: &f$60000"
+      - "&8Cost: &f%next-upgrade-cost%"
     enchanted: true
     interval: "1m"
 
@@ -92,7 +92,7 @@ multiplier-upgrades:
       - " "
       - "&8Upgrade info:"
       - "&8Price multiplier: &a&m+&f&m0%&r &a+&f10%"
-      - "&8Cost: &f$45000"
+      - "&8Cost: &f%next-upgrade-cost%"
     # Whether the item should have a enchantment glint
     enchanted: true
     # The price multiplier of this upgrade
@@ -111,7 +111,7 @@ multiplier-upgrades:
       - " "
       - "&8Upgrade info:"
       - "&8Price multiplier: &a&m+&f&m10%&r &a+&f15%"
-      - "&8Cost: &f75000"
+      - "&8Cost: &f%next-upgrade-cost%"
     enchanted: true
     multiplier: "1.1"
     permission: ""
@@ -125,8 +125,8 @@ multiplier-upgrades:
       - "&aClick to upgrade to &e&llevel &f&lIV"
       - " "
       - "&8Upgrade info:"
-      - "&8Price multiplier: &a&m+&f&m15%&r &a+&f25%"
-      - "&8Cost: &f$110000"
+      - "&8Price multiplier: &m+&f&m15%&r &a+&f25%"
+      - "&8Cost: &f%next-upgrade-cost%"
     enchanted: true
     multiplier: "1.15"
 

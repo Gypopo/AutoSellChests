@@ -3,6 +3,7 @@ package me.gypopo.autosellchests.objects.upgrades.intervals;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.objects.upgrades.ChestInterval;
 import me.gypopo.autosellchests.objects.ChestUpgrade;
 import me.gypopo.autosellchests.util.SimplePair;
@@ -27,6 +28,8 @@ import java.util.stream.Collectors;
 
 public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
 
+    private final int level;
+
     private final Material item;
     private final String name;
     private final List<String> lore;
@@ -39,21 +42,11 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
     private final long interval;
     private final long ticks;
 
-    public IntervalUpgrade(ConfigurationSection section)
+    public IntervalUpgrade(ConfigurationSection section, int level)
             throws UpgradeLoadException {
         if (section == null)
             throw new UpgradeLoadException("Failed to load upgrade data", null);
-        this.name = ChatColor.translateAlternateColorCodes('&', section.getString("name"));
-        if (this.name == null)
-            throw new UpgradeLoadException("Failed to get name of upgrade", null);
-        this.lore = section.getStringList("lore").stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).collect(Collectors.toList());
-        this.enchanted = section.getBoolean("enchanted");
-
-        try {
-            this.item = Material.valueOf(section.getString("item"));
-        } catch (IllegalArgumentException e) {
-            throw new UpgradeLoadException("Failed to get item material of upgrade for '" + section.getString("item") + "'", null);
-        }
+        this.level = level;
 
         SimplePair<Double, EcoType> price = this.loadPrice(section.getString("price"));
         this.price = price.key;
@@ -62,6 +55,27 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
 
         this.interval = this.getSellInterval(section.getString("interval"));
         this.ticks = this.interval / 1000L * 20L;
+
+        this.name = ChatColor.translateAlternateColorCodes('&', section.getString("name"));
+        if (this.name == null)
+            throw new UpgradeLoadException("Failed to get name of upgrade", null);
+        this.lore = section.getStringList("lore").stream()
+                .map(s -> ChatColor.translateAlternateColorCodes('&',
+                        s.replace("%next-upgrade-cost%", AutoSellChests.getInstance().formatPrices(this.priceType, this.price, s)))
+                ).collect(Collectors.toList());
+        this.enchanted = section.getBoolean("enchanted");
+
+        try {
+            this.item = Material.valueOf(section.getString("item"));
+        } catch (IllegalArgumentException e) {
+            throw new UpgradeLoadException("Failed to get item material of upgrade for '" + section.getString("item") + "'", null);
+        }
+    }
+
+    public void replaceLore() {
+        ChestUpgrade nextUpgrade = UpgradeManager.getIntervalUpgrade(this.level+1);
+        if (nextUpgrade != null)
+            this.lore.replaceAll(s -> s.replace("%next-upgrade-cost%", nextUpgrade.getPrice()));
     }
 
     @Override
@@ -80,7 +94,7 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
                 meta.setEnchantmentGlintOverride(true);
             } else {
                 meta.addItemFlags(ItemFlag.values());
-                meta.addEnchant(Enchantment.AQUA_AFFINITY, 1, true);
+                meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
             }
         }
         item.setItemMeta(meta);
