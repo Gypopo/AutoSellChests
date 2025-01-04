@@ -34,6 +34,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -147,7 +148,7 @@ public class PlayerListener implements Listener {
             loc.getWorld().spawnParticle(SimpleParticle.WITCH.get(), loc, 10);
             loc.getWorld().spawnParticle(SimpleParticle.DUST.get(), loc, 10, new Particle.DustOptions(Color.RED, 2F));
             if (this.placeSound != null)
-                loc.getWorld().playSound(loc, this.placeSound, this.getSoundCategory(this.placeSound), this.soundVolume, this.soundPitch);
+                loc.getWorld().playSound(loc, this.placeSound, this.soundVolume, this.soundPitch);
             Logger.sendPlayerMessage(e.getPlayer(), Lang.SELLCHEST_PLACED.get().replace("%chest-name%", this.plugin.getManager().getDefaultChestName()));
             this.chestConfirmation.playEffect(e.getPlayer());
 
@@ -198,7 +199,7 @@ public class PlayerListener implements Listener {
                     loc.getBlock().setType(Material.AIR);
                     loc.getWorld().spawnParticle(SimpleParticle.CLOUD.get(), loc, 15);
                     if (this.breakSound != null)
-                        loc.getWorld().playSound(loc, this.breakSound, this.getSoundCategory(this.breakSound), this.soundVolume, this.soundPitch);
+                        loc.getWorld().playSound(loc, this.breakSound, this.soundVolume, this.soundPitch);
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.SELLCHEST_BROKEN.get().replace("%chest-name%", this.plugin.getManager().getDefaultChestName()));
                 } else {
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_REMOVE_SELL_CHEST.get());
@@ -298,14 +299,30 @@ public class PlayerListener implements Listener {
     private Sound getSound(String sound) {
         if (!Config.get().getString(sound).isEmpty()) {
             try {
-                return Sound.valueOf(Config.get().getString(sound));
+                return this.getSoundByName(Config.get().getString(sound));
             } catch (IllegalArgumentException | NullPointerException e) {
                 // No sound found
                 Logger.warn("Failed to find a sound effect with name '" + Config.get().getString(sound) + "'");
-                return Sound.valueOf(Config.get().getDefaults().getString(sound));
+                return this.getSoundByName(Config.get().getDefaults().getString(sound));
             }
         }
         return null;
+    }
+
+    private Sound getSoundByName(String sound) throws IllegalArgumentException {
+        try {
+            Class<?> clazz = Class.forName("org.bukkit.Sound");
+            Method c = clazz.getDeclaredMethod("valueOf", String.class);
+            c.setAccessible(true);
+
+            return (Sound) c.invoke(null, sound);
+        } catch (Exception e) {
+            if (e instanceof IllegalArgumentException)
+                throw (IllegalArgumentException) e;
+
+            Logger.warn("Failed to load sound effect for " + sound);
+            return null;
+        }
     }
 
     private SoundCategory getSoundCategory(Sound sound) {
