@@ -42,10 +42,10 @@ public class ViewChests implements SubCommad {
                 for (Chest chest : chests) {
                     Logger.sendMessage(logger, ChatColor.translateAlternateColorCodes('&',
                             "&eID: &c" + chest.getId() +
-                                    " &7| &eLocation: &cWorld '" + chest.getLocation().getLeftLocation().getWorld().getName() +
-                                        "', x" + chest.getLocation().getLeftLocation().getBlockX() +
-                                        ", y" + chest.getLocation().getLeftLocation().getBlockY() +
-                                        ", z" + chest.getLocation().getLeftLocation().getBlockZ() +
+                                    " &7| &eLocation: &cWorld '" + chest.getLocation().getLeftLocation().world +
+                                        "', x" + chest.getLocation().getLeftLocation().z +
+                                        ", y" + chest.getLocation().getLeftLocation().y +
+                                        ", z" + chest.getLocation().getLeftLocation().z +
                                     " &7| &eTotalProfit: &c" + chest.getIncome("§c") +
                                     " &7| &eTotalItemsSold: &c" + chest.getItemsSold() +
                                     " &7| &eDoubleChest: &c" + chest.getLocation().isDoubleChest() +

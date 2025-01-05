@@ -70,9 +70,9 @@ public class RemoveChest implements SubCommad {
     }
 
     private void breakNaturally(Chest chest) {
-        chest.getLocation().getLeftLocation().getBlock().breakNaturally();
+        chest.getLocation().getLeftLocation().toLoc().getBlock().breakNaturally();
         if (chest.getLocation().isDoubleChest())
-            chest.getLocation().getRightLocation().getBlock().breakNaturally();
+            chest.getLocation().getRightLocation().toLoc().getBlock().breakNaturally();
     }
 
     @Override

@@ -88,7 +88,7 @@ public class MainScheduler {
             }
             Logger.debug("Starting sell interval for chest with id " + chest.getId());
 
-            org.bukkit.block.Chest block = (org.bukkit.block.Chest) chest.getLocation().getLeftLocation().getBlock().getState();
+            org.bukkit.block.Chest block = (org.bukkit.block.Chest) chest.getLocation().getLeftLocation().toLoc().getBlock().getState();
             if (block.getInventory().isEmpty()) {
                 return;
             }
@@ -118,10 +118,10 @@ public class MainScheduler {
                 this.handleLogs(chest, owner, prices, total);
             }
         } catch (Exception e) {
-            Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ() + " | TotalProfit: $" + chest.getIncome(null) + " | TotalItemsSold: " + chest.getItemsSold());
+            Logger.warn("Exception occurred while processing chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z + " | TotalProfit: $" + chest.getIncome(null) + " | TotalItemsSold: " + chest.getItemsSold());
             if (e instanceof ClassCastException) {
                 Logger.warn("The chest at this location does not longer exist, removing chest from database...");
-                this.plugin.getManager().removeChest(new ChestLocation(chest.getLocation().getLeftLocation()));
+                this.plugin.getManager().removeChest(new ChestLocation(chest.getLocation().getLeftLocation().toLoc()));
             }
             if (this.plugin.debug) e.printStackTrace();
         }
@@ -138,7 +138,7 @@ public class MainScheduler {
             if (this.logger == null) {
                 // Log every interval
                 Logger.info(this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName()))
-                        .replace("%location%", "world '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ())
+                        .replace("%location%", "world '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z)
                         .replace("%amount%", String.valueOf(items)).replace("%id%", String.valueOf(chest.getId()))));
             } else this.logger.addContents(items, chest.getId());
         }

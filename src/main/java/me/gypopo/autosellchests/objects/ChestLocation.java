@@ -1,10 +1,5 @@
 package me.gypopo.autosellchests.objects;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-
-import java.util.Objects;
-
 public class ChestLocation {
 
     private boolean doubleChest;
@@ -13,20 +8,20 @@ public class ChestLocation {
 
     public ChestLocation(String loc) {
         this.doubleChest = loc.contains("|");
-        this.location1 = new Location(Bukkit.getWorld(loc.split("\\|")[0].split(":")[0]), Double.parseDouble(loc.split("\\|")[0].split(":")[1]), Double.parseDouble(loc.split("\\|")[0].split(":")[2]), Double.parseDouble(loc.split("\\|")[0].split(":")[3]));
+        this.location1 = new Location(loc.split("\\|")[0]);
         if (this.doubleChest)
-            this.location2 = new Location(Bukkit.getWorld(loc.split("\\|")[1].split(":")[0]), Double.parseDouble(loc.split("\\|")[1].split(":")[1]), Double.parseDouble(loc.split("\\|")[1].split(":")[2]), Double.parseDouble(loc.split("\\|")[1].split(":")[3]));
+            this.location2 = new Location(loc.split("\\|")[1]);
     }
 
-    public ChestLocation(Location location) {
+    public ChestLocation(org.bukkit.Location location) {
         this.doubleChest = false;
-        this.location1 = location;
+        this.location1 = new Location(location);
     }
 
-    public ChestLocation(Location location1, Location location2) {
+    public ChestLocation(org.bukkit.Location location1, org.bukkit.Location location2) {
         this.doubleChest = true;
-        this.location1 = location1;
-        this.location2 = location2;
+        this.location1 = new Location(location1);
+        this.location2 = new Location(location2);
     }
 
     public boolean isDoubleChest() {
@@ -43,8 +38,9 @@ public class ChestLocation {
 
     public void removeLocation(Location location) {
         this.doubleChest = false;
+
         if (this.location1.equals(location)) {
-            this.location1 = location2;
+            this.location1 = this.location2;
         } else this.location2 = null;
     }
 
@@ -54,29 +50,26 @@ public class ChestLocation {
 
     @Override
     public String toString() {
-        return this.location1.getWorld().getName() + ":" + this.location1.getBlockX() + ":" + this.location1.getBlockY() + ":" + this.location1.getBlockZ() +
-                (this.doubleChest ? "|" + this.location2.getWorld().getName() + ":" + this.location2.getBlockX() + ":" + this.location2.getBlockY() + ":" + this.location2.getBlockZ() : "");
+        return this.location1.toString() + (this.doubleChest ? "|" + this.location2.toString() : "");
     }
 
-    public void addLocation(Location loc) {
-        this.location2 = loc;
+    public void addLocation(org.bukkit.Location loc) {
+        this.location2 = new Location(loc);
         this.doubleChest = true;
     }
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        } else if (object instanceof ChestLocation) {
-            ChestLocation loc = (ChestLocation) object;
+        if (this == object) return true;
+        if (object instanceof ChestLocation loc)
             return this.isOneOf(loc.getLeftLocation()) || (loc.isDoubleChest() && this.isOneOf(loc.getRightLocation()) || (this.doubleChest && loc.isOneOf(this.location2)));
-        } else {
-            return false;
-        }
+
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.doubleChest, this.location1, this.location2);
+        // We always want it to use the 'equals(Object)' method to compare locations
+        return 0;
     }
 }

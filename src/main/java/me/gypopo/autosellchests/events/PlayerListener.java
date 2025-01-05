@@ -14,11 +14,8 @@ import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.util.EcoType;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.*;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.DoubleChest;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,8 +26,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.DoubleChestInventory;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -137,12 +132,12 @@ public class PlayerListener implements Listener {
                     } else Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_PLACE_SELL_CHEST_HERE.get());
 
                     loc.add(0.5, 0.5, 0.5);
-                    loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(left,1));
+                    loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(settings,1));
                     loc.getBlock().setType(Material.AIR);
                     return;
                 }
-                this.plugin.getManager().addChest(new ChestLocation(original, loc), settings, e.getPlayer());
-            } else this.plugin.getManager().addChest(new ChestLocation(loc), settings, e.getPlayer());
+                this.plugin.getManager().addChest(loc, left, settings, e.getPlayer());
+            } else this.plugin.getManager().addChest(loc, null, settings, e.getPlayer());
 
             loc.add(0.5, 0.5, 0.5);
             loc.getWorld().spawnParticle(SimpleParticle.WITCH.get(), loc, 10);
