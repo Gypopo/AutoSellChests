@@ -26,7 +26,6 @@ public class ChestManager {
 
     private AutoSellChests plugin;
 
-    private final UpgradeManager upgradeManager;
     private MainScheduler scheduler;
 
     private final int maxSellChestsPlayer;
@@ -45,7 +44,6 @@ public class ChestManager {
 
     public ChestManager(AutoSellChests plugin) {
         this.plugin = plugin;
-        this.upgradeManager = new UpgradeManager(plugin);
 
         this.soldItemsLoggingPlayer = Config.get().getBoolean("sold-items-logging-player");
         this.soldItemsLoggingConsole = Config.get().getBoolean("sold-items-logging-console");
@@ -215,7 +213,7 @@ public class ChestManager {
     }
 
     private long getInterval(ChestSettings settings) {
-        return settings != null ? UpgradeManager.getIntervals()[settings.interval] : UpgradeManager.getIntervals()[0];
+        return settings != null && UpgradeManager.intervalUpgrades ? UpgradeManager.getIntervals()[settings.interval] : UpgradeManager.getIntervals()[0];
     }
 
     private void saveChests() {

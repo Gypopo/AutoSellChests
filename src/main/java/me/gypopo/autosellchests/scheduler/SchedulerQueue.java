@@ -34,7 +34,7 @@ public class SchedulerQueue {
         ArrayList<Chest> CHESTS_BY_INTERVAL = new ArrayList<>();
 
         for (Chest chest : AutoSellChests.getInstance().getManager().getLoadedChests().values()) {
-            if (chest.getIntervalUpgrade() == intervalID)
+            if ((UpgradeManager.intervalUpgrades ? chest.getIntervalUpgrade() : 0) == intervalID)
                 CHESTS_BY_INTERVAL.add(chest);
         }
 
@@ -81,12 +81,12 @@ public class SchedulerQueue {
 
     // When a new chest is created, add it dynamically to the scheduler and calculate the best possible sell time
     public void addChest(Chest chest) {
-        SellPosition position = new SellPosition(this.getBestSellTime(chest.getIntervalUpgrade()), chest.getId());
+        SellPosition position = new SellPosition(this.getBestSellTime(UpgradeManager.intervalUpgrades ? chest.getIntervalUpgrade() : 0), chest.getId());
         chest.setNextInterval(System.currentTimeMillis() + position.sellTime);
 
         System.out.println("Using sell time of " + position.sellTime + "millis for " + position.chestID);
 
-        List<SellPosition> sellTimes = this.getSellTimes(chest.getIntervalUpgrade());
+        List<SellPosition> sellTimes = this.getSellTimes(UpgradeManager.intervalUpgrades ? chest.getIntervalUpgrade() : 0);
         sellTimes.add(position);
         sellTimes.sort(Comparator.comparingLong(SellPosition::sellTime));
 
@@ -95,7 +95,7 @@ public class SchedulerQueue {
 
     // When a chest is removed/destroyed
     public void removeChest(Chest chest) {
-        this.getSellTimes(chest.getIntervalUpgrade())
+        this.getSellTimes(UpgradeManager.intervalUpgrades ? chest.getIntervalUpgrade() : 0)
                 .removeIf(pos -> pos.chestID == chest.getId());
         this.chests.remove(chest);
     }

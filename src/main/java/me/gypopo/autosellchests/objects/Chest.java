@@ -47,8 +47,8 @@ public class Chest {
         this.intervalUpgrade = settings == null ? 0 : this.getIntervalLevel(settings);
         this.multiplierUpgrade = settings == null ? 0 : this.getMultiplierLevel(settings);
 
-        this.interval = UpgradeManager.getIntervals()[this.intervalUpgrade];
-        this.multiplier = UpgradeManager.getMultipliers()[this.multiplierUpgrade];
+        this.interval = UpgradeManager.getIntervals()[UpgradeManager.intervalUpgrades ? this.intervalUpgrade : 0];
+        this.multiplier = UpgradeManager.getMultipliers()[UpgradeManager.multiplierUpgrades ? this.multiplierUpgrade : 0];
     }
 
     public Chest(int id, ChestLocation location, Player owner, int itemsSold, Map<EcoType, Double> income, Map<EcoType, Double> claimAble, boolean logging, int intervalUpgrade, int multiplierUpgrade/*, double multiplier*/, String displayname) {
@@ -63,8 +63,8 @@ public class Chest {
         this.intervalUpgrade = intervalUpgrade;
         this.multiplierUpgrade = multiplierUpgrade;
 
-        this.interval = UpgradeManager.getIntervals()[this.intervalUpgrade];
-        this.multiplier = UpgradeManager.getMultipliers()[this.multiplierUpgrade];
+        this.interval = UpgradeManager.getIntervals()[UpgradeManager.intervalUpgrades ? this.intervalUpgrade : 0];
+        this.multiplier = UpgradeManager.getMultipliers()[UpgradeManager.multiplierUpgrades ? this.multiplierUpgrade : 0];
     }
 
     private int getIntervalLevel(String settings) {
