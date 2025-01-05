@@ -29,6 +29,7 @@ public class IntervalLogger {
         }
 
         thread.scheduleAtFixedRate(this.getTask(delay), delay, delay, TimeUnit.MILLISECONDS);
+        Logger.info("Started interval logger with interval of " + TimeUtils.getReadableTime(delay));
     }
 
     public Runnable getTask(long delay) {

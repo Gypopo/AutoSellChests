@@ -24,7 +24,6 @@ public class SchedulerQueue {
 
     private void calculateQueue() {
         for (int i = 0; i < UpgradeManager.getDifferentIntervals(); i++) {
-            System.out.println("Queueing chests for interval " + i + " with interval of " + UpgradeManager.getIntervals()[i] + "millis");
             this.scheduleFromInterval(i);
         }
     }
@@ -46,6 +45,7 @@ public class SchedulerQueue {
         this.SELL_TIMES_PER_INTERVAL.put(intervalID, sellTimes);
     }
 
+    // TODO: The last loaded interval will always be the maximum millis, where the first chest of each interval upgrade will always have a interval of 0, making them always overlap
     private List<SellPosition> schedule(ArrayList<Chest> CHESTS_BY_INTERVAL, long millis) {
         // Calculate the best time for when to sell a chest in ticks
         long currentTime = System.currentTimeMillis();
@@ -58,7 +58,6 @@ public class SchedulerQueue {
 
             Chest chest = CHESTS_BY_INTERVAL.get(i);
             chest.setNextInterval(currentTime + nextInterval);
-            System.out.println("Using sell time of " + nextInterval + "millis for " + chest.getId());
             sellTimes.add(new SellPosition(nextInterval, chest.getId()));
             this.chests.offer(chest);
         }
@@ -83,8 +82,6 @@ public class SchedulerQueue {
     public void addChest(Chest chest) {
         SellPosition position = new SellPosition(this.getBestSellTime(UpgradeManager.intervalUpgrades ? chest.getIntervalUpgrade() : 0), chest.getId());
         chest.setNextInterval(System.currentTimeMillis() + position.sellTime);
-
-        System.out.println("Using sell time of " + position.sellTime + "millis for " + position.chestID);
 
         List<SellPosition> sellTimes = this.getSellTimes(UpgradeManager.intervalUpgrades ? chest.getIntervalUpgrade() : 0);
         sellTimes.add(position);
@@ -129,16 +126,13 @@ public class SchedulerQueue {
         long previousTime = 0;
         long previousLargestTime = 0;
 
-        System.out.println("Calculating best sell time...");
         for (SellPosition position : this.SELL_TIMES_PER_INTERVAL.get(newIntervalID)) {
             long currentGapSize = position.sellTime - previousTime;
             if (currentGapSize > largestGap) {
                 previousLargestTime = previousTime;
-                System.out.println("New largest gap of " + currentGapSize);
                 largestGap = currentGapSize;
             }
             previousTime = position.sellTime;
-            System.out.println(previousTime);
         }
 
         return previousLargestTime + (largestGap / 2);

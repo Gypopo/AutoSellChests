@@ -125,7 +125,7 @@ multiplier-upgrades:
       - "&aClick to upgrade to &e&llevel &f&lIV"
       - " "
       - "&8Upgrade info:"
-      - "&8Price multiplier: &m+&f&m15%&r &a+&f25%"
+      - "&8Price multiplier: &a&m+&f&m15%&r &a+&f25%"
       - "&8Cost: &f%next-upgrade-cost%"
     enchanted: true
     multiplier: "1.15"

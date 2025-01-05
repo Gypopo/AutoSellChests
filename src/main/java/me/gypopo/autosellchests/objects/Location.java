@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class Location {
 
-    public final String world;
+    public final String world; // Potentially store the world object instead of name for faster access to prevent Bukkit.getWorld() calls?
     public final int x;
     public final int y;
     public final int z;

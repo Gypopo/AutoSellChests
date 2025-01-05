@@ -38,7 +38,6 @@ public class UpgradeScreen implements InventoryHolder {
             this.inv.setItem(this.intervalSlot, upgradeItem);
         }
 
-        // TODO: Multiplier upgrade
         if (UpgradeManager.multiplierUpgrades) {
             ItemStack upgradeItem = UpgradeManager.getMultiplierUpgrade(this.chest.getMultiplierUpgrade()).getUpgradeItem();
             this.inv.setItem(this.multiplierSlot, upgradeItem);

@@ -64,7 +64,6 @@ public class MainScheduler {
             return;
 
         while (this.running && (nextChest.getNextInterval() - System.currentTimeMillis()) <= 50) {
-            System.out.println("Processing chest with ID " + nextChest.getId());
             Chest chest = this.queue.getNextAndUpdate();
             this.plugin.runTask(chest, () -> this.sellContents(chest));
 
