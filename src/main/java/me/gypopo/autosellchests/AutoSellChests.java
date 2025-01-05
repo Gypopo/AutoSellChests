@@ -9,6 +9,7 @@ import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionCMI;
 import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionEssentials;
 import me.gypopo.autosellchests.managers.AFKManager;
 import me.gypopo.autosellchests.managers.ChestManager;
+import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.metrics.Metrics;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.util.*;
@@ -52,6 +53,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private final TimeUtils timeUtils = new TimeUtils();
     private final NamespacedKey key = new NamespacedKey(this, "autosell");
     private final ServerScheduler scheduler = this.getScheduler();
+    private UpgradeManager upgradeManager;
     private ChestManager manager;
     private AFKManager afkManager;
     private boolean ready = false;
@@ -126,6 +128,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             if (this.isPluginEnabled(premium)) {
                 if (Config.get().getBoolean("afk-prevention", false))
                     this.afkManager = this.getAfkManager();
+                this.upgradeManager = new UpgradeManager(this);
                 this.manager = new ChestManager(this);
             } else {
                 this.getLogger().warning("Found EconomyShopGUI in a disabled state, please make sure it is enabled and up to date, disabling the plugin...");
@@ -179,6 +182,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         this.manager.disable();
         if (Config.get().getBoolean("afk-prevention", false))
             this.afkManager = this.getAfkManager();
+        this.upgradeManager.reload();
         this.manager = new ChestManager(this);
     }
 

@@ -4,6 +4,7 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.commands.SubCommad;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.util.Logger;
 
 import java.util.List;
