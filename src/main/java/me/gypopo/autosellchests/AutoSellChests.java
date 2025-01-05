@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandMap;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -192,6 +193,10 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
     public void runTaskLater(Runnable runnable, long delay) {
         this.scheduler.runTaskLater(this, runnable, delay);
+    }
+
+    public void runTaskLater(Runnable runnable, Location loc, long delay) {
+        this.scheduler.runTaskLater(this, loc, runnable, delay);
     }
 
     public void runTask(Runnable runnable) {

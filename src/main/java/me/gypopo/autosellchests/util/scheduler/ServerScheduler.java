@@ -2,6 +2,7 @@ package me.gypopo.autosellchests.util.scheduler;
 
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.objects.Chest;
+import org.bukkit.Location;
 
 public interface ServerScheduler {
 
@@ -10,6 +11,8 @@ public interface ServerScheduler {
     void runTask(AutoSellChests plugin, Chest chest, Runnable run);
 
     void runTaskLater(AutoSellChests plugin, Runnable run, final long delay);
+
+    void runTaskLater(AutoSellChests plugin, Location loc, Runnable run, final long delay);
 
     Task runTaskTimer(AutoSellChests plugin, Runnable run, final long delay, long period);
 

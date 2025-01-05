@@ -120,10 +120,9 @@ public class PlayerListener implements Listener {
         }
 
         // Run task on 1 tick delay to check whether this forms a double chest
+        Location loc = e.getBlockPlaced().getLocation();
         this.plugin.runTaskLater(() -> {
-            Location loc = e.getBlockPlaced().getLocation();
-            if (((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory() instanceof DoubleChestInventory) {
-                DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory();
+            if (((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory() instanceof DoubleChestInventory inv) {
                 Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
                 Chest left = this.plugin.getManager().getChestByLocation(original);
 
@@ -161,7 +160,7 @@ public class PlayerListener implements Listener {
             this.chestConfirmation.playEffect(e.getPlayer());
 
             loc.subtract(0.5, 0.5, 0.5); // This line is needed, it caused me some headaches :/
-        }, 1);
+        }, loc, 1);
     }
 
     @EventHandler(ignoreCancelled = true)

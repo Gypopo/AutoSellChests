@@ -5,6 +5,7 @@ import io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.objects.Chest;
+import org.bukkit.Location;
 import me.gypopo.autosellchests.util.scheduler.ServerScheduler;
 import me.gypopo.autosellchests.util.scheduler.Task;
 import me.gypopo.autosellchests.util.scheduler.tasks.FoliaTask;
@@ -33,10 +34,20 @@ public class FoliaScheduler implements ServerScheduler {
         this.regionScheduler.run(plugin, chest.getLocation().getLeftLocation().toLoc(), t -> run.run());
     }
 
+    public void runTask(AutoSellChests plugin, Location loc, Runnable run) {
+        this.regionScheduler.run(plugin, loc, t -> run.run());
+    }
+
     @Override
     public void runTaskLater(AutoSellChests plugin, Runnable run, final long delay) {
         if (delay <= 0) this.runTask(plugin, run);
         this.globalRegionScheduler.runDelayed(plugin, t -> run.run(), delay);
+    }
+
+    @Override
+    public void runTaskLater(AutoSellChests plugin, Location loc, Runnable run, final long delay) {
+        if (delay <= 0) this.runTask(plugin, loc, run);
+        this.regionScheduler.runDelayed(plugin, loc, t -> run.run(), delay);
     }
 
     @Override

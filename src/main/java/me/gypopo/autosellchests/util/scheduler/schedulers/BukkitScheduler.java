@@ -5,6 +5,7 @@ import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.util.scheduler.ServerScheduler;
 import me.gypopo.autosellchests.util.scheduler.Task;
 import me.gypopo.autosellchests.util.scheduler.tasks.BukkitTask;
+import org.bukkit.Location;
 
 public class BukkitScheduler implements ServerScheduler {
 
@@ -27,6 +28,11 @@ public class BukkitScheduler implements ServerScheduler {
     @Override
     public void runTaskLater(AutoSellChests plugin, Runnable run, final long delay) {
         this.scheduler.runTaskLater(plugin, run, delay);
+    }
+
+    @Override
+    public void runTaskLater(AutoSellChests plugin, Location loc, Runnable run, final long delay) {
+        this.runTaskLater(plugin, run, delay);
     }
 
     @Override
