@@ -146,22 +146,26 @@ public class ChestManager {
         Logger.debug("Took " + (System.currentTimeMillis()-start) + "ms to load " + i + " sell chests from the database");
     }
 
-    public void addChest(ChestLocation loc, ChestSettings settings, Player p) {
-        Chest chest = this.loadedChests.get(loc);
-        if (chest != null) { // Double chest
-            chest.getLocation().addLocation(loc.getRightLocation());
-            this.plugin.getDatabase().setChest(chest);
-        } else {
-            this.plugin.getDatabase().addChest(loc.toString(), p.getUniqueId().toString(), 0, settings);
-            chest = this.plugin.getDatabase().loadChest(loc);
+    public void addChest(Location loc, @Nullable Chest original, ChestSettings settings, Player p) {
+        if (original != null) { // Double chest
+            original.getLocation().addLocation(loc);
+            this.plugin.getDatabase().setChest(original);
 
-            this.scheduler.queueChest(chest);
-            this.loadedChests.put(chest.getLocation(), chest);
+            // Update the map entry
+            this.loadedChests.remove(original.getLocation());
+            this.loadedChests.put(original.getLocation(), original);
+        } else {
+            ChestLocation location = new ChestLocation(loc);
+            this.plugin.getDatabase().addChest(location.toString(), p.getUniqueId().toString(), 0, settings);
+            original = this.plugin.getDatabase().loadChest(location);
+
+            this.scheduler.queueChest(original);
+            this.loadedChests.put(location, original);
             if (this.loadedChestsByPlayer.containsKey(p.getUniqueId())) {
-                this.loadedChestsByPlayer.get(p.getUniqueId()).add(chest);
-            } else this.loadedChestsByPlayer.put(p.getUniqueId(), new ArrayList<>(Collections.singletonList(chest)));
+                this.loadedChestsByPlayer.get(p.getUniqueId()).add(original);
+            } else this.loadedChestsByPlayer.put(p.getUniqueId(), new ArrayList<>(Collections.singletonList(original)));
         }
-        Logger.debug("Added SellChest for '" + p.getUniqueId() + "' on location: " + "World '" + loc.getLeftLocation().getWorld().getName() + "', x" + loc.getLeftLocation().getBlockX() + ", y" + loc.getLeftLocation().getBlockY() + ", z" + loc.getLeftLocation().getBlockZ());
+        Logger.debug("Added SellChest " + original.getId() + " for '" + p.getUniqueId() + "' on location: " + "World '" + loc.getWorld().getName() + "', x" + loc.getBlockX() + ", y" + loc.getBlockY() + ", z" + loc.getBlockZ());
     }
 
     public void removeChest(ChestLocation loc) {
@@ -177,7 +181,7 @@ public class ChestManager {
                 this.loadedChestsByPlayer.get(chest.getOwner()).remove(chest);
             } else this.loadedChestsByPlayer.remove(chest.getOwner());
         }
-        Logger.debug("Removed SellChest from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ());
+        Logger.debug("Removed SellChest " + chest.getId() + " from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z);
     }
 
     public void removeChest(Chest chest) {
@@ -187,7 +191,7 @@ public class ChestManager {
         if (this.loadedChestsByPlayer.containsKey(chest.getOwner())) {
             this.loadedChestsByPlayer.get(chest.getOwner()).remove(chest);
         } else this.loadedChestsByPlayer.remove(chest.getOwner());
-        Logger.debug("Removed SellChest from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getLeftLocation().getWorld().getName() + "', x" + chest.getLocation().getLeftLocation().getBlockX() + ", y" + chest.getLocation().getLeftLocation().getBlockY() + ", z" + chest.getLocation().getLeftLocation().getBlockZ());
+        Logger.debug("Removed SellChest " + chest.getId() + " from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z);
     }
 
     public ItemStack getChest(int amount) {
