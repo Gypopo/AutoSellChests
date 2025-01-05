@@ -126,6 +126,8 @@ public class PlayerListener implements Listener {
                 DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) e.getBlockPlaced().getState()).getInventory();
                 Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
                 Chest left = this.plugin.getManager().getChestByLocation(original);
+
+                // Match the chest owners
                 if (left == null || !left.getOwner().equals(e.getPlayer().getUniqueId())) {
                     if (left == null) {
                         Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST.get());
@@ -136,6 +138,17 @@ public class PlayerListener implements Listener {
                     loc.getBlock().setType(Material.AIR);
                     return;
                 }
+
+                // Match the chest settings
+                if (!left.getSettings().equals(settings)) {
+                    Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST_MISMATCH.get());
+
+                    loc.add(0.5, 0.5, 0.5);
+                    loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(settings,1));
+                    loc.getBlock().setType(Material.AIR);
+                    return;
+                }
+
                 this.plugin.getManager().addChest(loc, left, settings, e.getPlayer());
             } else this.plugin.getManager().addChest(loc, null, settings, e.getPlayer());
 
@@ -238,8 +251,6 @@ public class PlayerListener implements Listener {
         } else if (e.getClickedInventory().getHolder() instanceof UpgradeScreen inv) {
             Player p = (Player) e.getWhoClicked();
             Chest chest = inv.getChest();
-            System.out.println("test");
-            System.out.println(e.getSlot() + " - " + inv.getIntervalSlot());
             if (e.getSlot() == inv.getIntervalSlot()) {
                 int nextInterval = chest.getIntervalUpgrade()+1;
                 ChestUpgrade nextUpgrade = UpgradeManager.getIntervalUpgrade(nextInterval);
@@ -247,7 +258,7 @@ public class PlayerListener implements Listener {
                     this.plugin.getManager().updateChestInterval(chest, nextInterval);
                     inv.updateInventory(p);
 
-                    p.sendMessage(Lang.CHEST_INTERVAL_UPGRADED.get()
+                    Logger.sendPlayerMessage(p, Lang.CHEST_INTERVAL_UPGRADED.get()
                             .replace("%upgrade-name%", nextUpgrade.getName())
                             .replace("%upgrade-cost%", nextUpgrade.getPrice())
                             .replace("%interval%", TimeUtils.getReadableTime(UpgradeManager.getIntervals()[nextInterval])));
@@ -260,7 +271,7 @@ public class PlayerListener implements Listener {
                     chest.setMultiplier(UpgradeManager.getMultipliers()[nextMultiplier]);
                     inv.updateInventory(p);
 
-                    p.sendMessage(Lang.CHEST_INTERVAL_UPGRADED.get()
+                    Logger.sendPlayerMessage(p, Lang.CHEST_MULTIPLIER_UPGRADED.get()
                             .replace("%upgrade-name%", nextUpgrade.getName())
                             .replace("%upgrade-cost%", nextUpgrade.getPrice())
                             .replace("%multiplier%", String.valueOf(UpgradeManager.getMultipliers()[nextMultiplier])));
