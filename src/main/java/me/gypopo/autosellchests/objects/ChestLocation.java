@@ -1,5 +1,7 @@
 package me.gypopo.autosellchests.objects;
 
+import org.bukkit.Bukkit;
+
 public class ChestLocation {
 
     private boolean doubleChest;
@@ -46,6 +48,10 @@ public class ChestLocation {
 
     public boolean isOneOf(Location location) {
         return this.location1.equals(location) || (this.doubleChest && this.location2.equals(location));
+    }
+
+    public boolean isLoaded() {
+        return Bukkit.getWorld(this.location1.world).isChunkLoaded(this.location1.x >> 4, this.location1.z >> 4);
     }
 
     @Override

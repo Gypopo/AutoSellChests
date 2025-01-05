@@ -7,7 +7,6 @@ import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.economyshopgui.objects.ShopItem;
 import me.gypopo.economyshopgui.util.EcoType;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -16,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ChestLogger {
 
-    private final BukkitTask task;
     private final AtomicInteger count = new AtomicInteger(0);
     private final Map<ShopItem, Integer> items = new HashMap<>();
     private final Map<EcoType, Double> prices = new HashMap<>();
@@ -32,11 +30,11 @@ public class ChestLogger {
             delay = 600000;
         }
 
-        this.task = this.getTask(plugin, delay);
+        this.startTask(plugin, delay);
     }
 
-    private BukkitTask getTask(AutoSellChests plugin, long delay) {
-        return plugin.runTaskAsyncTimer(new Runnable() {
+    private void startTask(AutoSellChests plugin, long delay) {
+        plugin.runTaskAsyncTimer(new Runnable() {
             @Override
             public void run() {
                 Logger.info(plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_INTERVAL.get()
@@ -60,9 +58,5 @@ public class ChestLogger {
         prices.forEach((key, value) -> {
             this.prices.put(key, this.prices.getOrDefault(key, 0d) + value);
         });
-    }
-
-    public void stop() {
-        this.task.cancel();
     }
 }

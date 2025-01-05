@@ -6,6 +6,7 @@ import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.util.SimpleEnchant;
 import me.gypopo.autosellchests.util.TimeUtils;
+import me.gypopo.autosellchests.util.scheduler.Task;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,7 +27,7 @@ public class InformationScreen implements InventoryHolder {
     private final Inventory inv;
     private final Chest chest;
     private final Location selectedChest;
-    private BukkitTask dynamicLore;
+    private Task dynamicLore;
 
     private final int settingsSlot = UpgradeManager.intervalUpgrades || UpgradeManager.multiplierUpgrades ? 28 : 30;
     private final int upgradesSlot = UpgradeManager.intervalUpgrades || UpgradeManager.multiplierUpgrades ? 31 : -1;
@@ -146,7 +147,7 @@ public class InformationScreen implements InventoryHolder {
     }
 
     // Every second use player#getItemOnCursor() so the lore is only updated if the player hovers this item
-    private BukkitTask updateTime(ItemStack item) {
+    private Task updateTime(ItemStack item) {
         return AutoSellChests.getInstance().runTaskTimer(() -> {
             if (this.inv.getViewers().isEmpty())
                 this.stopTask();

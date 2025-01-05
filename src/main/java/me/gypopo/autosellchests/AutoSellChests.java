@@ -10,15 +10,15 @@ import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionEssentials;
 import me.gypopo.autosellchests.managers.AFKManager;
 import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.metrics.Metrics;
-import me.gypopo.autosellchests.util.ConfigUtil;
-import me.gypopo.autosellchests.util.Logger;
-import me.gypopo.autosellchests.util.TimeUtils;
-import me.gypopo.autosellchests.util.Version;
+import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.util.*;
+import me.gypopo.autosellchests.util.scheduler.ServerScheduler;
+import me.gypopo.autosellchests.util.scheduler.Task;
+import me.gypopo.autosellchests.util.scheduler.schedulers.BukkitScheduler;
+import me.gypopo.autosellchests.util.scheduler.schedulers.FoliaScheduler;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.api.events.ShopItemsLoadEvent;
-import me.gypopo.economyshopgui.providers.EconomyProvider;
 import me.gypopo.economyshopgui.util.EcoType;
-import me.gypopo.economyshopgui.util.EconomyType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
@@ -30,16 +30,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public final class AutoSellChests extends JavaPlugin implements Listener {
 
@@ -54,6 +51,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private SQLite database;
     private final TimeUtils timeUtils = new TimeUtils();
     private final NamespacedKey key = new NamespacedKey(this, "autosell");
+    private final ServerScheduler scheduler = this.getScheduler();
     private ChestManager manager;
     private AFKManager afkManager;
     private boolean ready = false;
@@ -184,24 +182,28 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         this.manager = new ChestManager(this);
     }
 
-    public BukkitTask runTaskTimer(Runnable runnable, long delay, long period) {
-        return this.getServer().getScheduler().runTaskTimer(this, runnable, delay, period);
+    public Task runTaskTimer(Runnable runnable, long delay, long period) {
+        return this.scheduler.runTaskTimer(this, runnable, delay, period);
     }
 
-    public BukkitTask runTaskLater(Runnable runnable, long delay) {
-        return this.getServer().getScheduler().runTaskLater(this, runnable, delay);
+    public void runTaskLater(Runnable runnable, long delay) {
+        this.scheduler.runTaskLater(this, runnable, delay);
     }
 
-    public BukkitTask runTask(Runnable runnable) {
-        return this.getServer().getScheduler().runTask(this, runnable);
+    public void runTask(Runnable runnable) {
+        this.scheduler.runTask(this, runnable);
     }
 
-    public BukkitTask runTaskAsync(Runnable runnable) {
-        return this.getServer().getScheduler().runTaskAsynchronously(this, runnable);
+    public void runTask(Chest chest, Runnable runnable) {
+        this.scheduler.runTask(this, chest, runnable);
     }
 
-    public BukkitTask runTaskAsyncTimer(Runnable runnable, long delay, long period) {
-        return this.getServer().getScheduler().runTaskTimerAsynchronously(this, runnable, delay, period);
+    public void runTaskAsync(Runnable runnable) {
+        this.scheduler.runTaskAsync(this, runnable);
+    }
+
+    public Task runTaskAsyncTimer(Runnable runnable, long delay, long period) {
+        return this.scheduler.runTaskAsyncTimer(this, runnable, delay, period);
     }
 
     public void callEvent(Event event) {
@@ -334,5 +336,14 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         }
 
         return null;
+    }
+
+    private ServerScheduler getScheduler() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return new FoliaScheduler(this);
+        } catch (ClassNotFoundException e) {
+            return new BukkitScheduler(this);
+        }
     }
 }

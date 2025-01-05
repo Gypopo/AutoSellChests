@@ -1,27 +1,23 @@
 package me.gypopo.autosellchests.objects;
 
-import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
-import me.gypopo.economyshopgui.objects.ShopItem;
-import me.gypopo.economyshopgui.util.EcoType;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class IntervalLogger {
 
-    private final BukkitTask task;
     private final AtomicInteger count = new AtomicInteger(0);
     private final Set<Integer> chests = new HashSet<>();
     private int items;
 
-    public IntervalLogger(AutoSellChests plugin) {
+    public IntervalLogger(ScheduledExecutorService thread) {
         long delay;
         try {
             String time = Config.get().getString("interval-logs.interval");
@@ -32,11 +28,11 @@ public class IntervalLogger {
             delay = 600000;
         }
 
-        this.task = this.getTask(plugin, delay);
+        thread.scheduleAtFixedRate(this.getTask(delay), delay, delay, TimeUnit.MILLISECONDS);
     }
 
-    private BukkitTask getTask(AutoSellChests plugin, long delay) {
-        return plugin.runTaskAsyncTimer(new Runnable() {
+    public Runnable getTask(long delay) {
+        return new Runnable() {
             @Override
             public void run() {
                 if (items > 0) {
@@ -51,7 +47,7 @@ public class IntervalLogger {
                     items = 0;
                 }
             }
-        }, delay / 1000L * 20L, delay / 1000L * 20L);
+        };
     }
 
     public void addContents(int items, int chestID) {
@@ -59,9 +55,5 @@ public class IntervalLogger {
 
         this.items += items;
         this.chests.add(chestID);
-    }
-
-    public void stop() {
-        this.task.cancel();
     }
 }

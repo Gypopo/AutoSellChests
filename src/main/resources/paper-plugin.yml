@@ -4,6 +4,7 @@ main: me.gypopo.autosellchests.AutoSellChests
 description: A addon for EconomyShopGUI which uses custom chests to automatically sell its contents to shop
 api-version: '1.19'
 has-open-classloader: true
+folia-supported: true
 
 dependencies:
   server:
