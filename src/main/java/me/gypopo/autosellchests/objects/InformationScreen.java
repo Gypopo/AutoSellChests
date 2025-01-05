@@ -70,8 +70,10 @@ public class InformationScreen implements InventoryHolder {
             info.add(Lang.SELL_CHEST_INTERVAL.get()
                     .replace("%interval-name%", UpgradeManager.getIntervalUpgrade(this.chest.getIntervalUpgrade()).getName())
                     .replace("%interval%", TimeUtils.getReadableTime(this.chest.getInterval())));
-        //if (UpgradeManager.multiplierUpgrades) // TODO
-        //    info.add(Lang.SELL_CHEST_MULTIPLIER.get().replace(""))
+        if (UpgradeManager.multiplierUpgrades)
+            info.add(Lang.SELL_CHEST_MULTIPLIER.get()
+                    .replace("%multiplier-name%", UpgradeManager.getMultiplierUpgrade(this.chest.getMultiplierUpgrade()).getName())
+                    .replace("%multiplier%", String.valueOf(this.chest.getMultiplier())));
         info.add(Lang.SELL_CHEST_NEXT_SELL.get().replace("%time%", this.getNextInterval()));
         nsM.setLore(info);
         nextSell.setItemMeta(nsM);

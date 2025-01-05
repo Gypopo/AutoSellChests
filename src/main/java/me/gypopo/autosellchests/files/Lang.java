@@ -34,6 +34,7 @@ public enum Lang {
     PLACED_SELL_CHESTS_ACTION_BAR_MAX("∞"),
     PLACED_SELL_CHESTS_BOSS_BAR("&a&lPlaced sell chests:"),
     CANNOT_FORM_DOUBLE_CHEST("&cThe sell chest cannot be a placed against a non sell chest"),
+    CANNOT_FORM_DOUBLE_CHEST_MISMATCH("&cCannot form double sell chest with different upgrades"),
     CANNOT_PLACE_SELL_CHEST_HERE("&cYou may not place a #FF7070Sell#CDCDCDChest &chere"),
     CANNOT_PLACE_CHEST_AGAINST_SELL_CHEST("&cThis chest cannot be placed against a sell chest"),
     CANNOT_REMOVE_SELL_CHEST("&cYou do not have the required permissions to remove this sell chest"),
@@ -50,7 +51,7 @@ public enum Lang {
     SELL_CHEST_LOCATION("&eLocation: #FF7070%loc%"),
     SELL_CHEST_ID("&eChest ID: #FF7070%id%"),
     SELL_CHEST_INTERVAL("&eCurrent interval: #FF7070%interval-name%&f(%interval%)"),
-    SELL_CHEST_MULTIPLIER("&eCurrent multiplier: #FF7070%multiplier%"),
+    SELL_CHEST_MULTIPLIER("&eCurrent multiplier: #FF7070%multiplier-name%&f(x%multiplier%)"),
     SELL_CHEST_NEXT_SELL("&eNext sell interval: #FF7070%time%"),
 
     // Info menu

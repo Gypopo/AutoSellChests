@@ -6,6 +6,7 @@ import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.objects.ChestUpgrade;
 import me.gypopo.autosellchests.objects.upgrades.ChestInterval;
 import me.gypopo.autosellchests.objects.upgrades.PriceMultiplier;
+import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.SimplePair;
 import me.gypopo.autosellchests.util.TimeUtils;
 import me.gypopo.autosellchests.util.exceptions.UpgradeLoadException;
@@ -101,13 +102,13 @@ public class MultiplierUpgrade implements PriceMultiplier, ChestUpgrade {
     public boolean buy(Player p) {
         EconomyProvider priceProvider = EconomyShopGUIHook.getEcon(this.priceType);
         if (priceProvider.getBalance(p) < this.price) {
-            p.sendMessage(Lang.INSUFFICIENT_FUNDS_UPGRADE.get().replace("%ecoType%", "money"));
+            Logger.sendPlayerMessage(p, Lang.INSUFFICIENT_FUNDS_UPGRADE.get().replace("%ecoType%", "money"));
             return false;
         }
 
         if (this.permission != null && !this.permission.isEmpty()) {
             if (!p.hasPermission(this.permission)) {
-                p.sendMessage(Lang.NO_UPGRADE_PERMISSIONS.get());
+                Logger.sendPlayerMessage(p, Lang.NO_UPGRADE_PERMISSIONS.get());
                 return false;
             }
         }

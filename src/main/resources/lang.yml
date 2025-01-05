@@ -53,7 +53,7 @@ sell-chest-id: "&eChest ID: #FF7070%id%"
 # The current interval upgrade of this chest
 sell-chest-interval: "&eCurrent interval: #FF7070%interval-name%"
 # The current price multiplier of this chest
-sell-chest-multiplier: "&eCurrent multiplier: #FF7070%multiplier%"
+sell-chest-multiplier: "&eCurrent multiplier: #FF7070%multiplier-name%"
 # The next interval the chest is selling its contents
 sell-chest-next-sell: "&eNext sell interval: #FF7070%time%"
 # The displayname of the chest settings item in the info screen
@@ -72,6 +72,8 @@ current-displayname: "&eCurrent: &a%chest-name%"
 cannot-form-double-chest: "&cThe sell chest cannot be a placed against a non sell chest"
 # When a sell chest is placed against someone else's sell chest
 cannot-place-sell-chest-here: "&cYou may not place a #FF7070Sell#CDCDCDChest &chere"
+# When a sell chest is placed against a different sell chest with different upgrades
+cannot-form-double-chest-mismatch: "&cCannot form double sell chest with different upgrades"
 # When a regular chest is placed against a sell chest
 cannot-place-chest-against-sell-chest: "&cThis chest cannot be placed against a sell chest"
 # When a player tries to remove someone's else's sell chest and doesn't have permissions
