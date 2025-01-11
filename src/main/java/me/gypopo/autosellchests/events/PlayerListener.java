@@ -368,8 +368,8 @@ public class PlayerListener implements Listener {
     }
 
     private void checkPlacement(Player player, Block block) {
+        Location loc = block.getLocation();
         this.plugin.runTaskLater(() -> {
-            Location loc = block.getLocation();
             if (((org.bukkit.block.Chest) block.getState()).getInventory() instanceof DoubleChestInventory) {
                 DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) block.getState()).getInventory();
                 Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
@@ -379,6 +379,6 @@ public class PlayerListener implements Listener {
                 }
             }
 
-        }, 1L);
+        }, loc, 1L);
     }
 }
