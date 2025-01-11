@@ -44,14 +44,14 @@ public class ChestSettings {
     public boolean equals(Object object) {
         if (this == object) return true;
         if (object instanceof ChestSettings settings)
-            return this.logging == settings.logging && this.interval == settings.interval && this.multiplier == settings.multiplier;
+            return this.interval == settings.interval && this.multiplier == settings.multiplier;
 
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.logging, this.interval, this.multiplier);
+        return Objects.hash(this.interval, this.multiplier);
     }
 
     private int getInt(String settings, int path) {
