@@ -60,10 +60,7 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
         this.name = ChatColor.translateAlternateColorCodes('&', section.getString("name"));
         if (this.name == null)
             throw new UpgradeLoadException("Failed to get name of upgrade", null);
-        this.lore = section.getStringList("lore").stream()
-                .map(s -> ChatColor.translateAlternateColorCodes('&',
-                        s.replace("%next-upgrade-cost%", AutoSellChests.getInstance().formatPrices(this.priceType, this.price, s)))
-                ).collect(Collectors.toList());
+        this.lore = section.getStringList("lore").stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).collect(Collectors.toList());
         this.enchanted = section.getBoolean("enchanted");
 
         try {
