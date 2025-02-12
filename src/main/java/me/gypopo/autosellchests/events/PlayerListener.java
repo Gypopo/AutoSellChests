@@ -111,11 +111,7 @@ public class PlayerListener implements Listener {
         if (!e.getPlayer().hasPermission("autosellchests.maxchests.override") &&
                 this.plugin.getManager().getOwnedChests(e.getPlayer()) >= max) {
             Logger.sendPlayerMessage(e.getPlayer(), Lang.MAX_SELLCHESTS_REACHED.get().replace("%maxSellChests%", String.valueOf(max)));
-
-            Location loc = e.getBlockPlaced().getLocation();
-            loc.add(0.5, 0.5, 0.5);
-            loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(settings,1));
-            loc.getBlock().setType(Material.AIR);
+            e.setCancelled(true);
             return;
         }
 
