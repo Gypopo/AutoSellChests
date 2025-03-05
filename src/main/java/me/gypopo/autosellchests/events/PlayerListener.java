@@ -249,26 +249,26 @@ public class PlayerListener implements Listener {
             if (e.getSlot() == inv.getIntervalSlot()) {
                 int nextInterval = chest.getIntervalUpgrade()+1;
                 ChestUpgrade nextUpgrade = UpgradeManager.getIntervalUpgrade(nextInterval);
-                if (nextUpgrade != null && nextUpgrade.buy(p)) {
+                if (nextUpgrade != null && nextUpgrade.buy(p, chest.isDoubleChest())) {
                     this.plugin.getManager().updateChestInterval(chest, nextInterval);
                     inv.updateInventory(p);
 
                     Logger.sendPlayerMessage(p, Lang.CHEST_INTERVAL_UPGRADED.get()
                             .replace("%upgrade-name%", nextUpgrade.getName())
-                            .replace("%upgrade-cost%", nextUpgrade.getPrice())
+                            .replace("%upgrade-cost%", nextUpgrade.getPrice(chest.isDoubleChest()))
                             .replace("%interval%", TimeUtils.getReadableTime(UpgradeManager.getIntervals()[nextInterval])));
                 }
             } else if (e.getSlot() == inv.getMultiplierSlot()) {
                 int nextMultiplier = chest.getMultiplierUpgrade()+1;
                 ChestUpgrade nextUpgrade = UpgradeManager.getMultiplierUpgrade(nextMultiplier);
-                if (nextUpgrade != null && nextUpgrade.buy(p)) {
+                if (nextUpgrade != null && nextUpgrade.buy(p, chest.isDoubleChest())) {
                     chest.setMultiplierUpgrade(nextMultiplier);
                     chest.setMultiplier(UpgradeManager.getMultipliers()[nextMultiplier]);
                     inv.updateInventory(p);
 
                     Logger.sendPlayerMessage(p, Lang.CHEST_MULTIPLIER_UPGRADED.get()
                             .replace("%upgrade-name%", nextUpgrade.getName())
-                            .replace("%upgrade-cost%", nextUpgrade.getPrice())
+                            .replace("%upgrade-cost%", nextUpgrade.getPrice(chest.isDoubleChest()))
                             .replace("%multiplier%", String.valueOf(UpgradeManager.getMultipliers()[nextMultiplier])));
                 }
             }

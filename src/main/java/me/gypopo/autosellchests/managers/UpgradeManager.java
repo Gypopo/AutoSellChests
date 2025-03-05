@@ -65,9 +65,6 @@ public class UpgradeManager {
             }
         }
 
-        // Replace lore
-        INTERVAL_UPGRADES.forEach(u -> ((IntervalUpgrade)u).replaceLore());
-
         if (!INTERVAL_UPGRADES.isEmpty())
             Logger.info("Completed loading " + INTERVAL_UPGRADES.size() + " interval upgrade(s) with weight: " + order.stream().map(String::valueOf).collect(Collectors.joining(" -> ")));
     }
@@ -87,9 +84,6 @@ public class UpgradeManager {
                 e.printStackTrace();
             }
         }
-
-        // Replace lore
-        MULTIPLIER_UPGRADES.forEach(u -> ((MultiplierUpgrade)u).replaceLore());
 
         if (!MULTIPLIER_UPGRADES.isEmpty())
             Logger.info("Completed loading " + MULTIPLIER_UPGRADES.size() + " multiplier upgrade(s) with weight: " + order.stream().map(String::valueOf).collect(Collectors.joining(" -> ")));

@@ -198,6 +198,10 @@ public class Chest {
         this.multiplierUpgrade = upgrade;
     }
 
+    public boolean isDoubleChest() {
+        return this.location.isDoubleChest();
+    }
+
     public String getName() {
         return this.displayname;
     }

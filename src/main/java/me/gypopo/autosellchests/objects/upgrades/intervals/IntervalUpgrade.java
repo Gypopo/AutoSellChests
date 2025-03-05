@@ -24,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,23 +71,17 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
         }
     }
 
-    public void replaceLore() {
-        ChestUpgrade nextUpgrade = UpgradeManager.getIntervalUpgrade(this.level+1);
-        if (nextUpgrade != null)
-            this.lore.replaceAll(s -> s.replace("%next-upgrade-cost%", nextUpgrade.getPrice()));
-    }
-
     @Override
     public String getName() {
         return this.name;
     }
 
     @Override
-    public ItemStack getUpgradeItem() {
+    public ItemStack getUpgradeItem(boolean doubleChest) {
         ItemStack item = new ItemStack(this.item);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(this.name);
-        meta.setLore(this.lore);
+        meta.setLore(this.getLore(doubleChest));
         if (this.enchanted) {
             if (AutoSellChests.getInstance().version >= 121) {
                 meta.setEnchantmentGlintOverride(true);
@@ -100,8 +95,17 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
         return item;
     }
 
+    private List<String> getLore(boolean doubleChest) {
+        ChestUpgrade nextUpgrade = UpgradeManager.getIntervalUpgrade(this.level+1);
+        if (nextUpgrade != null) {
+            List<String> lore = new ArrayList<>(this.lore);
+            lore.replaceAll(s -> s.replace("%next-upgrade-cost%", nextUpgrade.getPrice(doubleChest)));
+            return lore;
+        } else return this.lore;
+    }
+
     @Override
-    public boolean buy(Player p) {
+    public boolean buy(Player p, boolean doubleChest) {
         EconomyProvider priceProvider = EconomyShopGUIHook.getEcon(this.priceType);
         if (priceProvider.getBalance(p) < this.price) {
             Logger.sendPlayerMessage(p, Lang.INSUFFICIENT_FUNDS_UPGRADE.get().replace("%ecoType%", priceProvider.getFriendly()));
@@ -120,8 +124,8 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
     }
 
     @Override
-    public String getPrice() {
-        return AutoSellChests.getInstance().formatPrice(this.priceType, this.price);
+    public String getPrice(boolean doubleChest) {
+        return AutoSellChests.getInstance().formatPrice(this.priceType, doubleChest ? this.price * 2 : this.price);
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,23 +69,17 @@ public class MultiplierUpgrade implements PriceMultiplier, ChestUpgrade {
         this.multiplier = this.getPriceMultiplier(section.getString("multiplier"));
     }
 
-    public void replaceLore() {
-        ChestUpgrade nextUpgrade = UpgradeManager.getMultiplierUpgrade(this.level+1);
-        if (nextUpgrade != null)
-            this.lore.replaceAll(s -> s.replace("%next-upgrade-cost%", nextUpgrade.getPrice()));
-    }
-
     @Override
     public String getName() {
         return this.name;
     }
 
     @Override
-    public ItemStack getUpgradeItem() {
+    public ItemStack getUpgradeItem(boolean doubleChest) {
         ItemStack item = new ItemStack(this.item);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(this.name);
-        meta.setLore(this.lore);
+        meta.setLore(this.getLore(doubleChest));
         if (this.enchanted) {
             if (AutoSellChests.getInstance().version >= 121) {
                 meta.setEnchantmentGlintOverride(true);
@@ -98,10 +93,21 @@ public class MultiplierUpgrade implements PriceMultiplier, ChestUpgrade {
         return item;
     }
 
+    private List<String> getLore(boolean doubleChest) {
+        ChestUpgrade nextUpgrade = UpgradeManager.getMultiplierUpgrade(this.level+1);
+        if (nextUpgrade != null) {
+            List<String> lore = new ArrayList<>(this.lore);
+            lore.replaceAll(s -> s.replace("%next-upgrade-cost%", nextUpgrade.getPrice(doubleChest)));
+            return lore;
+        } else return this.lore;
+    }
+
     @Override
-    public boolean buy(Player p) {
+    public boolean buy(Player p, boolean doubleChest) {
+        final double finalPrice = doubleChest ? this.price * 2 : this.price;
+
         EconomyProvider priceProvider = EconomyShopGUIHook.getEcon(this.priceType);
-        if (priceProvider.getBalance(p) < this.price) {
+        if (priceProvider.getBalance(p) < finalPrice) {
             Logger.sendPlayerMessage(p, Lang.INSUFFICIENT_FUNDS_UPGRADE.get().replace("%ecoType%", priceProvider.getFriendly()));
             return false;
         }
@@ -113,13 +119,13 @@ public class MultiplierUpgrade implements PriceMultiplier, ChestUpgrade {
             }
         }
 
-        priceProvider.withdrawBalance(p, this.price);
+        priceProvider.withdrawBalance(p, finalPrice);
         return true;
     }
 
     @Override
-    public String getPrice() {
-        return AutoSellChests.getInstance().formatPrice(this.priceType, this.price);
+    public String getPrice(boolean doubleChest) {
+        return AutoSellChests.getInstance().formatPrice(this.priceType, doubleChest ? this.price * 2 : this.price);
     }
 
     @Override

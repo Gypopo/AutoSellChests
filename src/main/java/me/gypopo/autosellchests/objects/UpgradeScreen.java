@@ -34,12 +34,12 @@ public class UpgradeScreen implements InventoryHolder {
     private void init() {
         // Current upgrade
         if (UpgradeManager.intervalUpgrades) {
-            ItemStack upgradeItem = UpgradeManager.getIntervalUpgrade(this.chest.getIntervalUpgrade()).getUpgradeItem();
+            ItemStack upgradeItem = UpgradeManager.getIntervalUpgrade(this.chest.getIntervalUpgrade()).getUpgradeItem(this.chest.isDoubleChest());
             this.inv.setItem(this.intervalSlot, upgradeItem);
         }
 
         if (UpgradeManager.multiplierUpgrades) {
-            ItemStack upgradeItem = UpgradeManager.getMultiplierUpgrade(this.chest.getMultiplierUpgrade()).getUpgradeItem();
+            ItemStack upgradeItem = UpgradeManager.getMultiplierUpgrade(this.chest.getMultiplierUpgrade()).getUpgradeItem(this.chest.isDoubleChest());
             this.inv.setItem(this.multiplierSlot, upgradeItem);
         }
 

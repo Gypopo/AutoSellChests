@@ -7,9 +7,9 @@ public interface ChestUpgrade {
 
     String getName();
 
-    ItemStack getUpgradeItem();
+    ItemStack getUpgradeItem(boolean doubleChest);
 
-    boolean buy(Player p);
+    boolean buy(Player p, boolean doubleChest);
 
-    String getPrice();
+    String getPrice(boolean doubleChest);
 }
