@@ -102,7 +102,7 @@ public class MultiplierUpgrade implements PriceMultiplier, ChestUpgrade {
     public boolean buy(Player p) {
         EconomyProvider priceProvider = EconomyShopGUIHook.getEcon(this.priceType);
         if (priceProvider.getBalance(p) < this.price) {
-            Logger.sendPlayerMessage(p, Lang.INSUFFICIENT_FUNDS_UPGRADE.get().replace("%ecoType%", "money"));
+            Logger.sendPlayerMessage(p, Lang.INSUFFICIENT_FUNDS_UPGRADE.get().replace("%ecoType%", priceProvider.getFriendly()));
             return false;
         }
 
