@@ -156,6 +156,22 @@ online-chest-owner: true
 # Note that permissions for selling items to shop will not be checked, NOR item discounts + any sell multipliers when the player is offline
 # Also note that this plugin will not load chunks, meaning if the sell chest is located in a unloaded chunk, the plugin will skip that chest
 
+# Custom crafting recipe for a basic sell chest
+# The items needed for the custom recipe are defined by <symbol>::<material> in the ingredients list
+# Whereas the layout of how the items should be put into the crafting table is basically a grid of 9, as defined in the pattern
+# where each symbol corresponds to the item type defined in the ingredients list
+crafting:
+  enabled: true
+  custom-recipe:
+    ingredients:
+    - "A::REDSTONE"
+    - "B::CHEST"
+    - "*::AIR"
+    pattern:
+    - "* A *"
+    - "A B A"
+    - "* A *"
+# A list of all items which can be used as ingredients as of 1.21.5 is listed here: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
 
 # AFK Prevention
 # When enabled, this prevents sell chests to sell whenever the owner is AFK

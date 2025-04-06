@@ -9,9 +9,12 @@ import me.gypopo.autosellchests.objects.ChestSettings;
 import me.gypopo.autosellchests.scheduler.MainScheduler;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
+import me.gypopo.autosellchests.util.exceptions.InvalidIngredientException;
+import me.gypopo.autosellchests.util.exceptions.InvalidPatternException;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
@@ -54,6 +57,9 @@ public class ChestManager {
 
         this.loadChests();
         this.loadMaximumChests();
+
+        if (Config.get().getBoolean("crafting.enabled"))
+            this.registerCraftingRecipe();
 
         this.plugin.runTaskLater(this::startIntervalWhenReady, 100L);
     }
@@ -219,6 +225,62 @@ public class ChestManager {
         Logger.debug("Saving '" + this.loadedChests.size() + "' chests...");
         for (Chest chest : this.loadedChests.values()) {
             this.plugin.getDatabase().saveChest(chest);
+        }
+    }
+
+    private void registerCraftingRecipe() {
+        Map<Material, Character> ingredients = new HashMap<>();
+        for (String ingredient : Config.get().getStringList("crafting.custom-recipe.ingredients")) {
+            try {
+                if (!ingredient.contains("::"))
+                    throw new InvalidIngredientException("Should be format of \"<symbol>::<material>\"");
+
+                String[] parts = ingredient.split("::");
+                if (parts[0].length() > 1)
+                    throw new NullPointerException("Symbol should be length of 1, got " + parts[0].length() + " instead for " + parts[0]);
+
+                ingredients.put(Material.valueOf(parts[1]), parts[0].charAt(0));
+            } catch (Exception e) {
+                Logger.warn("Failed to load crafting ingredient for " + ingredient);
+
+                if (e instanceof IllegalArgumentException) {
+                    Logger.warn("Invalid recipe item type of '" + ingredient.split("::")[1] + "'");
+                } else {
+                    Logger.warn(e.getMessage());
+                }
+
+                return;
+            }
+        }
+
+        try {
+            List<String> pattern = Config.get().getStringList("crafting.custom-recipe.pattern").stream().map(s -> s.replace(" ", "")).toList();
+            if (pattern.size() != 3 || pattern.stream().anyMatch(s -> s.length() != 3))
+                throw new InvalidPatternException("Crafting pattern should be a grid of 3x3 symbols but got: " + Arrays.toString(pattern.toArray()));
+
+            for (char symbol : pattern.stream().flatMap(s -> s.chars().mapToObj(c -> (char) c)).toList()) {
+                if (!ingredients.containsValue(symbol))
+                    throw new InvalidPatternException("Crafting ingredient does not exist for symbol '" + symbol + "' in crafting pattern");
+            }
+
+            if (ingredients.containsKey(Material.AIR))
+                pattern = pattern.stream().map(s -> s.replace(String.valueOf(ingredients.get(Material.AIR)), " ")).toList();
+
+            ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(AutoSellChests.getInstance(), "sell_chest"), this.getChest(1));
+            recipe.shape(pattern.toArray(new String[0]));
+            for (Map.Entry<Material, Character> ingredient : ingredients.entrySet()) {
+                if (ingredient.getKey() == Material.AIR)
+                    continue;
+
+                recipe.setIngredient(ingredient.getValue(), ingredient.getKey());
+            }
+
+            Bukkit.getServer().addRecipe(recipe);
+
+            Logger.info("Successfully registered custom sell chest crafting recipe");
+        } catch (Exception e) {
+            Logger.warn("Failed to load custom sell chest crafting recipe:");
+            Logger.warn(e.getMessage());
         }
     }
 
