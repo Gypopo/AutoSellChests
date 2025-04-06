@@ -206,8 +206,7 @@ public class ChestManager {
         meta.setDisplayName(chestName);
         meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", TimeUtils.getReadableTime(this.getInterval(settings))), null)).collect(Collectors.toList()));
         meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell"), PersistentDataType.INTEGER, 1);
-        if (settings != null)
-            meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell-data"), PersistentDataType.STRING, settings.toString());
+        meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell-data"), PersistentDataType.STRING, settings == null ? new ChestSettings().toString() : settings.toString());
         item.setItemMeta(meta);
         return item;
     }
