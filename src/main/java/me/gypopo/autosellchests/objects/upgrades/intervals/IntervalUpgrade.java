@@ -106,8 +106,10 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
 
     @Override
     public boolean buy(Player p, boolean doubleChest) {
+        final double finalPrice = doubleChest ? this.price * 2 : this.price;
+
         EconomyProvider priceProvider = EconomyShopGUIHook.getEcon(this.priceType);
-        if (priceProvider.getBalance(p) < this.price) {
+        if (priceProvider.getBalance(p) < finalPrice) {
             Logger.sendPlayerMessage(p, Lang.INSUFFICIENT_FUNDS_UPGRADE.get().replace("%ecoType%", priceProvider.getFriendly()));
             return false;
         }
@@ -119,7 +121,7 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
             }
         }
 
-        priceProvider.withdrawBalance(p, this.price);
+        priceProvider.withdrawBalance(p, finalPrice);
         return true;
     }
 
