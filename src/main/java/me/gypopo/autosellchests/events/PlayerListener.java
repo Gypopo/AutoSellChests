@@ -181,7 +181,7 @@ public class PlayerListener implements Listener {
         if (e.getClickedInventory().getHolder() instanceof InformationScreen inv) {
             Chest chest = inv.getChest();
             Location loc = inv.getSelectedChest();
-            if (e.getSlot() == inv.getDestroySlot()) {
+            if (e.getSlot() == this.plugin.getInventoryManager().getMainInv().getSlot("destroy-item")) {
                 if (!e.getWhoClicked().hasPermission("autosellchests.pickup")) {
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.NO_PERMISSIONS.get());
                     e.setCancelled(true);
@@ -207,15 +207,15 @@ public class PlayerListener implements Listener {
                 } else {
                     Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_REMOVE_SELL_CHEST.get());
                 }
-            } else if (e.getSlot() == inv.getSettingsSlot()) {
+            } else if (e.getSlot() == this.plugin.getInventoryManager().getMainInv().getSlot("settings-item")) {
                 if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
                     new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
                 } else e.getWhoClicked().sendMessage(Lang.NO_PERMISSIONS.get());
-            } else if (e.getSlot() == inv.getUpgradesSlot()) {
+            } else if (e.getSlot() == this.plugin.getInventoryManager().getMainInv().getSlot("upgrade-item")) {
                 if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
                     new UpgradeScreen(chest).open((Player) e.getWhoClicked());
                 } else e.getWhoClicked().sendMessage(Lang.NO_PERMISSIONS.get());
-            } else if (e.getSlot() == 22) {
+            } else if (e.getSlot() == this.plugin.getInventoryManager().getMainInv().getSlot("claimable-item")) {
                 if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
                     if (!chest.getClaimAble().isEmpty())
                         new ClaimProfitsScreen(chest, loc).open((Player) e.getWhoClicked());
@@ -225,10 +225,10 @@ public class PlayerListener implements Listener {
         } else if (e.getClickedInventory().getHolder() instanceof SettingsScreen) {
             Chest chest = ((SettingsScreen) e.getClickedInventory().getHolder()).getChest();
             Location loc = ((SettingsScreen) e.getClickedInventory().getHolder()).getSelectedChest();
-            if (e.getSlot() == 2) {
+            if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("logging-item")) {
                 chest.setLogging(!chest.isLogging());
                 new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
-            } else if (e.getSlot() == 6) {
+            } else if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("rename-item")) {
                 new AnvilGUI.Builder()
                         .onClick((i, state) -> {
                             if (!state.getText().isEmpty())
@@ -246,7 +246,7 @@ public class PlayerListener implements Listener {
         } else if (e.getClickedInventory().getHolder() instanceof UpgradeScreen inv) {
             Player p = (Player) e.getWhoClicked();
             Chest chest = inv.getChest();
-            if (e.getSlot() == inv.getIntervalSlot()) {
+            if (e.getSlot() == this.plugin.getInventoryManager().getUpgradeInv().getSlot("interval-upgrade-item")) {
                 int nextInterval = chest.getIntervalUpgrade()+1;
                 ChestUpgrade nextUpgrade = UpgradeManager.getIntervalUpgrade(nextInterval);
                 if (nextUpgrade != null && nextUpgrade.buy(p, chest.isDoubleChest())) {
@@ -258,7 +258,7 @@ public class PlayerListener implements Listener {
                             .replace("%upgrade-cost%", nextUpgrade.getPrice(chest.isDoubleChest()))
                             .replace("%interval%", TimeUtils.getReadableTime(UpgradeManager.getIntervals()[nextInterval])));
                 }
-            } else if (e.getSlot() == inv.getMultiplierSlot()) {
+            } else if (e.getSlot() == this.plugin.getInventoryManager().getUpgradeInv().getSlot("multiplier-upgrade-item")) {
                 int nextMultiplier = chest.getMultiplierUpgrade()+1;
                 ChestUpgrade nextUpgrade = UpgradeManager.getMultiplierUpgrade(nextMultiplier);
                 if (nextUpgrade != null && nextUpgrade.buy(p, chest.isDoubleChest())) {

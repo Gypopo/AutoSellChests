@@ -9,6 +9,7 @@ import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionCMI;
 import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionEssentials;
 import me.gypopo.autosellchests.managers.AFKManager;
 import me.gypopo.autosellchests.managers.ChestManager;
+import me.gypopo.autosellchests.managers.InventoryManager;
 import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.metrics.Metrics;
 import me.gypopo.autosellchests.objects.Chest;
@@ -54,6 +55,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private final TimeUtils timeUtils = new TimeUtils();
     private final NamespacedKey key = new NamespacedKey(this, "autosell");
     private final ServerScheduler scheduler = this.getScheduler();
+    private InventoryManager inventoryManager;
     private UpgradeManager upgradeManager;
     private ChestManager manager;
     private AFKManager afkManager;
@@ -131,6 +133,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
                     this.afkManager = this.getAfkManager();
                 this.upgradeManager = new UpgradeManager(this);
                 this.manager = new ChestManager(this);
+                this.inventoryManager = new InventoryManager();
             } else {
                 this.getLogger().warning("Found EconomyShopGUI in a disabled state, please make sure it is enabled and up to date, disabling the plugin...");
                 this.getServer().getPluginManager().disablePlugin(this);
@@ -179,11 +182,16 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         return this.afkManager;
     }
 
+    public InventoryManager getInventoryManager() {
+        return this.inventoryManager;
+    }
+
     public void reloadManager() {
         this.manager.disable();
         if (Config.get().getBoolean("afk-prevention", false))
             this.afkManager = this.getAfkManager();
         this.upgradeManager.reload();
+        this.inventoryManager.reload();
         this.manager = new ChestManager(this);
     }
 
@@ -292,7 +300,14 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     }
 
     public String formatPrices(EcoType type, Double price, String message) {
-        return message != null ? message.replace("%profit%", this.formatPrice(type, price) + "§r") : this.formatPrice(type, price) + "§r";
+        String color = message != null && message.contains("%profit%") ? ChatColor.getLastColors(message.split("%profit%")[0]) : null;
+        return this.formatPrice(type, price) + "§r" + (color == null ? "" : color);
+    }
+
+    // Replacing a placeholder with specific colors already in it, will also update the message its color codes, so reset it back
+    public String replaceColoredPlaceholder(String message, String placeholder, String replacement) {
+        String c = ChatColor.getLastColors(message.split(placeholder)[0]);
+        return message.replace(placeholder, replacement + "§r" + c);
     }
 
     public String formatPrices(Map<EcoType, Double> prices, String message) {
@@ -307,7 +322,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             if (i != prices.size()-1) builder.append(", ");
             i++;
         }
-        return color != null ? message.replace("%profit%", builder.toString()) : builder.toString();
+        return builder.toString();
     }
 
     public static List<String> splitLongString(String string) {

@@ -171,7 +171,7 @@ crafting:
     - "* A *"
     - "A B A"
     - "* A *"
-# A list of all items which can be used as ingredients as of 1.21.5 is listed here: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+# A list of all items which can be used as ingredients are listed here: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
 
 # AFK Prevention
 # When enabled, this prevents sell chests to sell whenever the owner is AFK
@@ -223,11 +223,6 @@ interval-logs:
 sold-items-logging-player: true
 # This setting is also configurable per chest in the settings menu,
 # but when this option is disabled, it will override the per chest setting
-
-# The fill item which fills empty spots inside any GUI
-fill-item:
-  material: GRAY_STAINED_GLASS_PANE
-  name: " "
 
 # Compatibility mode enables support for chests which are created before plugin version v2.4.0
 # Do not enable this option for any other reason, there is a reason this is disabled by default.

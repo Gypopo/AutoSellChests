@@ -1,7 +1,9 @@
 package me.gypopo.autosellchests.objects;
 
+import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
+import me.gypopo.autosellchests.util.SimpleInventoryBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,41 +17,27 @@ import java.util.Collections;
 
 public class SettingsScreen implements InventoryHolder {
 
-    private final Inventory inv;
+    private Inventory inv;
     private final Chest chest;
     private final Location selectedChest;
 
     public SettingsScreen(Chest chest, Location selectedChest) {
-        this.inv = Bukkit.createInventory(this, 9, Lang.CHEST_SETTINGS_TITLE.get());
         this.selectedChest = selectedChest;
         this.chest = chest;
         this.init();
     }
 
     private void init() {
+        SimpleInventoryBuilder builder = AutoSellChests.getInstance().getInventoryManager().getSettingsInv();
+        builder.init(this);
+
         // Toggle sold items logging
-        ItemStack logging = new ItemStack(Material.WRITABLE_BOOK);
-        ItemMeta lM = logging.getItemMeta();
-        lM.setDisplayName(Lang.TOGGLE_SOLD_ITEMS_LOGGING.get());
-        lM.setLore(Collections.singletonList(Lang.CURRENT_VALUE.get().replace("%value%", String.valueOf(chest.isLogging()))));
-        logging.setItemMeta(lM);
+        builder.replace("logging-item", Collections.singletonMap("%value%", String.valueOf(chest.isLogging())));
 
         // Allow the chest to have a custom name
-        ItemStack name = new ItemStack(Material.NAME_TAG);
-        ItemMeta nM = name.getItemMeta();
-        nM.setDisplayName(Lang.CHANGE_CHEST_NAME.get());
-        nM.setLore(Collections.singletonList(Lang.CURRENT_DISPLAYNAME.get().replace("%chest-name%", String.valueOf(chest.getName()))));
-        name.setItemMeta(nM);
+        builder.replace("rename-item", Collections.singletonMap("%chest-name%", String.valueOf(chest.getName())));
 
-        this.inv.setItem(2, logging);
-
-        this.inv.setItem(6, name);
-
-        for (int i = 0; i < this.inv.getSize(); i++) {
-            if (this.inv.getItem(i) == null) {
-                this.inv.setItem(i, ChestManager.getFillItem());
-            }
-        }
+        this.inv = builder.build();
     }
 
     public Chest getChest() {
