@@ -1,10 +1,12 @@
 package me.gypopo.autosellchests.util;
 
+import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.util.exceptions.InventoryLoadException;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
@@ -78,7 +80,7 @@ public class SimpleInventoryBuilder {
             throws InventoryLoadException {
         for (String i : config.getConfigurationSection("items").getKeys(false)) {
             if (i.contains("-") && i.split("-", 2)[1].equalsIgnoreCase("upgrade-item")) {
-                this.items.put(i, new SimplePair<>(config.getInt("items." + i + ".slot"), null));
+                this.items.put(i, new SimplePair<>(config.getInt("items." + i + ".slot")-1, null));
                 continue;
             }
 
@@ -115,8 +117,10 @@ public class SimpleInventoryBuilder {
         if (config.contains("lore"))
             meta.setLore(config.getStringList("lore").stream().map(this::translate).collect(Collectors.toList()));
         if (config.getBoolean("enchantment-glint")) {
-            meta.addEnchant(SimpleEnchant.UNBREAKING.get(), 1, true);
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            if (AutoSellChests.getInstance().version <= 121) {
+                meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            } else meta.setEnchantmentGlintOverride(true);
         }
         item.setItemMeta(meta);
 
@@ -159,7 +163,7 @@ public class SimpleInventoryBuilder {
 
             for (Map.Entry<String, String> replacement : replacements.entrySet()) {
                 if (original.contains(replacement.getKey())) {
-                    original = original.replaceAll(replacement.getKey(), replacement.getValue());
+                    original = original.replace(replacement.getKey(), replacement.getValue());
                     updated = true;
                 }
             }
@@ -176,7 +180,7 @@ public class SimpleInventoryBuilder {
                 String original = lore.get(e);
                 for (Map.Entry<String, String> replacement : replacements.entrySet()) {
 
-                    original = original.replaceAll(replacement.getKey(), replacement.getValue());
+                    original = original.replace(replacement.getKey(), replacement.getValue());
                     updated = true;
                 }
 

@@ -17,7 +17,7 @@ public enum SimpleEnchant {
     static {
         try {
             Version ver = new Version(Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3].replace("_", ".").replace("v", "").replace("R", ""));
-            components = ver.isGreater(new Version("1.20.3")); // Checks whether package name is greater as v1_20_R3(ie. 1.20.5+)
+            components = ver.isGreater(new Version("1.20.4")); // Checks whether package name is greater as v1_20_R3(ie. 1.20.5+)
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
             Version ver = new Version(Bukkit.getBukkitVersion().split("-")[0]);
             components = ver.isGreater(new Version("1.20.4")); // Checks whether the re-allocated package name is greater as v1_20_R3(ie. 1.20.5+)
