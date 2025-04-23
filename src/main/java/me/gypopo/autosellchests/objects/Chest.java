@@ -113,9 +113,8 @@ public class Chest {
         if (this.claimAble.isEmpty())
             return "null";
 
-        String s = this.claimAble.keySet().stream().map(econ -> (econ.getCurrency() == null ? econ.getType().name() : econ.getType().name() + ":" + econ.getCurrency())
-                + ";" + this.claimAble.get(econ)).collect(Collectors.toList()).toString();
-        return s.substring(1, s.length()-1).replace(" ", "");
+        return this.income.keySet().stream().map(econ -> (econ.getCurrency() == null ? econ.getType().name() : econ.getType().name() + ":" + econ.getCurrency())
+                + ";;" + this.income.get(econ)).collect(Collectors.joining(",,"));
     }
 
     public void setNextInterval(long nextInterval) {
@@ -146,9 +145,8 @@ public class Chest {
         if (this.income.isEmpty())
             return "null";
 
-        String s = this.income.keySet().stream().map(econ -> (econ.getCurrency() == null ? econ.getType().name() : econ.getType().name() + ":" + econ.getCurrency())
-                + ";" + this.income.get(econ)).collect(Collectors.toList()).toString();
-        return s.substring(1, s.length()-1).replace(" ", "");
+        return this.income.keySet().stream().map(econ -> (econ.getCurrency() == null ? econ.getType().name() : econ.getType().name() + ":" + econ.getCurrency())
+                + ";;" + this.income.get(econ)).collect(Collectors.joining(",,"));
     }
 
     public String getIncome(String message) {
@@ -226,16 +224,22 @@ public class Chest {
         Map<EcoType, Double> prices = new HashMap<>();
         if (income == null || income.isEmpty() || income.equals("null")) return prices;
 
-        Arrays.stream(income.split(",")).forEach(s -> {
+        // Change SEPARATOR's as a single comma can still occur in a ITEM economy with NBT/component data
+        final String SEPARATOR = AutoSellChests.getInstance().newPriceFormat ? ",," : ",";
+        final String PART_SEPARATOR = AutoSellChests.getInstance().newPriceFormat ? ";;" : ";";
+
+        Arrays.stream(income.split(SEPARATOR)).forEach(s -> {
             try {
-                EcoType econ = EconomyType.getFromString(s.split(";")[0]);
-                if (EconomyShopGUIHook.getEcon(econ) == null)
+                EcoType econ = EconomyType.getFromString(s.split(PART_SEPARATOR)[0]);
+                if (EconomyShopGUIHook.getEcon(econ) == null) {
+                    Logger.warn("Economy type such as " + s.split(PART_SEPARATOR)[0] + " is not enabled in EconomyShopGUI, skipping...");
                     return; // EconomyType not active
+                }
                 if (econ == null) {
-                    Logger.warn("Failed to load economy type as '" + s + "' for input string '" + income + "'");
-                } else prices.put(econ, Double.parseDouble(s.split(";")[1]));
-            } catch (NumberFormatException | NullPointerException e) {
-                Logger.warn("Failed to load price amount for '" + s + "' and input string '" + income + "'");
+                    Logger.warn("Failed to find economy type such as '" + s + "' for input string '" + income + "' for chest " + this.id);
+                } else prices.put(econ, Double.parseDouble(s.split(PART_SEPARATOR)[1]));
+            } catch (NumberFormatException | NullPointerException | ArrayIndexOutOfBoundsException e) {
+                Logger.warn("Failed to load price amount for '" + s + "' and input string '" + income + "' for chest " + this.id);
             }
         });
         return prices;

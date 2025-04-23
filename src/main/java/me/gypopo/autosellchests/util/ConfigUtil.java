@@ -37,6 +37,12 @@ public class ConfigUtil {
                 configVer = 102;
             }
 
+            if (configVer == 102) {
+                plugin.newPriceFormat = false;
+
+                configVer = 110;
+            }
+
             Config.get().set("config-version", getConfigVersion(configVer));
             Config.save();
             Config.reload();

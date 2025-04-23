@@ -15,8 +15,12 @@ import java.util.*;
 
 public class SQLite {
 
-    private final String dbPath = AutoSellChests.getInstance().getDataFolder() + File.separator + "database.db";
+    private final String dbPath;
     private Connection conn;
+
+    public SQLite(AutoSellChests plugin) {
+        this.dbPath = plugin.getDataFolder() + File.separator + "database.db";
+    }
 
     public boolean connect() {
         try {
@@ -140,12 +144,20 @@ public class SQLite {
     }
 
     public void setChest(Chest chest) {
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate("REPLACE INTO chests(chest_id, location, owner, items, income, claimAble, settings, name) " +
-                    "VALUES(" + chest.getId() + ", '" + chest.getLocation().toString() + "', '" + chest.getOwner().toString() + "'," + chest.getItemsSold() + ",'" + chest.getIncomeRaw() + "','" + chest.getClaimAbleRaw() + "','" + chest.getSettings() + "','" + chest + "');");
-            stmt.close();
-        } catch (SQLException e ) {
+        try (PreparedStatement stmt = conn.prepareStatement("REPLACE INTO chests(chest_id, location, owner, items, income, claimAble, settings, name) " +
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?);")) {
+
+            stmt.setInt(1, chest.getId());
+            stmt.setString(2, chest.getLocation().toString());
+            stmt.setString(3, chest.getOwner().toString());
+            stmt.setInt(4, chest.getItemsSold());
+            stmt.setString(5, chest.getIncomeRaw());
+            stmt.setString(6, chest.getClaimAbleRaw());
+            stmt.setString(7, chest.getSettings().toString());
+            stmt.setString(8, chest.getName());
+
+            stmt.execute();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -160,14 +172,27 @@ public class SQLite {
         }
     }
 
-    public void saveChest(Chest chest) {
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate("UPDATE chests SET items = '" + chest.getItemsSold() + "', income = '" + chest.getIncomeRaw() + "', claimAble = '" + chest.getClaimAbleRaw() + "', settings = '" + chest.getSettings() + "', name = '" + chest.getName() + "' WHERE location = '" + chest.getLocation().toString() + "';");
-            stmt.close();
+    public void saveChests(Collection<Chest> chests) {
+        try (PreparedStatement stmt = conn.prepareStatement("UPDATE chests SET items = ?, income = ?, claimAble = ?, settings = ?, name = ? WHERE location = ?;")) {
+            for (Chest chest : chests) {
+                try {
+                    stmt.setInt(1, chest.getItemsSold());
+                    stmt.setString(2, chest.getIncomeRaw());
+                    stmt.setString(3, chest.getClaimAbleRaw());
+                    stmt.setString(4, chest.getSettings().toString());
+                    stmt.setString(5, chest.getName());
+
+                    // TODO: Use the ID instead of the chest location
+                    stmt.setString(6, chest.getLocation().toString());
+                    stmt.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.warn("Exception occurred while saving chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z + " | TotalProfit: $" + chest.getIncome(null) + " | TotalItemsSold: " + chest.getItemsSold());
+                    Logger.warn(e.getMessage());
+                }
+            }
         } catch (SQLException e ) {
-            Logger.warn("Exception occurred while saving chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z + " | TotalProfit: $" + chest.getIncome(null) + " | TotalItemsSold: " + chest.getItemsSold());
-            Logger.debug(e.getMessage());
+            Logger.warn("Exception occurred while saving chests to database, please see error below:");
+            e.printStackTrace();
         }
     }
 

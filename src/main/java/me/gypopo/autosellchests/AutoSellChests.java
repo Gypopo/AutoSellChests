@@ -51,7 +51,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private static AutoSellChests instance;
     public static AutoSellChests getInstance() {return instance; }
 
-    private SQLite database;
+    private final SQLite database = new SQLite(this);
     private final TimeUtils timeUtils = new TimeUtils();
     private final NamespacedKey key = new NamespacedKey(this, "autosell");
     private final ServerScheduler scheduler = this.getScheduler();
@@ -60,6 +60,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private ChestManager manager;
     private AFKManager afkManager;
     private boolean ready = false;
+    public boolean newPriceFormat = true; // New format to store prices in databases, as of ASC v2.7.0
     public boolean supportsNewAPI; // Whether we can use EconomyShopGUI API v1.7.0+
     public boolean debug;
 
@@ -116,7 +117,6 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         new Logger(this);
         ConfigUtil.updateConfig(this);
 
-        this.database = new SQLite();
         if (!this.database.connect()) {
             this.getServer().getPluginManager().disablePlugin(this);
             return;

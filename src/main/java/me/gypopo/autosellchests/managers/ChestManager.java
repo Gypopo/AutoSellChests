@@ -223,9 +223,7 @@ public class ChestManager {
 
     private void saveChests() {
         Logger.debug("Saving '" + this.loadedChests.size() + "' chests...");
-        for (Chest chest : this.loadedChests.values()) {
-            this.plugin.getDatabase().saveChest(chest);
-        }
+        this.plugin.getDatabase().saveChests(this.loadedChests.values());
     }
 
     private void registerCraftingRecipe() {
