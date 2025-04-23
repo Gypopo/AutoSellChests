@@ -11,10 +11,14 @@ public final class Logger {
 
     private static AutoSellChests plugin;
     private static boolean debug;
+    private static String prefix;
+    private static ConsoleCommandSender logger;
 
     public Logger(AutoSellChests plugin) {
         Logger.plugin = plugin;
         Logger.debug = Config.get().getBoolean("debug");
+        Logger.prefix = "§8[§6Auto§4Sell§6Chests§8]§r";
+        Logger.logger = plugin.getServer().getConsoleSender();
     }
 
     public static void sendPlayerMessage(Player p, String s) {
@@ -30,14 +34,15 @@ public final class Logger {
     }
 
     public static void info(String s) {
-        plugin.getLogger().info(s);
+        logger.sendMessage(prefix + " §8[§7INFO§8]§r: " + s);
     }
 
     public static void warn(String s) {
-        plugin.getLogger().warning(s);
+        logger.sendMessage(prefix + " §8[§cWARN§8]§r: " + s);
     }
 
     public static void debug(String s) {
-        if (debug) plugin.getLogger().info(s);
+        if (debug)
+            logger.sendMessage(prefix + "§8[§6DEBUG§8]§r: " + s);
     }
 }
