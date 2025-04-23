@@ -130,16 +130,19 @@ public class MainScheduler {
 
     private void handleLogs(Chest chest, OfflinePlayer owner, Map<EcoType, Double> prices, int items) {
         if (chest.isLogging() && this.plugin.getManager().soldItemsLoggingPlayer && owner.isOnline()) {
-            Logger.sendPlayerMessage((Player) owner, this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_PLAYER_LOG.get()
-                    .replace("%chest-name%", chest.getName()).replace("%amount%", String.valueOf(items)))
+            Logger.sendPlayerMessage((Player) owner, Lang.ITEMS_SOLD_PLAYER_LOG.get()
+                    .replace("%profit%", this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_PLAYER_LOG.get()))
+                    .replace("%chest-name%", chest.getName()).replace("%amount%", String.valueOf(items))
                     .replace("%id%", String.valueOf(chest.getId())));
         }
         if (this.intervalLogging) {
             if (this.logger == null) {
                 // Log every interval
-                Logger.info(this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_LOG.get().replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName()))
+                Logger.info(Lang.ITEMS_SOLD_CONSOLE_LOG.get()
+                        .replace("%profit%", this.plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_LOG.get()))
+                        .replace("%chest-name%", ChatColor.stripColor(chest.getName()).replace("%player%", owner.getName()))
                         .replace("%location%", "world '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z)
-                        .replace("%amount%", String.valueOf(items)).replace("%id%", String.valueOf(chest.getId()))));
+                        .replace("%amount%", String.valueOf(items)).replace("%id%", String.valueOf(chest.getId())));
             } else this.logger.addContents(items, chest.getId());
         }
     }

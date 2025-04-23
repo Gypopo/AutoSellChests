@@ -37,10 +37,11 @@ public class ChestLogger {
         plugin.runTaskAsyncTimer(new Runnable() {
             @Override
             public void run() {
-                Logger.info(plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_INTERVAL.get()
+                Logger.info(Lang.ITEMS_SOLD_CONSOLE_INTERVAL.get()
+                        .replace("%profit%", plugin.formatPrices(prices, Lang.ITEMS_SOLD_CONSOLE_INTERVAL.get()))
                         .replace("%count%", String.valueOf(count.get()))
                         .replace("%amount%", String.valueOf(items.values().stream().mapToInt(Integer::intValue).sum()))
-                        .replace("%interval%", TimeUtils.getReadableTime(delay))));
+                        .replace("%interval%", TimeUtils.getReadableTime(delay)));
                 if (!items.isEmpty())
                     items.clear();
                 if (!prices.isEmpty())

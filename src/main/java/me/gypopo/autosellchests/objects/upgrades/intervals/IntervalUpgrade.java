@@ -110,7 +110,7 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
 
         EconomyProvider priceProvider = EconomyShopGUIHook.getEcon(this.priceType);
         if (priceProvider.getBalance(p) < finalPrice) {
-            Logger.sendPlayerMessage(p, Lang.INSUFFICIENT_FUNDS_UPGRADE.get().replace("%ecoType%", priceProvider.getFriendly()));
+            Logger.sendPlayerMessage(p, AutoSellChests.getInstance().replaceColoredPlaceholder(Lang.INSUFFICIENT_FUNDS_UPGRADE.get(), "%ecoType%", priceProvider.getFriendly()));
             return false;
         }
 
