@@ -5,6 +5,14 @@ config-version: 1.1.0
 # For example, you can use '1d 2h 3m 4s' where the interval then would be 1 day, 2 hours, 3 minutes and 4 seconds
 autosell-interval: "10m"
 
+# The holograms above the SellChest showing info about the chest
+# This feature requires DecentHolograms
+chest-holograms:
+  enabled: true
+  lines:
+  - "%chest-name%"
+  - "Next sell: %next-interval%"
+
 # When disabled, the option to upgrade the interval per chest will be disabled and the sell interval specified above will be used
 enable-interval-upgrades: true
 
