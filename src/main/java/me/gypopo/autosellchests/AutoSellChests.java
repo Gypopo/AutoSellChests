@@ -59,7 +59,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private UpgradeManager upgradeManager;
     private ChestManager manager;
     private AFKManager afkManager;
-    private boolean ready = false;
+    private boolean premium;
+    private boolean ready;
     public boolean newPriceFormat = true; // New format to store prices in databases, as of ASC v2.7.0
     public boolean supportsNewAPI; // Whether we can use EconomyShopGUI API v1.7.0+
     public boolean debug;
@@ -67,14 +68,13 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         instance = this;
-        boolean premium; // Whether we use the premium version of the plugin
 
         Version version;
         if (Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI") != null) {
             this.getLogger().info("Found EconomyShopGUI, enabling...");
             if (!this.validateAPI()) return;
 
-            premium = false;
+            this.premium = false;
             version = new Version(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI").getDescription().getVersion());
             supportsNewAPI = version.isGreater(new Version("6.2.5"));
             if (version.isSmaller(new Version("5.5.1"))) {
@@ -86,7 +86,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.getLogger().info("Found EconomyShopGUI Premium, enabling...");
             if (!this.validateAPI()) return;
 
-            premium = true;
+            this.premium = true;
             version = new Version(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium").getDescription().getVersion());
             supportsNewAPI = version.isGreater(new Version("5.5.3"));
             if (version.isSmaller(new Version("4.10.2"))) {
@@ -96,6 +96,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             }
         } else {
             this.getLogger().warning("Could not find EconomyShopGUI(Premium), disabling...");
+            this.getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
@@ -106,9 +107,9 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         }
 
         Metrics metrics = new Metrics(this, 15605);
-        metrics.addCustomChart(new Metrics.SimplePie("esgui_ver", () -> premium ? "EconomyShopGUI-Premium" : "EconomyShopGUI"));
+        metrics.addCustomChart(new Metrics.SimplePie("esgui_ver", () -> this.premium ? "EconomyShopGUI-Premium" : "EconomyShopGUI"));
 
-        if (supportsNewAPI) {
+        if (this.supportsNewAPI) {
             this.getLogger().info("Using new API methods for improved performance...");
         }
 
@@ -126,21 +127,21 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         this.getServer().getPluginManager().registerEvents(this, this);
 
-        // Alternative to the 'softdepend' tag inside the plugin.yml which doesn't always work as intended
-        this.runTaskLater(() -> {
-            if (this.isPluginEnabled(premium)) {
-                if (Config.get().getBoolean("afk-prevention", false))
-                    this.afkManager = this.getAfkManager();
-                this.upgradeManager = new UpgradeManager(this);
-                this.manager = new ChestManager(this);
-                this.inventoryManager = new InventoryManager();
-            } else {
-                this.getLogger().warning("Found EconomyShopGUI in a disabled state, please make sure it is enabled and up to date, disabling the plugin...");
-                this.getServer().getPluginManager().disablePlugin(this);
-            }
-        }, 1);
-
         this.debug = Config.get().getBoolean("debug");
+
+        // A fall back to the ShopItemsLoadEvent from EconomyShopGUI which is actually never used,
+        // only in rare cases where EconomyShopGUI crashes while loading
+        this.runTaskLater(() -> {
+            if (!this.ready) {
+                if (!this.isPluginEnabled()) {
+                    this.getLogger().warning("Found EconomyShopGUI in a disabled state, please make sure it is enabled and up to date, disabling the plugin...");
+                    this.getServer().getPluginManager().disablePlugin(this);
+                    return;
+                }
+
+                this.onShopItemsLoadEvent(new ShopItemsLoadEvent());
+            }
+        }, 120L);
     }
 
     @Override
@@ -257,13 +258,22 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         return null;
     }
 
-    private boolean isPluginEnabled(boolean premium) {
-        return this.getServer().getPluginManager().getPlugin("EconomyShopGUI" + (premium ? "-Premium" : "")).isEnabled();
+    private boolean isPluginEnabled() {
+        return this.getServer().getPluginManager().getPlugin("EconomyShopGUI" + (this.premium ? "-Premium" : "")).isEnabled();
     }
 
+    // Since v2.7.0, load after items load event since specific item economies aren't registered yet if EconomyShopGUI uses delayed loading
     @EventHandler
     public void onShopItemsLoadEvent(final ShopItemsLoadEvent e) {
-        this.ready = true;
+        this.runTaskLater(() -> {
+            this.ready = true;
+
+            if (Config.get().getBoolean("afk-prevention", false))
+                this.afkManager = this.getAfkManager();
+            this.inventoryManager = new InventoryManager();
+            this.upgradeManager = new UpgradeManager(this);
+            this.manager = new ChestManager(this);
+        }, 5L); // Run a few ticks later so EconomyShopGUI can completely finish loading(Optional)
     }
 
     private boolean validateAPI() {
