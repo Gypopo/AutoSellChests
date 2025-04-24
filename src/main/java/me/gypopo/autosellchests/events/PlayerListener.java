@@ -234,10 +234,13 @@ public class PlayerListener implements Listener {
                 chest.setLogging(!chest.isLogging());
                 inv.updateInventory((Player) e.getWhoClicked());
             } else if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("rename-item")) {
+                inv.update();
                 new AnvilGUI.Builder()
                         .onClick((i, state) -> {
                             if (!state.getText().isEmpty())
                                 chest.setName(Lang.formatColors(state.getText(), null));
+
+                            this.plugin.getHologramManager().updateHologram(chest);
                             inv.updateInventory((Player) e.getWhoClicked());
                             return Collections.singletonList(AnvilGUI.ResponseAction.close());
                         })

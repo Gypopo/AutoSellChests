@@ -61,9 +61,13 @@ public class SettingsScreen extends ChestInventory {
         p.openInventory(this.inv);
     }
 
-    public void updateInventory(Player p) {
+    public void update() {
         this.update = true;
         AutoSellChests.getInstance().runTaskLater(() -> this.update = false, 1L);
+    }
+
+    public void updateInventory(Player p) {
+        this.update();
 
         this.inv.clear();
         this.init();
