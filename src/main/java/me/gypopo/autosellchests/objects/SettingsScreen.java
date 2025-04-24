@@ -15,11 +15,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Collections;
 
-public class SettingsScreen implements InventoryHolder {
+public class SettingsScreen extends ChestInventory {
 
     private Inventory inv;
     private final Chest chest;
     private final Location selectedChest;
+
+    private boolean update;
 
     public SettingsScreen(Chest chest, Location selectedChest) {
         this.selectedChest = selectedChest;
@@ -40,20 +42,31 @@ public class SettingsScreen implements InventoryHolder {
         this.inv = builder.build();
     }
 
+    @Override
     public Chest getChest() {
         return this.chest;
     }
 
+    @Override
     public Location getSelectedChest() {
         return this.selectedChest;
+    }
+
+    @Override
+    public boolean isUpdatingInventory() {
+        return this.update;
     }
 
     public void open(Player p) {
         p.openInventory(this.inv);
     }
 
-    @Override
-    public Inventory getInventory() {
-        return this.inv;
+    public void updateInventory(Player p) {
+        this.update = true;
+        AutoSellChests.getInstance().runTaskLater(() -> this.update = false, 1L);
+
+        this.inv.clear();
+        this.init();
+        this.open(p);
     }
 }

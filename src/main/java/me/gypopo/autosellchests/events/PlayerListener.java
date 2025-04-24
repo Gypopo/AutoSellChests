@@ -41,18 +41,24 @@ public class PlayerListener implements Listener {
     private final boolean compatibilityMode;
     private final Sound placeSound;
     private final Sound breakSound;
-    private final long soundVolume;
-    private final long soundPitch;
+    private final Sound upgradeSound;
+    private float soundVolume = 1F;
+    private float soundPitch = 1F;
     //private final boolean v1_20_R4;
 
     public PlayerListener(AutoSellChests plugin) {
         this.plugin = plugin;
 
         // Sounds
-        this.soundVolume = Config.get().getLong("sound-effects.volume");
-        this.soundPitch = Config.get().getLong("sound-effects.pitch");
+        try {
+            this.soundVolume = Float.parseFloat(Config.get().getString("sound-effects.volume", "1"));
+            this.soundPitch = Float.parseFloat(Config.get().getString("sound-effects.pitch", "1"));
+        } catch (NumberFormatException e) {
+            Logger.warn("Failed to load sound volume settings in config.yml, should be a number");
+        }
         this.placeSound = this.getSound("sound-effects.place-chest");
         this.breakSound = this.getSound("sound-effects.pickup-chest");
+        this.upgradeSound = this.getSound("sound-effects.upgrade-chest");
 
         // Chest confirmation effect
         try {
@@ -213,7 +219,7 @@ public class PlayerListener implements Listener {
                 } else e.getWhoClicked().sendMessage(Lang.NO_PERMISSIONS.get());
             } else if (e.getSlot() == this.plugin.getInventoryManager().getMainInv().getSlot("upgrade-item")) {
                 if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
-                    new UpgradeScreen(chest).open((Player) e.getWhoClicked());
+                    new UpgradeScreen(chest, loc).open((Player) e.getWhoClicked());
                 } else e.getWhoClicked().sendMessage(Lang.NO_PERMISSIONS.get());
             } else if (e.getSlot() == this.plugin.getInventoryManager().getMainInv().getSlot("claimable-item")) {
                 if (chest.getOwner().equals(e.getWhoClicked().getUniqueId())) {
@@ -222,18 +228,17 @@ public class PlayerListener implements Listener {
                 } else e.getWhoClicked().sendMessage(Lang.NO_PERMISSIONS.get());
             }
             e.setCancelled(true);
-        } else if (e.getClickedInventory().getHolder() instanceof SettingsScreen) {
-            Chest chest = ((SettingsScreen) e.getClickedInventory().getHolder()).getChest();
-            Location loc = ((SettingsScreen) e.getClickedInventory().getHolder()).getSelectedChest();
+        } else if (e.getClickedInventory().getHolder() instanceof SettingsScreen inv) {
+            Chest chest = inv.getChest();
             if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("logging-item")) {
                 chest.setLogging(!chest.isLogging());
-                new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
+                inv.updateInventory((Player) e.getWhoClicked());
             } else if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("rename-item")) {
                 new AnvilGUI.Builder()
                         .onClick((i, state) -> {
                             if (!state.getText().isEmpty())
                                 chest.setName(Lang.formatColors(state.getText(), null));
-                            new SettingsScreen(chest, loc).open((Player) e.getWhoClicked());
+                            inv.updateInventory((Player) e.getWhoClicked());
                             return Collections.singletonList(AnvilGUI.ResponseAction.close());
                         })
                         .text(chest.getName())
@@ -257,6 +262,10 @@ public class PlayerListener implements Listener {
                             .replace("%upgrade-name%", nextUpgrade.getName())
                             .replace("%upgrade-cost%", nextUpgrade.getPrice(chest.isDoubleChest()))
                             .replace("%interval%", TimeUtils.getReadableTime(UpgradeManager.getIntervals()[nextInterval])));
+
+                    inv.getSelectedChest().getWorld().spawnParticle(SimpleParticle.WITCH.get(), inv.getSelectedChest(), 15);
+                    if (this.upgradeSound != null)
+                        inv.getSelectedChest().getWorld().playSound(inv.getSelectedChest(), this.upgradeSound, this.soundVolume, this.soundPitch);
                 }
             } else if (e.getSlot() == this.plugin.getInventoryManager().getUpgradeInv().getSlot("multiplier-upgrade-item")) {
                 int nextMultiplier = chest.getMultiplierUpgrade()+1;
@@ -270,20 +279,23 @@ public class PlayerListener implements Listener {
                             .replace("%upgrade-name%", nextUpgrade.getName())
                             .replace("%upgrade-cost%", nextUpgrade.getPrice(chest.isDoubleChest()))
                             .replace("%multiplier%", String.valueOf(UpgradeManager.getMultipliers()[nextMultiplier])));
+
+                    inv.getSelectedChest().getWorld().spawnParticle(SimpleParticle.WITCH.get(), inv.getSelectedChest(), 15);
+                    if (this.upgradeSound != null)
+                        inv.getSelectedChest().getWorld().playSound(inv.getSelectedChest(), this.upgradeSound, this.soundVolume, this.soundPitch);
                 }
             }
             e.setCancelled(true);
-        } else if (e.getClickedInventory().getHolder() instanceof ClaimProfitsScreen) {
-            Chest chest = ((ClaimProfitsScreen) e.getClickedInventory().getHolder()).getChest();
-            Location loc = ((ClaimProfitsScreen) e.getClickedInventory().getHolder()).getSelectedChest();
+        } else if (e.getClickedInventory().getHolder() instanceof ClaimProfitsScreen inv) {
+            Chest chest = inv.getChest();
             if (chest.getClaimAble().size() >= e.getSlot()) {
                 EcoType type = new ArrayList<>(chest.getClaimAble().keySet()).get(e.getRawSlot());
                 if (EconomyShopGUIHook.getEcon(type).getType().equals(type)) {
                     EconomyShopGUIHook.getEcon(type).depositBalance((Player) e.getWhoClicked(), chest.getClaimAble().get(type));
                     chest.claim(type);
                     if (!chest.getClaimAble().isEmpty()) {
-                        new ClaimProfitsScreen(chest, loc).open((Player) e.getWhoClicked());
-                    } else new InformationScreen(chest, loc).open((Player) e.getWhoClicked());
+                        inv.updateInventory((Player) e.getWhoClicked());
+                    } else new InformationScreen(chest, inv.getSelectedChest());
                 } else Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_CLAIM_PROFIT.get()); // EconomyType not active/not found
             }
             e.setCancelled(true);
@@ -292,9 +304,17 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onMenuClose(InventoryCloseEvent e) {
-        if (e.getInventory().getHolder() instanceof InformationScreen) {
-            this.plugin.runTaskLater(() -> ((Player) e.getPlayer()).updateInventory(), 1);
-        }
+        if (!(e.getInventory().getHolder() instanceof ChestInventory inv))
+            return;
+
+        if (inv.isUpdatingInventory())
+            return;
+
+        this.plugin.runTaskLater(() -> {
+            new InformationScreen(inv.getChest(), inv.getSelectedChest()).open((Player) e.getPlayer());
+
+            ((Player) e.getPlayer()).updateInventory();
+        }, 1L);
     }
 
     private Sound getSound(String sound) {

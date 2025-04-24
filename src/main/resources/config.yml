@@ -210,6 +210,7 @@ sound-effects:
   pitch: 1
   pickup-chest: "ENTITY_ENDERMAN_TELEPORT"
   place-chest: "ENTITY_SPLASH_POTION_BREAK"
+  upgrade-chest: "ENTITY_PLAYER_LEVELUP"
 
 # Controls settings for when the plugin should log sell intervals to console
 # If no interval has been set and this option is enabled, the plugin will log after each sell chest sells its contents
@@ -223,6 +224,11 @@ interval-logs:
 sold-items-logging-player: true
 # This setting is also configurable per chest in the settings menu,
 # but when this option is disabled, it will override the per chest setting
+
+# The fill item which fills empty spots inside any GUI
+fill-item:
+  material: GRAY_STAINED_GLASS_PANE
+  name: " "
 
 # Compatibility mode enables support for chests which are created before plugin version v2.4.0
 # Do not enable this option for any other reason, there is a reason this is disabled by default.

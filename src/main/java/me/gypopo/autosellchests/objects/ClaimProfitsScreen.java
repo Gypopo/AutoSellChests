@@ -17,11 +17,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class ClaimProfitsScreen implements InventoryHolder {
+public class ClaimProfitsScreen extends ChestInventory {
 
     private final Inventory inv;
     private final Chest chest;
     private final Location selectedChest;
+
+    private boolean update;
 
     public ClaimProfitsScreen(Chest chest, Location selectedChest) {
         this.inv = Bukkit.createInventory(this, (int)Math.ceil(chest.getClaimAble().size()/9.0)*9, Lang.AVAILABLE_PROFIT_MENU_TITLE.get());
@@ -53,20 +55,31 @@ public class ClaimProfitsScreen implements InventoryHolder {
         }
     }
 
+    @Override
     public Chest getChest() {
         return this.chest;
     }
 
+    @Override
     public Location getSelectedChest() {
         return this.selectedChest;
+    }
+
+    @Override
+    public boolean isUpdatingInventory() {
+        return this.update;
     }
 
     public void open(Player p) {
         p.openInventory(this.inv);
     }
 
-    @Override
-    public Inventory getInventory() {
-        return this.inv;
+    public void updateInventory(Player p) {
+        this.update = true;
+        AutoSellChests.getInstance().runTaskLater(() -> this.update = false, 1L);
+
+        this.inv.clear();
+        this.init();
+        this.open(p);
     }
 }

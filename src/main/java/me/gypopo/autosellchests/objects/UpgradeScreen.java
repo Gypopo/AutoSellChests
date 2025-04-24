@@ -6,17 +6,22 @@ import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.util.SimpleInventoryBuilder;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-public class UpgradeScreen implements InventoryHolder {
+public class UpgradeScreen extends ChestInventory {
 
     private Inventory inv;
     private final Chest chest;
+    private final Location selectedChest;
 
-    public UpgradeScreen(Chest chest) {
+    private boolean update;
+
+    public UpgradeScreen(Chest chest, Location selectedChest) {
+        this.selectedChest = selectedChest;
         this.chest = chest;
         this.init();
     }
@@ -39,8 +44,19 @@ public class UpgradeScreen implements InventoryHolder {
         this.inv = builder.build();
     }
 
+    @Override
     public Chest getChest() {
         return this.chest;
+    }
+
+    @Override
+    public Location getSelectedChest() {
+        return this.selectedChest;
+    }
+
+    @Override
+    public boolean isUpdatingInventory() {
+        return this.update;
     }
 
     public void open(Player p) {
@@ -48,13 +64,11 @@ public class UpgradeScreen implements InventoryHolder {
     }
 
     public void updateInventory(Player p) {
+        this.update = true;
+        AutoSellChests.getInstance().runTaskLater(() -> this.update = false, 1L);
+
         this.inv.clear();
         this.init();
         this.open(p);
-    }
-
-    @Override
-    public Inventory getInventory() {
-        return this.inv;
     }
 }

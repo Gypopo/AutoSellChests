@@ -61,7 +61,7 @@ public class ChestManager {
         if (Config.get().getBoolean("crafting.enabled"))
             this.registerCraftingRecipe();
 
-        this.plugin.runTaskLater(this::startIntervalWhenReady, 100L);
+        this.plugin.runTaskLater(this::startIntervalWhenReady, 1L);
     }
 
     // Schedule the start of the loop 5 seconds after the server loads
