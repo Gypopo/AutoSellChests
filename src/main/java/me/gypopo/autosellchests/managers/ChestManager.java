@@ -32,13 +32,13 @@ public class ChestManager {
 
     private MainScheduler scheduler;
 
-    private final int maxSellChestsPlayer;
-    private final String defaultChestName;
+    private int maxSellChestsPlayer;
+    private String defaultChestName;
 
-    public final boolean soldItemsLoggingPlayer;
-    public final boolean soldItemsLoggingConsole;
+    public boolean soldItemsLoggingPlayer;
+    public boolean soldItemsLoggingConsole;
 
-    private static final ItemStack fillItem = ChestManager.createFillItem();
+    private static ItemStack fillItem;
 
     private final Map<String, Integer> maxChests = new LinkedHashMap<>();
 
@@ -48,13 +48,17 @@ public class ChestManager {
 
     public ChestManager(AutoSellChests plugin) {
         this.plugin = plugin;
+    }
 
+    public void load() {
         this.soldItemsLoggingPlayer = Config.get().getBoolean("sold-items-logging-player");
         this.soldItemsLoggingConsole = Config.get().getBoolean("sold-items-logging-console");
         this.maxSellChestsPlayer = Config.get().getInt("max-sellchests.default");
 
         defaultChestName = Lang.formatColors(Config.get().getString("default-chest-name"), null);
         chestName = Lang.formatColors(Config.get().getString("sellchest-name"), null);
+
+        fillItem = ChestManager.createFillItem();
 
         this.loadChests();
         this.loadMaximumChests();

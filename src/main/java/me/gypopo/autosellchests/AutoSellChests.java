@@ -54,10 +54,10 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private final TimeUtils timeUtils = new TimeUtils();
     private final NamespacedKey key = new NamespacedKey(this, "autosell");
     private final ServerScheduler scheduler = this.getScheduler();
+    private ChestManager manager = new ChestManager(this);
     private InventoryManager inventoryManager;
     private HologramManager hologramManager;
     private UpgradeManager upgradeManager;
-    private ChestManager manager;
     private AFKManager afkManager;
     private boolean premium;
     private boolean ready;
@@ -279,7 +279,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.inventoryManager = new InventoryManager();
             this.hologramManager = new HologramManager(this);
             this.upgradeManager = new UpgradeManager(this);
-            this.manager = new ChestManager(this);
+            this.manager.load();
         }, 5L); // Run a few ticks later so EconomyShopGUI can completely finish loading(Optional)
     }
 
