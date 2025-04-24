@@ -73,7 +73,7 @@ public class MainScheduler {
 
     private void sellContents(Chest chest) {
         try {
-            if (!chest.getLocation().isLoaded()) {// If chest is in unloaded chunk, skip
+            if (!chest.isLoaded()) {// If chest is in unloaded chunk, skip
                 Logger.debug("Tried to process chest " + chest.getId() + " but is in unloaded chunk, skipping...");
                 return;
             }

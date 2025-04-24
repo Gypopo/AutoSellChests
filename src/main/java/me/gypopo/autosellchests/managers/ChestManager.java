@@ -6,6 +6,7 @@ import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.objects.ChestSettings;
+import me.gypopo.autosellchests.objects.ChunkLoc;
 import me.gypopo.autosellchests.scheduler.MainScheduler;
 import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.autosellchests.util.TimeUtils;
@@ -94,6 +95,27 @@ public class ChestManager {
         this.scheduler.updateChest(chest, newIntervalID);
     }
 
+    public void loadChests(ChunkLoc chunkLoc) {
+        for (ChestLocation location : this.loadedChests.keySet()) {
+            if (chunkLoc.contains(location)) {
+                Chest chest = this.loadedChests.get(location);
+
+                chest.setLoaded(true);
+                this.plugin.getHologramManager().loadHologram(chest);
+            }
+        }
+    }
+
+    public void unloadChests(ChunkLoc chunkLoc) {
+        for (ChestLocation location : this.loadedChests.keySet()) {
+            if (chunkLoc.contains(location)) {
+                Chest chest = this.loadedChests.get(location);
+
+                chest.setLoaded(false);
+            }
+        }
+    }
+
     private void loadMaximumChests() {
         Map<String, Integer> maxChests = new LinkedHashMap<>();
         for (String perm : Config.get().getConfigurationSection("max-sellchests.override").getKeys(false)) {
@@ -158,12 +180,22 @@ public class ChestManager {
             // Update the map entry
             this.loadedChests.remove(original.getLocation());
             this.loadedChests.put(original.getLocation(), original);
+
+            // Update hologram
+            this.plugin.getHologramManager().updateHologramLocation(original);
         } else {
             ChestLocation location = new ChestLocation(loc);
             this.plugin.getDatabase().addChest(location.toString(), p.getUniqueId().toString(), 0, settings);
             original = this.plugin.getDatabase().loadChest(location);
+            original.setLoaded(true);
 
+            // Create hologram
+            this.plugin.getHologramManager().loadHologram(original);
+
+            // Add to queue
             this.scheduler.queueChest(original);
+
+            // Put in memory
             this.loadedChests.put(location, original);
             if (this.loadedChestsByPlayer.containsKey(p.getUniqueId())) {
                 this.loadedChestsByPlayer.get(p.getUniqueId()).add(original);
@@ -175,26 +207,43 @@ public class ChestManager {
     public void removeChest(ChestLocation loc) {
         Chest chest = this.loadedChests.get(loc);
         if (chest.getLocation().isDoubleChest()) {
+            // Update map entry/database
             chest.getLocation().removeLocation(loc.getLeftLocation());
             this.plugin.getDatabase().setChest(chest);
+
+            // Update hologram
+            this.plugin.getHologramManager().updateHologramLocation(chest);
         } else {
+            // Remove from queue
             this.scheduler.removeFromQueue(chest);
+
+            // Remove from memory
             this.plugin.getDatabase().removeChest(loc.toString());
             this.loadedChests.remove(loc);
             if (this.loadedChestsByPlayer.get(chest.getOwner()).size() > 1) {
                 this.loadedChestsByPlayer.get(chest.getOwner()).remove(chest);
             } else this.loadedChestsByPlayer.remove(chest.getOwner());
+
+            // Remove hologram
+            this.plugin.getHologramManager().removeHologram(chest);
         }
         Logger.debug("Removed SellChest " + chest.getId() + " from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z);
     }
 
     public void removeChest(Chest chest) {
+        // Remove from queue
+        this.scheduler.removeFromQueue(chest);
+
+        // Remove from memory/database
         this.plugin.getDatabase().removeChest(chest.getLocation().toString());
         this.loadedChests.remove(chest.getLocation());
-        this.scheduler.removeFromQueue(chest);
         if (this.loadedChestsByPlayer.containsKey(chest.getOwner())) {
             this.loadedChestsByPlayer.get(chest.getOwner()).remove(chest);
         } else this.loadedChestsByPlayer.remove(chest.getOwner());
+
+        // Remove hologram
+        this.plugin.getHologramManager().removeHologram(chest);
+
         Logger.debug("Removed SellChest " + chest.getId() + " from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z);
     }
 

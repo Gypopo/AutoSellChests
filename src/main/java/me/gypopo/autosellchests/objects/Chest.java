@@ -35,6 +35,8 @@ public class Chest {
     private long nextInterval; // The time the chest is next sold in millis
     private double multiplier; // The current sell price multiplier for this chest
 
+    private boolean loaded; // Whether we should tick the chest
+
     public Chest(int id, String location, String owner, int itemsSold, String income, String claimAble, String settings, String displayname) {
         this.id = id;
         this.location = new ChestLocation(location);
@@ -65,6 +67,14 @@ public class Chest {
 
         this.interval = UpgradeManager.getIntervals()[UpgradeManager.intervalUpgrades ? this.intervalUpgrade : 0];
         this.multiplier = UpgradeManager.getMultipliers()[UpgradeManager.multiplierUpgrades ? this.multiplierUpgrade : 0];
+    }
+
+    public boolean isLoaded() {
+        return this.loaded;
+    }
+
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
     }
 
     private int getIntervalLevel(String settings) {

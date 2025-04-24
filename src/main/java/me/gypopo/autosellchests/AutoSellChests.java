@@ -2,15 +2,14 @@ package me.gypopo.autosellchests;
 
 import me.gypopo.autosellchests.commands.SellChestCommand;
 import me.gypopo.autosellchests.database.SQLite;
+import me.gypopo.autosellchests.events.BlockListener;
+import me.gypopo.autosellchests.events.ChunkListener;
 import me.gypopo.autosellchests.events.PlayerListener;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
+import me.gypopo.autosellchests.managers.*;
 import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionCMI;
 import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionEssentials;
-import me.gypopo.autosellchests.managers.AFKManager;
-import me.gypopo.autosellchests.managers.ChestManager;
-import me.gypopo.autosellchests.managers.InventoryManager;
-import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.metrics.Metrics;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.util.*;
@@ -56,6 +55,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private final NamespacedKey key = new NamespacedKey(this, "autosell");
     private final ServerScheduler scheduler = this.getScheduler();
     private InventoryManager inventoryManager;
+    private HologramManager hologramManager;
     private UpgradeManager upgradeManager;
     private ChestManager manager;
     private AFKManager afkManager;
@@ -125,6 +125,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
         this.registerCommands();
         this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new BlockListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new ChunkListener(this), this);
         this.getServer().getPluginManager().registerEvents(this, this);
 
         this.debug = Config.get().getBoolean("debug");
@@ -185,6 +187,10 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
     public InventoryManager getInventoryManager() {
         return this.inventoryManager;
+    }
+
+    public HologramManager getHologramManager() {
+        return this.hologramManager;
     }
 
     public void reloadManager() {
@@ -271,6 +277,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             if (Config.get().getBoolean("afk-prevention", false))
                 this.afkManager = this.getAfkManager();
             this.inventoryManager = new InventoryManager();
+            this.hologramManager = new HologramManager(this);
             this.upgradeManager = new UpgradeManager(this);
             this.manager = new ChestManager(this);
         }, 5L); // Run a few ticks later so EconomyShopGUI can completely finish loading(Optional)
