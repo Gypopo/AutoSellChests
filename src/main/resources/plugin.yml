@@ -1,5 +1,5 @@
 name: AutoSellChests
-version: 2.6.2
+version: 2.7.0
 main: me.gypopo.autosellchests.AutoSellChests
 api-version: 1.16
 authors: [ Gypopo ]
@@ -12,6 +12,8 @@ softdepend:
 
   - Essentials
   - CMI
+
+  - DecentHolograms
 
 permissions:
   autosellchests.use:
