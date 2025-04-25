@@ -199,7 +199,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.afkManager = this.getAfkManager();
         this.upgradeManager.reload();
         this.inventoryManager.reload();
-        this.manager = new ChestManager(this);
+        this.manager.load();
     }
 
     public Task runTaskTimer(Runnable runnable, long delay, long period) {
