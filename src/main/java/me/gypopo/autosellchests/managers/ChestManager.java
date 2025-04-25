@@ -62,6 +62,7 @@ public class ChestManager {
 
         this.loadChests();
         this.loadMaximumChests();
+        this.loadAlreadyLoadedChests();
 
         if (Config.get().getBoolean("crafting.enabled"))
             this.registerCraftingRecipe();
@@ -370,5 +371,14 @@ public class ChestManager {
 
         item.setItemMeta(meta);
         return item;
+    }
+
+    private void loadAlreadyLoadedChests() {
+        // Manually search and load chests in chunks which are already loaded
+        for (World world : Bukkit.getWorlds()) {
+            for (Chunk chunk : world.getLoadedChunks()) {
+                this.loadChests(new ChunkLoc(chunk));
+            }
+        }
     }
 }
