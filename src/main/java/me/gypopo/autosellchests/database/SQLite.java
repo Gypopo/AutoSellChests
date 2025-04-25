@@ -216,7 +216,12 @@ public class SQLite {
             ResultSet rs = stmt.executeQuery("SELECT * FROM chests;");
             Collection<Chest> chests = new ArrayList<>();
             while (rs.next()) {
-                chests.add(new Chest(rs.getInt("chest_id"), rs.getString("location"), rs.getString("owner"), rs.getInt("items"), rs.getString("income"), rs.getString("claimAble"), rs.getString("settings"), rs.getString("name")));
+                try {
+                    chests.add(new Chest(rs.getInt("chest_id"), rs.getString("location"), rs.getString("owner"), rs.getInt("items"), rs.getString("income"), rs.getString("claimAble"), rs.getString("settings"), rs.getString("name")));
+                } catch (Exception e) {
+                    Logger.warn("Failed to load chest " + rs.getInt("chest_id") + " from database, skipping...");
+                    e.printStackTrace();
+                }
             }
             rs.close();
             stmt.close();
