@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class RemoveChest implements SubCommad {
@@ -42,7 +43,7 @@ public class RemoveChest implements SubCommad {
                     Chest chest = AutoSellChests.getInstance().getManager().getChestByLocation(block.getLocation());
                     if (chest != null) {
                         AutoSellChests.getInstance().getManager().removeChest(chest);
-                        this.breakNaturally(chest);
+                        this.breakNaturally(chest, chest.getLocation().getLeftLocation().toLoc());
                         Logger.sendPlayerMessage(player, ChatColor.GREEN + "Successfully broken chest from " + Bukkit.getOfflinePlayer(chest.getOwner()).getName());
                         return;
                     }
@@ -58,7 +59,7 @@ public class RemoveChest implements SubCommad {
                 if (chest != null) {
                     Logger.sendMessage(logger, ChatColor.GREEN + "Successfully broken chest from " + Bukkit.getOfflinePlayer(chest.getOwner()).getName());
                     AutoSellChests.getInstance().getManager().removeChest(chest);
-                    this.breakNaturally(chest);
+                    this.breakNaturally(chest, chest.getLocation().getLeftLocation().toLoc());
                 } else {
                     Logger.sendMessage(logger,  ChatColor.RED + "No sell chest found with ID " + args[1]);
                 }
@@ -69,10 +70,24 @@ public class RemoveChest implements SubCommad {
 
     }
 
-    private void breakNaturally(Chest chest) {
-        chest.getLocation().getLeftLocation().toLoc().getBlock().breakNaturally();
+    private void breakNaturally(Chest chest, Location loc) {
+        loc.add(0.5, 0.5, 0.5);
+
+        // Drop the contents of the chest
+        Arrays.stream(((org.bukkit.block.Chest) chest.getLocation().getLeftLocation().toLoc().getBlock().getState()).getInventory().getContents()).forEach(item -> {
+            if (item != null && item.getType() != Material.AIR) loc.getWorld().dropItemNaturally(loc, item);
+        });
+
+        // In 1.16.5, Block#setType(AIR) causes the chest to also drop its contents, so make sure its empty or the items will be duplicated
+        if (AutoSellChests.getInstance().version == 116)
+            ((org.bukkit.block.Chest) loc.getBlock().getState()).getBlockInventory().clear();
+
+        // Break the chest
+        loc.getBlock().setType(Material.AIR);
         if (chest.getLocation().isDoubleChest())
-            chest.getLocation().getRightLocation().toLoc().getBlock().breakNaturally();
+            chest.getLocation().getRightLocation().toLoc().getBlock().setType(Material.AIR);
+
+        loc.getWorld().dropItemNaturally(loc, AutoSellChests.getInstance().getManager().getChest(chest, chest.getLocation().isDoubleChest() ? 2 : 1));
     }
 
     @Override
