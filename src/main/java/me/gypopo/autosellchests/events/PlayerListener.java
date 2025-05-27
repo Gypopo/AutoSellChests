@@ -291,14 +291,16 @@ public class PlayerListener implements Listener {
             e.setCancelled(true);
         } else if (e.getClickedInventory().getHolder() instanceof ClaimProfitsScreen inv) {
             Chest chest = inv.getChest();
-            if (chest.getClaimAble().size() >= e.getSlot()) {
+            if (chest.getClaimAble().size() >= (e.getRawSlot() + 1)) {
                 EcoType type = new ArrayList<>(chest.getClaimAble().keySet()).get(e.getRawSlot());
                 if (EconomyShopGUIHook.getEcon(type).getType().equals(type)) {
                     EconomyShopGUIHook.getEcon(type).depositBalance((Player) e.getWhoClicked(), chest.getClaimAble().get(type));
                     chest.claim(type);
-                    if (!chest.getClaimAble().isEmpty()) {
+                    if (chest.getClaimAble().isEmpty()) {
+                        inv.update();
+                        new InformationScreen(chest, inv.getSelectedChest()).open((Player) e.getWhoClicked());
+                    } else
                         inv.updateInventory((Player) e.getWhoClicked());
-                    } else new InformationScreen(chest, inv.getSelectedChest());
                 } else Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_CLAIM_PROFIT.get()); // EconomyType not active/not found
             }
             e.setCancelled(true);
