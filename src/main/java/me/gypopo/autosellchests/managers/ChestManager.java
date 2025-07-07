@@ -337,6 +337,8 @@ public class ChestManager {
     }
 
     public void disable() {
+        if (this.scheduler != null)
+            this.scheduler.stop();
         this.scheduler.stop();
         this.saveChests();
         if (!this.loadedChests.isEmpty()) this.loadedChests.clear();
