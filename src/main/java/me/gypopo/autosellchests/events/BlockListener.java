@@ -29,13 +29,19 @@ public class BlockListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityExplode(EntityExplodeEvent event) {
+        if (event.isCancelled())
+            return;
+
         this.handleBlockExploison(event.blockList());
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockExplode(BlockExplodeEvent event) {
+        if (event.isCancelled())
+            return;
+
         this.handleBlockExploison(event.blockList());
     }
 
