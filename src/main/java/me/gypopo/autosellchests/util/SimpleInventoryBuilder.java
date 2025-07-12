@@ -17,11 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * A simple class that loads a static inventory based of the provided ConfigurationSection
- *
- * Made by Gypopo
- */
 public class SimpleInventoryBuilder {
 
     private final int size;
@@ -58,6 +53,8 @@ public class SimpleInventoryBuilder {
         for (String i : this.items.keySet()) {
             if (i.equals("claimable-item"))
                 continue; // Claimable item should only show when claimable
+            if (i.equals("hologram-item"))
+                continue; // Only enabled if holograms
 
             SimplePair<Integer, ItemStack> item = this.items.get(i);
             if (item.value != null)
@@ -150,6 +147,9 @@ public class SimpleInventoryBuilder {
 
     // Used to replace values in item name/lore
     public void replace(String i, Map<String, String> replacements) {
+        if (!this.items.containsKey(i))
+            return;
+
         int slot = this.items.get(i).key;
         ItemStack item = this.inv.getItem(slot).clone(); // Clone the item since we are replacing its contents
 

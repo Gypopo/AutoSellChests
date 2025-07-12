@@ -30,6 +30,7 @@ public class Chest {
     private final Map<EcoType, Double> claimAble;
     private int intervalUpgrade;
     private int multiplierUpgrade;
+    private boolean enableHologram;
 
     private long interval; // The current recurring interval of this chest in millis
     private long nextInterval; // The time the chest is next sold in millis
@@ -48,6 +49,7 @@ public class Chest {
         this.displayname = displayname == null ? Lang.formatColors(Config.get().getString("default-chest-name").replace("%id%", String.valueOf(id)), null) : displayname.replace("%id%", String.valueOf(id));
         this.intervalUpgrade = settings == null ? 0 : this.getIntervalLevel(settings);
         this.multiplierUpgrade = settings == null ? 0 : this.getMultiplierLevel(settings);
+        this.enableHologram = settings == null || settings.split("\\|")[0].equals("1");
 
         this.interval = UpgradeManager.getIntervals()[UpgradeManager.intervalUpgrades ? this.intervalUpgrade : 0];
         this.multiplier = UpgradeManager.getMultipliers()[UpgradeManager.multiplierUpgrades ? this.multiplierUpgrade : 0];
@@ -148,7 +150,7 @@ public class Chest {
     }
 
     public ChestSettings getSettings() {
-        return new ChestSettings(this.logging, this.intervalUpgrade, this.multiplierUpgrade);
+        return new ChestSettings(this.logging, this.intervalUpgrade, this.multiplierUpgrade, this.enableHologram);
     }
 
     public String getIncomeRaw() {
@@ -181,6 +183,12 @@ public class Chest {
     public boolean isLogging() {return this.logging; }
 
     public void setLogging(boolean logging) { this.logging = logging;}
+
+    public boolean isHologram() {return this.enableHologram;}
+
+    public void setHologram(boolean enabled) {
+        this.enableHologram = enabled;
+    }
 
     public int getIntervalUpgrade() {
         return this.intervalUpgrade;

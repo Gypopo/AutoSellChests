@@ -4,6 +4,7 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
+import me.gypopo.autosellchests.managers.HologramManager;
 import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.objects.*;
 import me.gypopo.autosellchests.util.ChestConfirmation;
@@ -249,6 +250,10 @@ public class PlayerListener implements Listener {
                         .title(Lang.ENTER_NAME_MENU_TITLE.get())
                         .plugin(this.plugin)
                         .open((Player) e.getWhoClicked());
+            } else if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("hologram-item")) {
+                this.plugin.getHologramManager().removeHologram(chest);
+                chest.setHologram(!chest.isHologram());
+                inv.updateInventory((Player) e.getWhoClicked());
             }
             e.setCancelled(true);
         } else if (e.getClickedInventory().getHolder() instanceof UpgradeScreen inv) {

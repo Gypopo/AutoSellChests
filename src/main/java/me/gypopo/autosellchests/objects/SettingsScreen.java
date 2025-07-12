@@ -3,6 +3,7 @@ package me.gypopo.autosellchests.objects;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
+import me.gypopo.autosellchests.managers.holograms.FakeHologramHook;
 import me.gypopo.autosellchests.util.SimpleInventoryBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -38,6 +39,11 @@ public class SettingsScreen extends ChestInventory {
 
         // Allow the chest to have a custom name
         builder.replace("rename-item", Collections.singletonMap("%chest-name%", String.valueOf(chest.getName())));
+
+        if (AutoSellChests.getInstance().getHologramManager().isEnabled()) {
+            builder.enableItem("hologram-item");
+            builder.replace("hologram-item", Collections.singletonMap("%value%", String.valueOf(chest.isHologram())));
+        }
 
         this.inv = builder.build();
     }

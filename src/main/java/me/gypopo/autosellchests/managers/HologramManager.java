@@ -48,7 +48,7 @@ public class HologramManager {
     private void tickHolograms() {
         this.plugin.runTaskAsyncTimer(() -> {
             for (Chest c : this.plugin.getManager().getLoadedChests().values()) {
-                if (!c.isLoaded())
+                if (!c.isLoaded() || !c.isHologram())
                     continue;
 
                 this.provider.tickHologram(c, this.getNextInterval(c));

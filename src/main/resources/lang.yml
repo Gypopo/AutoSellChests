@@ -66,6 +66,8 @@ toggle-sold-items-logging: "<gradient:#FF4A4A>Toggle sold item logging</gradient
 current-value: "&eCurrent value: &a%value%"
 # Change the chest name
 change-chest-name: "<gradient:#FF4A4A>Click to update the name of this chest</gradient:#FFDBDB>"
+# The setting item to toggle the chest hologram
+toggle-chest-hologram: "<gradient:#FF4A4A>Click to toggle the chest hologram</gradient:#FFDBDB>"
 # The current name of the AutoSellChest
 current-displayname: "&eCurrent: &a%chest-name%"
 # When a sell chest is placed against a regular chest

@@ -6,8 +6,10 @@ import me.gypopo.autosellchests.util.Gradient;
 import me.gypopo.autosellchests.util.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -73,6 +75,7 @@ public enum Lang {
     CURRENT_VALUE("&eCurrent value: &a%value%"),
     CHANGE_CHEST_NAME("&c&lClick to update the name"),
     CURRENT_DISPLAYNAME("&eCurrent: &a%chest-name%"),
+    TOGGLE_CHEST_HOLOGRAM("&c&lClick to toggle the chest hologram"),
 
     // Enter name menu
     ENTER_NAME_MENU_TITLE("&8&lEnter new name"),
@@ -172,13 +175,36 @@ public enum Lang {
     }
 
     private static void loadLanguageFile() {
+        if (configFile.exists()) {
 
-        File lang = new File(plugin.getDataFolder(), "lang.yml");
-        if (lang.exists()) {
-            // Make sure it is up to date
-            ConfigUtil.save(plugin.loadConfiguration(configFile, "lang.yml"), new File(plugin.getDataFolder(), "lang.yml"));
-        } else AutoSellChests.getInstance().saveResource("lang.yml", false);
+            // The edited config inside the data folder
+            final FileConfiguration c = AutoSellChests.getInstance().loadConfiguration(configFile, "lang.yml");
+            if (c == null) return;
 
-        config = plugin.loadConfiguration(new File(plugin.getDataFolder(), "lang.yml"), "lang.yml");
+            // Copy the default file inside the jar with all comments
+            AutoSellChests.getInstance().saveResource("lang.yml", true);
+
+            // New config in the datafolder
+            FileConfiguration conf = AutoSellChests.getInstance().loadConfiguration(configFile, "lang.yml");
+
+            // Set the original strings back
+            for (String str : c.getKeys(false)) {
+                conf.set(str, c.get(str));
+            }
+
+            // Save the edited strings to the file
+            ConfigUtil.save(conf, configFile);
+
+            // Reload the config
+            config = conf;
+
+        } else {
+            AutoSellChests.getInstance().saveResource("lang.yml", false);
+            // Set the config
+            config = AutoSellChests.getInstance().loadConfiguration(configFile, "lang.yml");
+        }
+
+        // Set the defaults
+        config.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(AutoSellChests.getInstance().getResource("lang.yml"))));
     }
 }
