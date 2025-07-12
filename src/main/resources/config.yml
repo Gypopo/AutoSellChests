@@ -1,5 +1,5 @@
 # Do not change this value as it might end up in a plugin that does not work
-config-version: 1.1.0
+config-version: 1.1.1
 
 # This is the interval for when a sell chest should sell its contents
 # For example, you can use '1d 2h 3m 4s' where the interval then would be 1 day, 2 hours, 3 minutes and 4 seconds
@@ -7,8 +7,10 @@ autosell-interval: "10m"
 
 # The holograms above the SellChest showing info about the chest
 # This feature requires DecentHolograms
+# The display range is the amount of blocks players can be away from the hologram for it to show(Default 48)
 chest-holograms:
   enabled: true
+  display-range: 10
   lines:
   - "%chest-name%"
   - "Next sell: %next-interval%"

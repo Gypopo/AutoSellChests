@@ -76,13 +76,19 @@ settings-menu:
       name: "%translations-toggle-sold-items-logging%"
       lore:
       - "%translations-current-value%"
-      slot: 3
+      slot: 2
     rename-item:
       material: "NAME_TAG"
       name: "%translations-change-chest-name%"
       lore:
       - "%translations-current-displayname%"
-      slot: 7
+      slot: 8
+    hologram-item:
+      material: "ARMOR_STAND"
+      name: "%translations-toggle-chest-hologram%"
+      lore:
+      - "%translations-current-value%"
+      slot: 5
 
 # Represents the settings menu of a chest
 upgrade-menu:

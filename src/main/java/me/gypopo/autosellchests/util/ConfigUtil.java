@@ -2,6 +2,7 @@ package me.gypopo.autosellchests.util;
 
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -41,6 +42,34 @@ public class ConfigUtil {
                 plugin.newPriceFormat = false;
 
                 configVer = 110;
+            }
+
+            if (configVer == 110) {
+                Config.get().set("chest-holograms.display-range", 5);
+
+                // Add the new item to the default settings menu
+                File file = new File(plugin.getDataFolder(), "menus.yml");
+                YamlConfiguration menuConfig = plugin.loadConfiguration(file, "menus.yml");
+
+                // Only update if config is has default meny
+                if (menuConfig.getInt("settings-menu.items.logging-item.slot") == 3 &&
+                        menuConfig.getInt("settings-menu.items.rename-item.slot") == 7) {
+                    // Add the toggle hologram item to the settings menu
+                    ConfigurationSection item = menuConfig.createSection("settings-menu.items.hologram-item");
+                    item.set("material", "ARMOR_STAND");
+                    item.set("name", "%translations-toggle-chest-hologram%");
+                    item.set("lore", Collections.singletonList("%translations-current-value%"));
+                    item.set("slot", 5);
+                    menuConfig.set("settings-menu.items.hologram-item", item);
+
+                    menuConfig.set("settings-menu.items.logging-item.slot", 2);
+                    menuConfig.set("settings-menu.items.rename-item.slot", 8);
+
+                    ConfigUtil.save(menuConfig, file);
+                }
+
+
+                configVer = 111;
             }
 
             Config.get().set("config-version", getConfigVersion(configVer));
