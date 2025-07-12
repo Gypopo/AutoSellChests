@@ -15,14 +15,18 @@ public class HologramManager {
     public HologramManager(AutoSellChests plugin) {
         this.plugin = plugin;
 
-        if (plugin.getServer().getPluginManager().getPlugin("DecentHolograms") != null) {
+        if (Config.get().getBoolean("chest-holograms.enabled") &&
+                plugin.getServer().getPluginManager().getPlugin("DecentHolograms") != null) {
             this.provider = new DecentHologramHook();
         } else
             this.provider = new FakeHologramHook();
 
-        if (Config.get().getBoolean("chest-holograms.enabled") &&
-                !(this.provider instanceof FakeHologramHook))
+        if (!(this.provider instanceof FakeHologramHook))
             this.tickHolograms();
+    }
+
+    public boolean isEnabled() {
+        return !(this.provider instanceof FakeHologramHook);
     }
 
     public void loadHologram(Chest chest) {
