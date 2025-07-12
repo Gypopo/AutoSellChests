@@ -19,6 +19,7 @@ public class DecentHologramHook implements HologramProvider {
 
     private static final String H_PREFIX = "ASC_";
     private final List<String> lines;
+    private final int display_range;
     private int tickLine; // The index of the hologram line which holds the %next-interval% ph
 
     public DecentHologramHook() {
@@ -29,6 +30,8 @@ public class DecentHologramHook implements HologramProvider {
                 this.tickLine = i;
         }
         this.lines = lines.stream().map(s -> Lang.formatColors(s, null)).collect(Collectors.toList());
+
+        this.display_range = Config.get().getInt("chest-holograms.display-range");
     }
 
     @Override
@@ -58,6 +61,8 @@ public class DecentHologramHook implements HologramProvider {
         } else {
             h = DHAPI.createHologram(H_PREFIX + chest.getId(), new Location(Bukkit.getWorld(loc.getLeftLocation().world), loc.getLeftLocation().x + 0.5, loc.getLeftLocation().y + 2, loc.getLeftLocation().z + 0.5), false, this.getLines(chest));
         }
+
+        h.setDisplayRange(display_range);
 
         Logger.debug("Created hologram for chest " + chest.getId());
         h.enable();
