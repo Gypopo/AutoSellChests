@@ -45,7 +45,7 @@ public class ConfigUtil {
             }
 
             if (configVer == 110) {
-                Config.get().set("chest-holograms.display-range", 5);
+                Config.get().set("chest-holograms.display-range", 10);
 
                 // Add the new item to the default settings menu
                 File file = new File(plugin.getDataFolder(), "menus.yml");
@@ -68,8 +68,21 @@ public class ConfigUtil {
                     ConfigUtil.save(menuConfig, file);
                 }
 
+                String[] romanNumerals = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
 
-                configVer = 111;
+                // Add the upgrade lvl name settings
+                List<String> intervalUpgrades = new ArrayList<>(Config.get().getConfigurationSection("interval-upgrades").getKeys(false));
+                for (int i = 0; i < intervalUpgrades.size(); i++) {
+                    if (Config.get().getString("interval-upgrades." + intervalUpgrades.get(i) + ".lvl-name", null) == null)
+                        Config.get().set("interval-upgrades." + intervalUpgrades.get(i) + ".lvl-name", romanNumerals[i]);
+                }
+                List<String> multiplierUpgrades = new ArrayList<>(Config.get().getConfigurationSection("multiplier-upgrades").getKeys(false));
+                for (int i = 0; i < multiplierUpgrades.size(); i++) {
+                    if (Config.get().getString("multiplier-upgrades." + multiplierUpgrades.get(i) + ".lvl-name", null) == null)
+                        Config.get().set("multiplier-upgrades." + multiplierUpgrades.get(i) + ".lvl-name", romanNumerals[i]);
+                }
+
+                configVer = 120;
             }
 
             Config.get().set("config-version", getConfigVersion(configVer));

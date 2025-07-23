@@ -24,6 +24,11 @@ public class DefaultMultiplier implements PriceMultiplier, ChestUpgrade {
     }
 
     @Override
+    public String getLevelName() {
+        return "default";
+    }
+
+    @Override
     public ItemStack getUpgradeItem(boolean doubleChest) {
         return null;
     }

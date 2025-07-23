@@ -5,6 +5,7 @@ import eu.decentsoftware.holograms.api.holograms.Hologram;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.HologramProvider;
+import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.util.Logger;
@@ -130,11 +131,12 @@ public class DecentHologramHook implements HologramProvider {
         ArrayList<String> lines = new ArrayList<>(this.lines);
         for (int i = 0; i < lines.size(); i++) {
             String l = lines.get(i);
-            if (l.contains("%next-interval%")) {
-                lines.set(i, l.replace("%next-interval%", TimeUtils.getReadableTime(chest.getNextInterval() - System.currentTimeMillis())));
-            } else if (l.contains("%chest-name%")) {
-                lines.set(i, l.replace("%chest-name%", chest.getName()));
-            }
+            lines.set(i, l.replace("%next-interval%", TimeUtils.getReadableTime(chest.getNextInterval() - System.currentTimeMillis()))
+                    .replace("%chest-name%", chest.getName())
+                    .replace("%multiplier-name%", UpgradeManager.multiplierUpgrades ? UpgradeManager.getMultiplierUpgrade(chest.getMultiplierUpgrade()).getName() : "")
+                    .replace("%multiplier-level%", UpgradeManager.multiplierUpgrades ? UpgradeManager.getMultiplierUpgrade(chest.getMultiplierUpgrade()).getLevelName() : "")
+                    .replace("%interval-name%", UpgradeManager.intervalUpgrades ? UpgradeManager.getIntervalUpgrade(chest.getIntervalUpgrade()).getName() : "")
+                    .replace("%interval-level%", UpgradeManager.intervalUpgrades ? UpgradeManager.getIntervalUpgrade(chest.getIntervalUpgrade()).getLevelName() : ""));
         }
 
         return lines;

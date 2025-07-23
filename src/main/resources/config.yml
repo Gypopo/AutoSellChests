@@ -1,5 +1,5 @@
 # Do not change this value as it might end up in a plugin that does not work
-config-version: 1.1.1
+config-version: 1.2.0
 
 # This is the interval for when a sell chest should sell its contents
 # For example, you can use '1d 2h 3m 4s' where the interval then would be 1 day, 2 hours, 3 minutes and 4 seconds
@@ -28,6 +28,8 @@ interval-upgrades:
     price: 0
     # The upgrade name
     name: "&7&lInterval level &f&lI"
+    # A short name of the current level, used in placeholders
+    lvl-name: "I"
     # The lore of the upgrade item
     lore:
     - "&aClick to upgrade to &e&llevel &f&lII"
@@ -48,6 +50,7 @@ interval-upgrades:
     # It is possible to specify a direct currency like EXP::2000, but requires the currency to be registered within EconomyShopGUI
     price: 15000
     name: "&7&lInterval level &f&lII"
+    lvl-name: "II"
     lore:
       - "&aClick to upgrade to &e&llevel &f&lIII"
       - " "
@@ -64,6 +67,7 @@ interval-upgrades:
     weight: 30
     price: 35000
     name: "&7&lInterval level &f&lIII"
+    lvl-name: "III"
     lore:
       - "&aClick to upgrade to &e&llevel &f&lIV"
       - " "
@@ -78,6 +82,7 @@ interval-upgrades:
     weight: 40
     price: 60000
     name: "&7&lInterval level &f&lIV"
+    lvl-name: "IV"
     lore:
       - "&cAlready at max level, cannot upgrade again."
     enchanted: true
@@ -96,6 +101,8 @@ multiplier-upgrades:
     price: 0
     # The upgrade name
     name: "&7&lMultiplier level &f&lI"
+    # A short name of the current level, used in placeholders
+    lvl-name: "I"
     # The lore of the upgrade item
     lore:
       - "&aClick to upgrade to &e&llevel &f&lII"
@@ -116,6 +123,7 @@ multiplier-upgrades:
     # It is possible to specify a direct currency like EXP::2000, but requires the currency to be registered within EconomyShopGUI
     price: 45000
     name: "&7&lMultiplier level &f&lII"
+    lvl-name: "II"
     lore:
       - "&aClick to upgrade to &e&llevel &f&lIII"
       - " "
@@ -131,6 +139,7 @@ multiplier-upgrades:
     weight: 30
     price: 75000
     name: "&7&lMultiplier level &f&lIII"
+    lvl-name: "III"
     lore:
       - "&aClick to upgrade to &e&llevel &f&lIV"
       - " "
@@ -145,6 +154,7 @@ multiplier-upgrades:
     weight: 40
     price: 110000
     name: "&7&lMultiplier level &f&lIV"
+    lvl-name: "IV"
     lore:
       - "&cAlready at max level, cannot upgrade again."
     enchanted: true
