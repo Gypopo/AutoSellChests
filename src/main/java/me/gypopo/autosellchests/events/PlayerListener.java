@@ -264,6 +264,9 @@ public class PlayerListener implements Listener {
                 ChestUpgrade nextUpgrade = UpgradeManager.getIntervalUpgrade(nextInterval);
                 if (nextUpgrade != null && nextUpgrade.buy(p, chest.isDoubleChest())) {
                     this.plugin.getManager().updateChestInterval(chest, nextInterval);
+                    if (this.plugin.getHologramManager().isEnabled() && chest.isHologram())
+                        this.plugin.getHologramManager().updateHologram(chest);
+
                     inv.updateInventory(p);
 
                     Logger.sendPlayerMessage(p, Lang.CHEST_INTERVAL_UPGRADED.get()
@@ -281,6 +284,9 @@ public class PlayerListener implements Listener {
                 if (nextUpgrade != null && nextUpgrade.buy(p, chest.isDoubleChest())) {
                     chest.setMultiplierUpgrade(nextMultiplier);
                     chest.setMultiplier(UpgradeManager.getMultipliers()[nextMultiplier]);
+                    if (this.plugin.getHologramManager().isEnabled() && chest.isHologram())
+                        this.plugin.getHologramManager().updateHologram(chest);
+
                     inv.updateInventory(p);
 
                     Logger.sendPlayerMessage(p, Lang.CHEST_MULTIPLIER_UPGRADED.get()
