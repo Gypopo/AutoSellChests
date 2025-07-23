@@ -34,6 +34,7 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
 
     private final Material item;
     private final String name;
+    private final String lvlName;
     private final List<String> lore;
     private final boolean enchanted;
 
@@ -58,10 +59,11 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
         this.interval = this.getSellInterval(section.getString("interval"));
         this.ticks = this.interval / 1000L * 20L;
 
-        this.name = ChatColor.translateAlternateColorCodes('&', section.getString("name"));
+        this.name = Lang.formatColors(section.getString("name"));
         if (this.name == null)
             throw new UpgradeLoadException("Failed to get name of upgrade", null);
-        this.lore = section.getStringList("lore").stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).collect(Collectors.toList());
+        this.lvlName = Lang.formatColors(section.getString("lvl-name", String.valueOf(level)));
+        this.lore = section.getStringList("lore").stream().map(Lang::formatColors).collect(Collectors.toList());
         this.enchanted = section.getBoolean("enchanted");
 
         try {
@@ -74,6 +76,11 @@ public class IntervalUpgrade implements ChestInterval, ChestUpgrade {
     @Override
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public String getLevelName() {
+        return this.lvlName;
     }
 
     @Override

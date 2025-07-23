@@ -131,7 +131,7 @@ public enum Lang {
             } catch (NullPointerException npe) {
                 value = def;
             }
-            value = formatColors(value, this.findGradient(value));
+            value = formatColors(value, findGradient(value));
 
             messages.put(key, value);
             return value;
@@ -147,7 +147,7 @@ public enum Lang {
         }
     }
 
-    private Gradient findGradient(String value) {
+    private static Gradient findGradient(String value) {
         Matcher matcher = startGradientPattern.matcher(value);
 
         if (matcher.find()) {
@@ -158,6 +158,10 @@ public enum Lang {
                 return new Gradient(g1, g2, value);
             } else return null; // No gradient defined
         } else return null; // No gradient defined
+    }
+
+    public static String formatColors(String value) {
+        return formatColors(value, findGradient(value));
     }
 
     public static String formatColors(String value, Gradient gradient) {
