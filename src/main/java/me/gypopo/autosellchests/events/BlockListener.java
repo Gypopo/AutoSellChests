@@ -4,6 +4,7 @@ import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.objects.Chest;
 import me.gypopo.autosellchests.objects.ChestLocation;
 import me.gypopo.autosellchests.util.Logger;
+import org.bukkit.ExplosionResult;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
@@ -31,7 +32,9 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityExplode(EntityExplodeEvent event) {
-        if (event.isCancelled())
+        if (event.isCancelled() ||
+                (this.plugin.version == 121 &&
+                        (event.getExplosionResult() == ExplosionResult.TRIGGER_BLOCK || event.getExplosionResult() == ExplosionResult.KEEP)))
             return;
 
         this.handleBlockExploison(event.blockList());
