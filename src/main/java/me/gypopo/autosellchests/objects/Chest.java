@@ -81,7 +81,7 @@ public class Chest {
 
     private int getIntervalLevel(String settings) {
         try {
-            return Integer.parseInt(settings.split("\\|")[1]);
+            return Integer.min(Integer.parseInt(settings.split("\\|")[1]), UpgradeManager.getIntervals().length-1);
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             Logger.warn("Failed to load interval level for '" + settings + "' for chest " + this.id + ", using default...");
             return 0;
@@ -90,7 +90,7 @@ public class Chest {
 
     private int getMultiplierLevel(String settings) {
         try {
-            return Integer.parseInt(settings.split("\\|")[2]);
+            return Integer.min(Integer.parseInt(settings.split("\\|")[2]), UpgradeManager.getMultipliers().length-1);
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             Logger.warn("Failed to load multiplier level for '" + settings + "' for chest " + this.id + ", using default...");
             return 0;
