@@ -126,6 +126,9 @@ public class SimpleInventoryBuilder {
 
     // Used to get the slot of a item, for reference only
     public int getSlot(String item) {
+        if (!this.items.containsKey(item))
+            return -1;
+
         return this.items.get(item).key;
     }
 
