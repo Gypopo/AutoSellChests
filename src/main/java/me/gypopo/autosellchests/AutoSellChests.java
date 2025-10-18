@@ -281,7 +281,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.upgradeManager = new UpgradeManager(this);
             this.manager.load();
 
-            // ShopItemsLoadEvent.getHandlerList().unregister((Listener) this);
+            ShopItemsLoadEvent.getHandlerList().unregister((Listener) this);
         }, 5L); // Run a few ticks later so EconomyShopGUI can completely finish loading(Optional)
     }
 
