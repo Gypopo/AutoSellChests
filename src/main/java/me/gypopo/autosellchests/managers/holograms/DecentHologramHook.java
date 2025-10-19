@@ -131,7 +131,7 @@ public class DecentHologramHook implements HologramProvider {
         ArrayList<String> lines = new ArrayList<>(this.lines);
         for (int i = 0; i < lines.size(); i++) {
             String l = lines.get(i);
-            lines.set(i, l.replace("%next-interval%", TimeUtils.getReadableTime(chest.getNextInterval() - System.currentTimeMillis()))
+            lines.set(i, l.replace("%next-interval%", TimeUtils.getReadableTime(chest.getNextInterval() - (System.currentTimeMillis() - 1000L)))
                     .replace("%chest-name%", chest.getName())
                     .replace("%multiplier-name%", UpgradeManager.multiplierUpgrades ? UpgradeManager.getMultiplierUpgrade(chest.getMultiplierUpgrade()).getName() : "")
                     .replace("%multiplier-level%", UpgradeManager.multiplierUpgrades ? UpgradeManager.getMultiplierUpgrade(chest.getMultiplierUpgrade()).getLevelName() : "")

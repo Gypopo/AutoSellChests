@@ -57,6 +57,6 @@ public class HologramManager {
     }
 
     private String getNextInterval(Chest chest) {
-        return TimeUtils.getReadableTime(chest.getNextInterval() - System.currentTimeMillis());
+        return TimeUtils.getReadableTime(chest.getNextInterval() - (System.currentTimeMillis() - 1000L));
     }
 }

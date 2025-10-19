@@ -81,7 +81,7 @@ public class InformationScreen implements InventoryHolder {
     }
 
     private String getNextInterval() {
-        return TimeUtils.getReadableTime(this.chest.getNextInterval() - System.currentTimeMillis());
+        return TimeUtils.getReadableTime(this.chest.getNextInterval() - (System.currentTimeMillis() - 1000L));
     }
 
     private SimplePair<Integer, String> getIndex(ItemStack item, String toFind) {
