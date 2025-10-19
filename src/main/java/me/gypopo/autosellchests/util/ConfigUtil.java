@@ -85,6 +85,20 @@ public class ConfigUtil {
                 configVer = 120;
             }
 
+            if (configVer == 120) {
+                String name = Config.get().getString("sellchest-name");
+                if (name != null) {
+                    Config.get().set("sell-chest-item.name", name);
+                    Config.get().set("sellchest-name", null);
+                }
+
+                List<String> lore = Config.get().getStringList("sellchest-lore");
+                Config.get().set("sell-chest-item.lore", lore);
+                Config.get().set("sellchest-lore", null);
+
+                configVer = 130;
+            }
+
             Config.get().set("config-version", getConfigVersion(configVer));
             Config.save();
             Config.reload();

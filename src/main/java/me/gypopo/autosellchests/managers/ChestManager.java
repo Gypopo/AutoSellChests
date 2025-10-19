@@ -56,7 +56,7 @@ public class ChestManager {
         this.maxSellChestsPlayer = Config.get().getInt("max-sellchests.default");
 
         defaultChestName = Lang.formatColors(Config.get().getString("default-chest-name"), null);
-        chestName = Lang.formatColors(Config.get().getString("sellchest-name"), null);
+        chestName = Lang.formatColors(Config.get().getString("sell-chest-item.name"), null);
 
         fillItem = ChestManager.createFillItem();
 
