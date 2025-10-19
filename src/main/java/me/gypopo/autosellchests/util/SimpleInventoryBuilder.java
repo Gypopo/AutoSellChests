@@ -119,6 +119,9 @@ public class SimpleInventoryBuilder {
                 meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             } else meta.setEnchantmentGlintOverride(true);
         }
+        if (config.contains("CustomModelData"))
+            meta.setCustomModelData(config.getInt("CustomModelData"));
+
         item.setItemMeta(meta);
 
         return item;

@@ -264,7 +264,11 @@ public class ChestManager {
         ItemStack item = new ItemStack(Material.CHEST, amount);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(chestName);
-        meta.setLore(Config.get().getStringList("sellchest-lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", TimeUtils.getReadableTime(this.getInterval(settings))), null)).collect(Collectors.toList()));
+        meta.setLore(Config.get().getStringList("sell-chest-item.lore").stream().map(s -> Lang.formatColors(s.replace("%interval%", TimeUtils.getReadableTime(this.getInterval(settings))), null)).collect(Collectors.toList()));
+        int cmd = Config.get().getInt("sell-chest-item.CustomModelData");
+        if (cmd != 0)
+            meta.setCustomModelData(cmd);
+
         meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell"), PersistentDataType.INTEGER, 1);
         meta.getPersistentDataContainer().set(new NamespacedKey(this.plugin, "autosell-data"), PersistentDataType.STRING, settings == null ? new ChestSettings().toString() : settings.toString());
         item.setItemMeta(meta);
@@ -370,6 +374,10 @@ public class ChestManager {
 
         String name = Config.get().getString("fill-item.name");
         meta.setDisplayName(name != null ? ChatColor.translateAlternateColorCodes('&', name) : " ");
+
+        int cmd = Config.get().getInt("fill-item.CustomModelData");
+        if (cmd != 0)
+            meta.setCustomModelData(cmd);
 
         item.setItemMeta(meta);
         return item;
