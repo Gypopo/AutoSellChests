@@ -194,11 +194,11 @@ public class ChestManager {
             original = this.plugin.getDatabase().loadChest(location);
             original.setLoaded(true);
 
-            // Create hologram
-            this.plugin.getHologramManager().loadHologram(original);
-
             // Add to queue
             this.scheduler.queueChest(original);
+
+            // Create hologram
+            this.plugin.getHologramManager().loadHologram(original);
 
             // Put in memory
             this.loadedChests.put(location, original);
