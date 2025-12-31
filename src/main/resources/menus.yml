@@ -90,7 +90,7 @@ settings-menu:
       - "%translations-current-value%"
       slot: 5
 
-# Represents the settings menu of a chest
+# Represents the upgrades menu of a chest
 upgrade-menu:
   # The title of the inventory
   title: "%translations-chest-upgrade-title%"
