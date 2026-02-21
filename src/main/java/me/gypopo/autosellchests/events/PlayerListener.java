@@ -251,8 +251,9 @@ public class PlayerListener implements Listener {
                             .title(Lang.ENTER_NAME_MENU_TITLE.get())
                             .plugin(this.plugin)
                             .open((Player) e.getWhoClicked());
-                } catch (Exception ex) {
+                } catch (Exception | NoClassDefFoundError ex) {
                     Logger.warn("Failed to open rename chest GUI, your server version(" + Bukkit.getBukkitVersion() + ") is not supported!");
+                    ex.printStackTrace();
                 }
             } else if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("hologram-item")) {
                 this.plugin.getHologramManager().removeHologram(chest);
