@@ -236,20 +236,24 @@ public class PlayerListener implements Listener {
                 inv.updateInventory((Player) e.getWhoClicked());
             } else if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("rename-item")) {
                 inv.update();
-                new AnvilGUI.Builder()
-                        .onClick((i, state) -> {
-                            if (!state.getText().isEmpty())
-                                chest.setName(Lang.formatColors(state.getText(), null));
+                try {
+                    new AnvilGUI.Builder()
+                            .onClick((i, state) -> {
+                                if (!state.getText().isEmpty())
+                                    chest.setName(Lang.formatColors(state.getText(), null));
 
-                            this.plugin.getHologramManager().updateHologram(chest);
-                            inv.updateInventory((Player) e.getWhoClicked());
-                            return Collections.singletonList(AnvilGUI.ResponseAction.close());
-                        })
-                        .text(chest.getName())
-                        .itemLeft(new ItemStack(Material.PAPER))
-                        .title(Lang.ENTER_NAME_MENU_TITLE.get())
-                        .plugin(this.plugin)
-                        .open((Player) e.getWhoClicked());
+                                this.plugin.getHologramManager().updateHologram(chest);
+                                inv.updateInventory((Player) e.getWhoClicked());
+                                return Collections.singletonList(AnvilGUI.ResponseAction.close());
+                            })
+                            .text(chest.getName())
+                            .itemLeft(new ItemStack(Material.PAPER))
+                            .title(Lang.ENTER_NAME_MENU_TITLE.get())
+                            .plugin(this.plugin)
+                            .open((Player) e.getWhoClicked());
+                } catch (Exception ex) {
+                    Logger.warn("Failed to open rename chest GUI, your server version(" + Bukkit.getBukkitVersion() + ") is not supported!");
+                }
             } else if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("hologram-item")) {
                 this.plugin.getHologramManager().removeHologram(chest);
                 chest.setHologram(!chest.isHologram());
