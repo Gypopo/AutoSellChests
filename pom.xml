@@ -6,7 +6,7 @@
 
     <groupId>me.gypopo</groupId>
     <artifactId>autosellchests</artifactId>
-    <version>2.8.2</version>
+    <version>2.9.0</version>
     <packaging>jar</packaging>
 
     <name>AutoSellChests</name>
@@ -23,7 +23,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.14.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -32,7 +32,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>3.6.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -80,6 +80,10 @@
             <url>https://jitpack.io</url>
         </repository>
         <repository>
+            <id>fancyinnovations-releases</id>
+            <url>https://repo.fancyinnovations.com/releases</url>
+        </repository>
+        <repository>
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
@@ -99,6 +103,10 @@
             <id>essentials-repo</id>
             <url>https://repo.essentialsx.net/releases/</url>
         </repository>
+        <repository>
+            <id>mvn-wesjd-net</id>
+            <url>https://mvn.wesjd.net/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -111,7 +119,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.21.11-R0.1-SNAPSHOT</version>
+            <version>26.1.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -123,7 +131,7 @@
         <dependency>
             <groupId>net.wesjd</groupId>
             <artifactId>anvilgui</artifactId>
-            <version>1.10.11-SNAPSHOT</version>
+            <version>1.10.12-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.decentsoftware-eu</groupId>
@@ -138,9 +146,21 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.Zrips.CMI</groupId>
-            <artifactId>CMI</artifactId>
-            <version>9.7.0.1</version>
+            <groupId>com.github.Zrips</groupId>
+            <artifactId>CMI-API</artifactId>
+            <version>9.7.14.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Zrips</groupId>
+            <artifactId>CMILib</artifactId>
+            <version>1.5.7.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.oliver</groupId>
+            <artifactId>FancyHolograms</artifactId>
+            <version>2.9.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
