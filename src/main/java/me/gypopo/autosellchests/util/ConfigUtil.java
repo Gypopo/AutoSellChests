@@ -99,6 +99,12 @@ public class ConfigUtil {
                 configVer = 130;
             }
 
+            if (configVer == 130) {
+                Config.get().set("chest-holograms.update-interval", "1s");
+
+                configVer = 131;
+            }
+
             Config.get().set("config-version", getConfigVersion(configVer));
             Config.save();
             Config.reload();

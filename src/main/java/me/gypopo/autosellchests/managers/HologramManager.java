@@ -64,6 +64,14 @@ public class HologramManager {
     }
 
     private void tickHolograms() {
+        long millis = 20L;
+        try {
+            millis = TimeUtils.getTime(Config.get().getString("chest-holograms.update-interval", "1s")) / 50;
+        } catch (ParseException e) {
+            Logger.warn("Failed to parse chest hologram update interval for " + Config.get().getString("chest-holograms.update-interval") + " with reason: " + e.getMessage());
+            e.printStackTrace();
+        }
+
         this.plugin.runTaskAsyncTimer(() -> {
             for (Chest c : this.plugin.getManager().getLoadedChests().values()) {
                 if (!c.isLoaded() || !c.isHologram())
@@ -71,7 +79,7 @@ public class HologramManager {
 
                 this.provider.tickHologram(c, this.getNextInterval(c));
             }
-        }, 0L, 20L);
+        }, 0L, millis);
     }
 
     private String getNextInterval(Chest chest) {

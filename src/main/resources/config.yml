@@ -1,12 +1,12 @@
 # Do not change this value as it might end up in a plugin that does not work
-config-version: 1.3.0
+config-version: 1.3.1
 
 # This is the interval for when a sell chest should sell its contents
 # For example, you can use '1d 2h 3m 4s' where the interval then would be 1 day, 2 hours, 3 minutes and 4 seconds
 autosell-interval: "10m"
 
 # The holograms above the SellChest showing info about the chest
-# This feature requires DecentHolograms
+# Currently supported hologram plugins are DecentHolograms, FancyHolograms and CMI holograms
 # The display range is the amount of blocks players can be away from the hologram for it to show(Default 48)
 #
 # Supported placeholders:
@@ -18,6 +18,9 @@ chest-holograms:
   lines:
   - "%chest-name%"
   - "Next sell: %next-interval%"
+  # The update time for each chest hologram
+  # Extend the time if having performance issues
+  update-interval: 1s
 
 # When disabled, the option to upgrade the interval per chest will be disabled and the sell interval specified above will be used
 enable-interval-upgrades: true
@@ -200,7 +203,7 @@ crafting:
 # AFK Prevention
 # When enabled, this prevents sell chests to sell whenever the owner is AFK
 afk-prevention: false
-# Note: currently AFK is detected by CMI or Essentials
+# Current supported AFK plugins are CMI or Essentials
 
 # The default chest name for displaying in chat, ...
 # The chest name can be changed in chest settings
