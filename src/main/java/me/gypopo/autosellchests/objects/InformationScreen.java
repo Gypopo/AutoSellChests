@@ -7,7 +7,7 @@ import me.gypopo.autosellchests.managers.ChestManager;
 import me.gypopo.autosellchests.managers.UpgradeManager;
 import me.gypopo.autosellchests.util.*;
 import me.gypopo.autosellchests.util.exceptions.InventoryLoadException;
-import me.gypopo.autosellchests.util.scheduler.Task;
+import com.gpplugins.gplib.scheduling.Task;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

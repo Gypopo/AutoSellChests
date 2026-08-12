@@ -1,5 +1,5 @@
 name: AutoSellChests
-version: '2.9.0'
+version: '3.0.0'
 main: me.gypopo.autosellchests.AutoSellChests
 description: A addon for EconomyShopGUI which uses custom chests to automatically sell its contents to shop
 api-version: '1.19'
@@ -21,6 +21,22 @@ dependencies:
     DecentHolograms:
       required: false
     FancyHolograms:
+      required: false
+    HolographicDisplays:
+      required: false
+
+    WorldEdit:
+      required: false
+    FastAsyncWorldEdit:
+      required: false
+
+    WorldGuard:
+      required: false
+    ChestProtect:
+      required: false
+    Lands:
+      required: false
+    Towny:
       required: false
 
 permissions:

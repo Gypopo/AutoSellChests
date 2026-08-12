@@ -1,5 +1,5 @@
 name: AutoSellChests
-version: 2.9.0
+version: 3.0.0
 main: me.gypopo.autosellchests.AutoSellChests
 api-version: 1.16
 authors: [ Gypopo ]
@@ -13,8 +13,17 @@ softdepend:
   - Essentials
   - CMI
 
-  - DecentHolograms
   - FancyHolograms
+  - DecentHolograms
+  - HolographicDisplays
+
+  - WorldEdit
+  - FastAsyncWorldEdit
+
+  - WorldGuard
+  - ChestProtect
+  - Lands
+  - Towny
 
 permissions:
   autosellchests.use:

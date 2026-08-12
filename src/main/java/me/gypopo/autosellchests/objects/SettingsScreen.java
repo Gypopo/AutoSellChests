@@ -3,7 +3,6 @@ package me.gypopo.autosellchests.objects;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.managers.ChestManager;
-import me.gypopo.autosellchests.managers.holograms.FakeHologramHook;
 import me.gypopo.autosellchests.util.SimpleInventoryBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
