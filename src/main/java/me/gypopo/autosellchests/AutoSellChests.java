@@ -1,5 +1,6 @@
 package me.gypopo.autosellchests;
 
+import com.gpplugins.gplib.util.ServerInfo;
 import me.gypopo.autosellchests.commands.SellChestCommand;
 import me.gypopo.autosellchests.database.SQLite;
 import me.gypopo.autosellchests.events.BlockListener;
@@ -12,11 +13,11 @@ import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionCMI;
 import me.gypopo.autosellchests.managers.AFKDetection.AFKDetectionEssentials;
 import me.gypopo.autosellchests.metrics.Metrics;
 import me.gypopo.autosellchests.objects.Chest;
+import me.gypopo.autosellchests.protection.ProtectionManager;
 import me.gypopo.autosellchests.util.*;
-import me.gypopo.autosellchests.util.scheduler.ServerScheduler;
-import me.gypopo.autosellchests.util.scheduler.Task;
-import me.gypopo.autosellchests.util.scheduler.schedulers.BukkitScheduler;
-import me.gypopo.autosellchests.util.scheduler.schedulers.FoliaScheduler;
+import com.gpplugins.gplib.scheduling.Scheduler;
+import com.gpplugins.gplib.scheduling.Schedulers;
+import com.gpplugins.gplib.scheduling.Task;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.api.events.ShopItemsLoadEvent;
 import me.gypopo.economyshopgui.util.EcoType;
@@ -45,7 +46,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     /**
      * Available versions: 18, 19, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119
      */
-    public final int version = this.getVersion();
+    public final int version = ServerInfo.getVersion();
 
     private static AutoSellChests instance;
     public static AutoSellChests getInstance() {return instance; }
@@ -53,8 +54,9 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private final SQLite database = new SQLite(this);
     private final TimeUtils timeUtils = new TimeUtils();
     private final NamespacedKey key = new NamespacedKey(this, "autosell");
-    private final ServerScheduler scheduler = this.getScheduler();
+    private final Scheduler scheduler = Schedulers.init(this);
     private ChestManager manager = new ChestManager(this);
+    private ProtectionManager protectionManager;
     private InventoryManager inventoryManager;
     private HologramManager hologramManager;
     private UpgradeManager upgradeManager;
@@ -64,6 +66,11 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     public boolean newPriceFormat = true; // New format to store prices in databases, as of ASC v2.7.0
     public boolean supportsNewAPI; // Whether we can use EconomyShopGUI API v1.7.0+
     public boolean debug;
+
+    @Override
+    public void onLoad() {
+        this.protectionManager = new ProtectionManager(this);
+    }
 
     @Override
     public void onEnable() {
@@ -136,7 +143,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         this.runTaskLater(() -> {
             if (!this.ready) {
                 if (!this.isPluginEnabled()) {
-                    this.getLogger().warning("Found EconomyShopGUI in a disabled state, please make sure it is enabled and up to date, disabling the plugin...");
+                    Logger.warn("Found EconomyShopGUI in a disabled state, please make sure it is enabled and up to date, disabling the plugin...");
                     this.getServer().getPluginManager().disablePlugin(this);
                     return;
                 }
@@ -185,6 +192,10 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         return this.afkManager;
     }
 
+    public ProtectionManager getProtectionManager() {
+        return this.protectionManager;
+    }
+
     public InventoryManager getInventoryManager() {
         return this.inventoryManager;
     }
@@ -202,46 +213,40 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         this.manager.load();
     }
 
+    public Scheduler getScheduler() {
+        return this.scheduler;
+    }
+
     public Task runTaskTimer(Runnable runnable, long delay, long period) {
-        return this.scheduler.runTaskTimer(this, runnable, delay, period);
+        return this.scheduler.runGlobalFixed(runnable, delay, period);
     }
 
     public void runTaskLater(Runnable runnable, long delay) {
-        this.scheduler.runTaskLater(this, runnable, delay);
+        this.scheduler.runGlobalTaskLater(runnable, delay);
     }
 
     public void runTaskLater(Runnable runnable, Location loc, long delay) {
-        this.scheduler.runTaskLater(this, loc, runnable, delay);
+        this.scheduler.runTaskForRegionLater(loc, runnable, delay);
     }
 
     public void runTask(Runnable runnable) {
-        this.scheduler.runTask(this, runnable);
+        this.scheduler.runGlobal(runnable);
     }
 
     public void runTask(Chest chest, Runnable runnable) {
-        this.scheduler.runTask(this, chest, runnable);
+        this.scheduler.runTaskForRegion(chest.getLocation().getLeftLocation().toLoc(), runnable);
     }
 
     public void runTaskAsync(Runnable runnable) {
-        this.scheduler.runTaskAsync(this, runnable);
+        this.scheduler.runAsync(runnable);
     }
 
     public Task runTaskAsyncTimer(Runnable runnable, long delay, long period) {
-        return this.scheduler.runTaskAsyncTimer(this, runnable, delay, period);
+        return this.scheduler.runAsyncFixed(runnable, delay, period);
     }
 
     public void callEvent(Event event) {
         this.getServer().getPluginManager().callEvent(event);
-    }
-
-    private Integer getVersion() {
-        String version = Bukkit.getBukkitVersion().split("-")[0];
-
-        if (StringUtils.countMatches(version, ".") == 2) {
-            return Integer.valueOf(version.substring(0, version.length() - 2).replace(".", ""));
-        } else {
-            return Integer.valueOf(version.replace(".", ""));
-        }
     }
 
     public YamlConfiguration loadConfiguration(File file, String fileName) {
@@ -276,6 +281,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
             if (Config.get().getBoolean("afk-prevention", false))
                 this.afkManager = this.getAfkManager();
+            this.protectionManager.init();
             this.inventoryManager = new InventoryManager();
             this.hologramManager = new HologramManager(this);
             this.upgradeManager = new UpgradeManager(this);
@@ -381,12 +387,4 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         return null;
     }
 
-    private ServerScheduler getScheduler() {
-        try {
-            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
-            return new FoliaScheduler(this);
-        } catch (ClassNotFoundException e) {
-            return new BukkitScheduler(this);
-        }
-    }
 }

@@ -6,7 +6,8 @@ config-version: 1.3.1
 autosell-interval: "10m"
 
 # The holograms above the SellChest showing info about the chest
-# Currently supported hologram plugins are DecentHolograms, FancyHolograms and CMI holograms
+# Currently supported hologram plugins different from the default ArmorStand provider
+# are DecentHolograms, FancyHolograms, HolographicDisplays and CMI holograms
 # The display range is the amount of blocks players can be away from the hologram for it to show(Default 48)
 #
 # Supported placeholders:
@@ -21,6 +22,7 @@ chest-holograms:
   # The update time for each chest hologram
   # Extend the time if having performance issues
   update-interval: 1s
+  offsetY: 1.4
 
 # When disabled, the option to upgrade the interval per chest will be disabled and the sell interval specified above will be used
 enable-interval-upgrades: true
@@ -177,6 +179,21 @@ max-sellchests:
     donator: 15
     devs: 20
 
+# Currently the plugin automatically hooks into plugins like
+# WorldGuard, Towny, Lands and ChestProtect to prevent players placing chests in protected areas
+protection:
+  # When enabled, simulates a fake block break event before placing a new sell chest
+  # and uses the outcome to determine if the player is allowed to place a sell chest at this location
+  # Which adds support for any protection plugins that AutoSellChests doesn't hook into
+  use-place-fallback-integration: true
+
+  # Specific settings for Towny Advanced
+  towny:
+    # By default sell chests are not allowed in the wild,
+    # enable this to allow players to create/place down a sell chest in the wild aswell
+    allow-wild-chest-placement: false
+    # Whether or not town members should only be able to place sell chests in shop plots
+    only-allow-chests-in-shop-plots: true
 
 # Whether the owner of the chest needs to be online for the chest to sell its contents
 online-chest-owner: true

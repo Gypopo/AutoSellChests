@@ -40,6 +40,8 @@ public enum Lang {
     CANNOT_PLACE_SELL_CHEST_HERE("&cYou may not place a #FF7070Sell#CDCDCDChest &chere"),
     CANNOT_PLACE_CHEST_AGAINST_SELL_CHEST("&cThis chest cannot be placed against a sell chest"),
     CANNOT_REMOVE_SELL_CHEST("&cYou do not have the required permissions to remove this sell chest"),
+    PROTECTION_PLUGIN_LOADED("Successfully loaded chest protection support from %plugin%"),
+    CANNOT_PLACE_CHEST_PROTECTED("&cCannot create a sell chest at this location"),
 
     // Formats
     LOCATION_FORMAT("World '%world%', x%pos_x%, y%pos_y%, z%pos_z%"),

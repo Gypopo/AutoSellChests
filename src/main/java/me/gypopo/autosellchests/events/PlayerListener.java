@@ -19,6 +19,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -95,7 +96,8 @@ public class PlayerListener implements Listener {
         new InformationScreen(chest, clicked.getLocation()).open(e.getPlayer());
     }
 
-    @EventHandler(ignoreCancelled = true)
+    // Lowest event prio to make sure we handle protection plugins first
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onBlockPlace(BlockPlaceEvent e) {
         if (!e.getBlockPlaced().getType().equals(Material.CHEST)) {
             return;
@@ -110,6 +112,12 @@ public class PlayerListener implements Listener {
         if (!e.getPlayer().hasPermission("autosellchests.place")) {
             Logger.sendPlayerMessage(e.getPlayer(), Lang.NO_PERMISSIONS.get());
             e.setCancelled(true);
+            return;
+        }
+
+        if (!this.plugin.getProtectionManager().canPlace(e.getPlayer(), e.getBlockPlaced())) {
+            Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_PLACE_CHEST_PROTECTED.get());
+            e.setCancelled(true); // Make sure no other plugin responds to the same event
             return;
         }
 
@@ -407,6 +415,9 @@ public class PlayerListener implements Listener {
     private void checkPlacement(Player player, Block block) {
         Location loc = block.getLocation();
         this.plugin.runTaskLater(() -> {
+            if (block.getType() != Material.CHEST)
+                return; // Check if the block still exists, cause protection plugins (ex. WorldGuard) cancel the event and the block won't exist anymore
+
             if (((org.bukkit.block.Chest) block.getState()).getInventory() instanceof DoubleChestInventory) {
                 DoubleChestInventory inv = (DoubleChestInventory) ((org.bukkit.block.Chest) block.getState()).getInventory();
                 Location original = inv.getLeftSide().getLocation().equals(loc) ? inv.getRightSide().getLocation() : inv.getLeftSide().getLocation();
