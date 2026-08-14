@@ -342,6 +342,19 @@ public class TextureManager {
         if (world == null)
             return;
 
+        float rotation = this.yaw;
+        BlockData data = world.getBlockAt(left.toLoc()).getBlockData();
+        if (data instanceof Directional rData) {
+            rotation = switch (rData.getFacing()) {
+                case NORTH -> 180f;
+                case SOUTH -> 0;
+                case EAST -> -90.0f;
+                case WEST -> 90.0f;
+                default -> 0f;
+            };
+        }
+
+        final float yaw = rotation;
         ItemDisplay itemDisplay = world.spawn(loc, ItemDisplay.class, entity -> {
             entity.setItemStack(this.displayItem);
             entity.setItemDisplayTransform(this.transform);
@@ -351,7 +364,7 @@ public class TextureManager {
                     t.getLeftRotation(),
                     new Vector3f(this.scale, this.scale, this.scale),
                     t.getRightRotation()));
-            entity.setRotation(this.yaw, this.pitch);
+            entity.setRotation(yaw, this.pitch);
             entity.setPersistent(true);
             entity.getPersistentDataContainer().set(KEY, PersistentDataType.INTEGER, chest.getId());
         });
