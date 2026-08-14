@@ -249,6 +249,9 @@ sell-chest-item:
     #scale: 0.65
     #rotation: 90:-90
 
+# If disabled, players cannot create a double chest from sell chests
+allow-double-sellchests: true
+
 # A visual effect shown to the player when they place a sell chest,
 # this is additional to the message that is sent to the player that shows the maximum amount of chests they have placed/can place
 # Available options are: 'NONE', 'BOSS_BAR' and 'ACTION_BAR'

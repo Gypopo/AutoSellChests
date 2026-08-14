@@ -37,6 +37,7 @@ public enum Lang {
     PLACED_SELL_CHESTS_BOSS_BAR("&a&lPlaced sell chests:"),
     CANNOT_FORM_DOUBLE_CHEST("&cThe sell chest cannot be a placed against a non sell chest"),
     CANNOT_FORM_DOUBLE_CHEST_MISMATCH("&cCannot form double sell chest with different upgrades"),
+    CANNOT_FORM_DOUBLE_CHEST_DISABLED("&cIt is not possible to create a double sell chest"),
     CANNOT_PLACE_SELL_CHEST_HERE("&cYou may not place a #FF7070Sell#CDCDCDChest &chere"),
     CANNOT_PLACE_CHEST_AGAINST_SELL_CHEST("&cThis chest cannot be placed against a sell chest"),
     CANNOT_REMOVE_SELL_CHEST("&cYou do not have the required permissions to remove this sell chest"),

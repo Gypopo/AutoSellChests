@@ -41,6 +41,7 @@ public class PlayerListener implements Listener {
     private final AutoSellChests plugin;
     private ChestConfirmation chestConfirmation;
     private final boolean compatibilityMode;
+    private final boolean allowDoubleChests;
     private final Sound placeSound;
     private final Sound breakSound;
     private final Sound upgradeSound;
@@ -72,6 +73,9 @@ public class PlayerListener implements Listener {
 
         // Compatibility mode which enables support for placing chests created before 2.4.0
         this.compatibilityMode = Config.get().getBoolean("compatibility-mode");
+
+        // Whether double sell chests are allowed to be formed
+        this.allowDoubleChests = Config.get().getBoolean("allow-double-sellchests");
     }
 
     @EventHandler
@@ -152,6 +156,15 @@ public class PlayerListener implements Listener {
                 // Match the chest settings
                 if (!left.getSettings().equals(settings)) {
                     Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST_MISMATCH.get());
+
+                    loc.add(0.5, 0.5, 0.5);
+                    loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(settings,1));
+                    loc.getBlock().setType(Material.AIR);
+                    return;
+                }
+
+                if (!this.allowDoubleChests) {
+                    Logger.sendPlayerMessage(e.getPlayer(), Lang.CANNOT_FORM_DOUBLE_CHEST_DISABLED.get());
 
                     loc.add(0.5, 0.5, 0.5);
                     loc.getWorld().dropItemNaturally(loc, this.plugin.getManager().getChest(settings,1));
