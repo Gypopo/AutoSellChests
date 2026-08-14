@@ -39,6 +39,9 @@ dependencies:
     Towny:
       required: false
 
+    ProtocolLib:
+      required: false
+
 permissions:
   autosellchests.use:
     default: true

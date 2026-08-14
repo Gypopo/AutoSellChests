@@ -34,6 +34,10 @@ public final class Logger {
         Log.warn(s);
     }
 
+    public static void error(String s) {
+        Log.error(s);
+    }
+
     public static void debug(String s) {
         Log.debug(s);
     }

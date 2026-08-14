@@ -18,7 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -107,6 +106,8 @@ public class ChestManager {
 
                 chest.setLoaded(true);
                 this.plugin.getHologramManager().loadHologram(chest);
+                if (this.plugin.getTextureManager() != null)
+                    this.plugin.getTextureManager().showTexture(chest);
             }
         }
     }
@@ -117,6 +118,8 @@ public class ChestManager {
                 Chest chest = this.loadedChests.get(location);
 
                 chest.setLoaded(false);
+                if (this.plugin.getTextureManager() != null)
+                    this.plugin.getTextureManager().unloadDisplay(chest);
             }
         }
     }
@@ -188,6 +191,10 @@ public class ChestManager {
 
             // Update hologram
             this.plugin.getHologramManager().updateHologramLocation(original);
+
+            // Add the custom texture if enabled
+            if (this.plugin.getTextureManager() != null)
+                this.plugin.getTextureManager().showTexture(original);
         } else {
             ChestLocation location = new ChestLocation(loc);
             this.plugin.getDatabase().addChest(location.toString(), p.getUniqueId().toString(), 0, settings);
@@ -199,6 +206,10 @@ public class ChestManager {
 
             // Create hologram
             this.plugin.getHologramManager().loadHologram(original);
+
+            // Show the chests custom texture if enabled
+            if (this.plugin.getTextureManager() != null)
+                this.plugin.getTextureManager().showTexture(original);
 
             // Put in memory
             this.loadedChests.put(location, original);
@@ -212,12 +223,20 @@ public class ChestManager {
     public void removeChest(ChestLocation loc) {
         Chest chest = this.loadedChests.get(loc);
         if (chest.getLocation().isDoubleChest()) {
+            // Remove texture for both chests and readd it for the one that still exists
+            if (this.plugin.getTextureManager() != null)
+                this.plugin.getTextureManager().removeTexture(chest);
+
             // Update map entry/database
             chest.getLocation().removeLocation(loc.getLeftLocation());
             this.plugin.getDatabase().setChest(chest);
 
             // Update hologram
             this.plugin.getHologramManager().updateHologramLocation(chest);
+
+            // Show the custom texture only for the chest thats still left
+            if (this.plugin.getTextureManager() != null)
+                this.plugin.getTextureManager().showTexture(chest);
         } else {
             // Remove from queue
             this.scheduler.removeFromQueue(chest);
@@ -231,6 +250,10 @@ public class ChestManager {
 
             // Remove hologram
             this.plugin.getHologramManager().removeHologram(chest);
+
+            // Remove the texture of the chest
+            if (this.plugin.getTextureManager() != null)
+                this.plugin.getTextureManager().removeTexture(chest);
         }
         Logger.debug("Removed SellChest " + chest.getId() + " from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z);
     }
@@ -248,6 +271,10 @@ public class ChestManager {
 
         // Remove hologram
         this.plugin.getHologramManager().removeHologram(chest);
+
+        // Remove texture
+        if (this.plugin.getTextureManager() != null)
+            this.plugin.getTextureManager().removeTexture(chest);
 
         Logger.debug("Removed SellChest " + chest.getId() + " from '" + chest.getOwner() + "' on location: " + "World '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z);
     }

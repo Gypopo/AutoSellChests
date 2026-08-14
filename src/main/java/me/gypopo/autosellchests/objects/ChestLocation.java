@@ -15,6 +15,11 @@ public class ChestLocation {
             this.location2 = new Location(loc.split("\\|")[1]);
     }
 
+    public ChestLocation(String world, int x, int y, int z) {
+        this.doubleChest = false;
+        this.location1 = new Location(world, x, y, z);
+    }
+
     public ChestLocation(org.bukkit.Location location) {
         this.doubleChest = false;
         this.location1 = new Location(location);

@@ -25,6 +25,8 @@ softdepend:
   - Lands
   - Towny
 
+  - ProtocolLib
+
 permissions:
   autosellchests.use:
     default: true

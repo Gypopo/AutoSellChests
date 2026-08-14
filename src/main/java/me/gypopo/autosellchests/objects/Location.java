@@ -25,6 +25,13 @@ public class Location {
         this.z = Integer.parseInt(location.split(":")[3]);
     }
 
+    public Location(String world, int x, int y, int z) {
+        this.world = world;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
     public org.bukkit.Location toLoc() {
         return new org.bukkit.Location(Bukkit.getWorld(this.world), this.x, this.y, this.z);
     }

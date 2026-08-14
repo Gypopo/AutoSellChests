@@ -21,7 +21,6 @@ import com.gpplugins.gplib.scheduling.Task;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.api.events.ShopItemsLoadEvent;
 import me.gypopo.economyshopgui.util.EcoType;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -59,6 +58,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private ProtectionManager protectionManager;
     private InventoryManager inventoryManager;
     private HologramManager hologramManager;
+    private TextureManager textureManager;
     private UpgradeManager upgradeManager;
     private AFKManager afkManager;
     private boolean premium;
@@ -150,7 +150,7 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
                 this.onShopItemsLoadEvent(new ShopItemsLoadEvent());
             }
-        }, 120L);
+        }, 40L);
     }
 
     @Override
@@ -204,12 +204,18 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         return this.hologramManager;
     }
 
+    public TextureManager getTextureManager() {
+        return this.textureManager;
+    }
+
     public void reloadManager() {
         this.manager.disable();
         if (Config.get().getBoolean("afk-prevention", false))
             this.afkManager = this.getAfkManager();
         this.upgradeManager.reload();
         this.inventoryManager.reload();
+        if (this.textureManager != null)
+            this.textureManager.reload();
         this.manager.load();
     }
 
@@ -284,6 +290,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
             this.protectionManager.init();
             this.inventoryManager = new InventoryManager();
             this.hologramManager = new HologramManager(this);
+            if (Config.get().getBoolean("sell-chest-item.custom-block-texture.enabled"))
+                this.loadTextureManager();
             this.upgradeManager = new UpgradeManager(this);
             this.manager.load();
 
@@ -387,4 +395,26 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         return null;
     }
 
+    private void loadTextureManager() {
+        if (this.version < 119 || !this.supportsItemDisplay()) {
+            Logger.warn("Custom chest textures are only supported on paper server versions of 1.19.4 and above");
+            return;
+        }
+
+        if (Bukkit.getPluginManager().getPlugin("ProtocolLib") == null) {
+            Logger.warn("Custom chest textures are enabled in config.yml but ProtocolLib is not installed, disabling feature...");
+            return;
+        }
+
+        this.textureManager = new TextureManager(this);
+    }
+
+    private boolean supportsItemDisplay() {
+        try {
+            Class.forName("org.bukkit.entity.ItemDisplay");
+            return true;
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            return false;
+        }
+    }
 }
