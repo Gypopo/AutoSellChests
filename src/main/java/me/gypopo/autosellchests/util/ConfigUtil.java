@@ -110,9 +110,12 @@ public class ConfigUtil {
                 Config.get().set("sell-chest-item.custom-block-texture.material", "CHEST");
                 Config.get().set("sell-chest-item.custom-block-texture.CustomModelData", -1);
                 Config.get().set("sell-chest-item.custom-block-texture.item-model", "");
+                /*
                 Config.get().set("sell-chest-item.custom-block-texture.transform", "FIXED");
                 Config.get().set("sell-chest-item.custom-block-texture.scale", 0.5);
                 Config.get().set("sell-chest-item.custom-block-texture.rotation", "90:-90");
+
+                 */
 
                 configVer = 132;
             }
