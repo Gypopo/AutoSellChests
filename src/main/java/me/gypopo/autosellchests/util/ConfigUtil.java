@@ -127,7 +127,7 @@ public class ConfigUtil {
 
                 if (config != null && !config.contains("settings-menu.items.blacklist-item")) {
                     if (config.getInt("settings-menu.items.hologram-item.slot") == 5)
-                        config.set("settings-menu.items.hologram-item.slot", 6);
+                        config.set("settings-menu.items.hologram-item.slot", 4);
 
                     ConfigurationSection item = config.createSection("settings-menu.items.blacklist-item");
                     item.set("material", "HOPPER");
@@ -147,13 +147,23 @@ public class ConfigUtil {
                     add.set("material", "LIME_STAINED_GLASS_PANE");
                     add.set("name", "%translations-blacklist-add-item%");
                     add.set("lore", Collections.singletonList("%translations-blacklist-add-item-lore%"));
-                    add.set("slot", 49);
+                    add.set("slot", 47);
 
                     ConfigurationSection remove = menu.createSection("items.remove-item");
                     remove.set("material", "RED_STAINED_GLASS_PANE");
                     remove.set("name", "%translations-blacklist-remove-item%");
                     remove.set("lore", Collections.singletonList("%translations-blacklist-remove-item-lore%"));
-                    remove.set("slot", 51);
+                    remove.set("slot", 53);
+
+                    ConfigurationSection previousPage = menu.createSection("items.previous-page-item");
+                    previousPage.set("material", "ARROW");
+                    previousPage.set("name", "%translations-blacklist-previous-page%");
+                    previousPage.set("slot", 49);
+
+                    ConfigurationSection nextPage = menu.createSection("items.next-page-item");
+                    nextPage.set("material", "ARROW");
+                    nextPage.set("name", "%translations-blacklist-next-page%");
+                    nextPage.set("slot", 51);
 
                     ConfigUtil.save(config, file);
                 }

@@ -19,6 +19,7 @@ public class BlacklistScreen extends ChestInventory {
     private final Chest chest;
     private final Location selectedChest;
 
+    private int page;
     private boolean update;
 
     public BlacklistScreen(Chest chest, Location selectedChest) {
@@ -31,24 +32,51 @@ public class BlacklistScreen extends ChestInventory {
         SimpleInventoryBuilder builder = AutoSellChests.getInstance().getInventoryManager().getBlacklistInv();
         builder.init(this);
 
-        // Leave the border of the menu and add the items only in the middle
-        int i = 0;
+        int rows = builder.getSize() / 9;
+        int perPage = (rows - 2) * 7; // The inner content area, leaving a border around it
+
         ArrayList<Material> blacklisted = new ArrayList<>(this.chest.getBlacklist());
-        for (int r = 1; r < (builder.getSize() / 9) - 1; r++) {
+
+        // Clamp the page in case items were removed since it was last opened
+        int maxPage = blacklisted.isEmpty() ? 0 : (blacklisted.size() - 1) / perPage;
+        if (this.page > maxPage)
+            this.page = maxPage;
+
+        // Leave the border of the menu and add the items only in the middle
+        int i = this.page * perPage;
+        for (int r = 1; r < rows - 1; r++) {
             for (int s = 1; s < 8; s++) {
-                if (blacklisted.size() > i+1) {
-                    ItemStack item = new ItemStack(blacklisted.get(i++));
-                    ItemMeta meta = item.getItemMeta();
-                    if (meta != null) {
-                        meta.setLore(Collections.singletonList(Lang.BLACKLIST_REMOVE_ITEM_HINT.get()));
-                        item.setItemMeta(meta);
-                    }
-                    builder.setItem((r * 9) + s, item);
+                if (i >= blacklisted.size())
+                    break;
+
+                ItemStack item = new ItemStack(blacklisted.get(i++));
+                ItemMeta meta = item.getItemMeta();
+                if (meta != null) {
+                    meta.setLore(Collections.singletonList(Lang.BLACKLIST_REMOVE_ITEM_HINT.get()));
+                    item.setItemMeta(meta);
                 }
+                builder.setItem((r * 9) + s, item);
             }
         }
 
+        // Only display the pagination buttons when there is a page to navigate to
+        if (this.page > 0)
+            builder.enableItem("previous-page-item");
+        if ((this.page + 1) * perPage < blacklisted.size())
+            builder.enableItem("next-page-item");
+
         this.inv = builder.build();
+    }
+
+    public void nextPage(Player p) {
+        this.page++;
+        this.updateInventory(p);
+    }
+
+    public void previousPage(Player p) {
+        if (this.page > 0)
+            this.page--;
+        this.updateInventory(p);
     }
 
     @Override

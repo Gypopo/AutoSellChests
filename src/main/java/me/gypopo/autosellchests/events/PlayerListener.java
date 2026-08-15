@@ -364,7 +364,13 @@ public class PlayerListener implements Listener {
             }
 
             int slot = e.getSlot();
-            if (slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("add-item")
+            if (slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("previous-page-item")) {
+                inv.previousPage(p);
+                return;
+            } else if (slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("next-page-item")) {
+                inv.nextPage(p);
+                return;
+            } else if (slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("add-item")
                     || slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("remove-item"))
                 return;
 
@@ -372,6 +378,20 @@ public class PlayerListener implements Listener {
             if (clicked != null && chest.getBlacklist().contains(clicked.getType())) {
                 chest.removeFromBlacklist(clicked.getType());
                 inv.updateInventory(p);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onMenuDrag(InventoryDragEvent e) {
+        if (!(InventoryUtil.getTopHolder(e) instanceof ChestInventory))
+            return;
+
+        int topSize = InventoryUtil.getTopInventory(e).getSize();
+        for (int slot : e.getRawSlots()) {
+            if (slot < topSize) {
+                e.setCancelled(true);
+                return;
             }
         }
     }

@@ -86,6 +86,10 @@ blacklist-remove-item: "&c&lRemove item"
 blacklist-remove-item-lore: "&7Click a blacklisted item above to remove it"
 # The lore of the remove item button, also shown on each blacklisted item
 blacklist-remove-item-hint: "&7Click to remove"
+# The displayname of the previous page button in the blacklist menu
+blacklist-previous-page: "&c&lPrevious page"
+# The displayname of the next page button in the blacklist menu
+blacklist-next-page: "&c&lNext page"
 # When a sell chest is placed against a regular chest
 cannot-form-double-chest: "&cThe sell chest cannot be a placed against a non sell chest"
 # When a sell chest is placed against someone else's sell chest

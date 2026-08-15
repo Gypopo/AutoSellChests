@@ -89,6 +89,8 @@ public enum Lang {
     BLACKLIST_REMOVE_ITEM("&c&lRemove item"),
     BLACKLIST_REMOVE_ITEM_LORE("&7Click a blacklisted item above to remove it"),
     BLACKLIST_REMOVE_ITEM_HINT("&7Click to remove"),
+    BLACKLIST_PREVIOUS_PAGE("&c&lPrevious page"),
+    BLACKLIST_NEXT_PAGE("&c&lNext page"),
 
     // Enter name menu
     ENTER_NAME_MENU_TITLE("&8&lEnter new name"),

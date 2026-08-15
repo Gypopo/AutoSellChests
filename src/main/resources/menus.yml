@@ -111,13 +111,23 @@ blacklist-menu:
       name: "%translations-blacklist-add-item%"
       lore:
       - "%translations-blacklist-add-item-lore%"
-      slot: 49
+      slot: 47
     # Button to remove items from the blacklist
     remove-item:
       material: "RED_CONCRETE"
       name: "%translations-blacklist-remove-item%"
       lore:
       - "%translations-blacklist-remove-item-lore%"
+      slot: 53
+    # Button to go to the previous page, only shown when not on the first page
+    previous-page-item:
+      material: "ARROW"
+      name: "%translations-blacklist-previous-page%"
+      slot: 49
+    # Button to go to the next page, only shown when there is a next page
+    next-page-item:
+      material: "ARROW"
+      name: "%translations-blacklist-next-page%"
       slot: 51
 
 # Represents the upgrades menu of a chest
