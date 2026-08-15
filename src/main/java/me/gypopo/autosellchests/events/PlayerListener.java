@@ -208,13 +208,7 @@ public class PlayerListener implements Listener {
     public void onMenuClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
 
-        // Handle the black list menu separately to allow selecting items from the player's inventory
-        if (e.getView().getTopInventory() instanceof BlacklistScreen inv) {
-            this.handleBlacklistClick(e, inv);
-            return;
-        }
-
-        if (e.getClickedInventory().getHolder() instanceof InformationScreen inv) {
+        if (InventoryUtil.getHolder(e.getClickedInventory()) instanceof InformationScreen inv) {
             Chest chest = inv.getChest();
             Location loc = inv.getSelectedChest();
             if (e.getSlot() == this.plugin.getInventoryManager().getMainInv().getSlot("destroy-item")) {
@@ -258,7 +252,7 @@ public class PlayerListener implements Listener {
                 } else e.getWhoClicked().sendMessage(Lang.NO_PERMISSIONS.get());
             }
             e.setCancelled(true);
-        } else if (e.getClickedInventory().getHolder() instanceof SettingsScreen inv) {
+        } else if (InventoryUtil.getHolder(e.getClickedInventory()) instanceof SettingsScreen inv) {
             Chest chest = inv.getChest();
             if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("logging-item")) {
                 chest.setLogging(!chest.isLogging());
@@ -293,7 +287,7 @@ public class PlayerListener implements Listener {
                 new BlacklistScreen(chest, inv.getSelectedChest()).open((Player) e.getWhoClicked());
             }
             e.setCancelled(true);
-        } else if (e.getClickedInventory().getHolder() instanceof UpgradeScreen inv) {
+        } else if (InventoryUtil.getHolder(e.getClickedInventory()) instanceof UpgradeScreen inv) {
             Player p = (Player) e.getWhoClicked();
             Chest chest = inv.getChest();
             if (e.getSlot() == this.plugin.getInventoryManager().getUpgradeInv().getSlot("interval-upgrade-item")) {
@@ -337,7 +331,7 @@ public class PlayerListener implements Listener {
                 }
             }
             e.setCancelled(true);
-        } else if (e.getClickedInventory().getHolder() instanceof ClaimProfitsScreen inv) {
+        } else if (InventoryUtil.getHolder(e.getClickedInventory()) instanceof ClaimProfitsScreen inv) {
             Chest chest = inv.getChest();
             if (chest.getClaimAble().size() >= (e.getRawSlot() + 1)) {
                 EcoType type = new ArrayList<>(chest.getClaimAble().keySet()).get(e.getRawSlot());
@@ -352,41 +346,39 @@ public class PlayerListener implements Listener {
                 } else Logger.sendPlayerMessage((Player) e.getWhoClicked(), Lang.CANNOT_CLAIM_PROFIT.get()); // EconomyType not active/not found
             }
             e.setCancelled(true);
-        }
-    }
+        } else if (InventoryUtil.getTopHolder(e) instanceof BlacklistScreen inv) {
+            e.setCancelled(true);
 
-    private void handleBlacklistClick(InventoryClickEvent e, BlacklistScreen inv) {
-        e.setCancelled(true);
+            Player p = (Player) e.getWhoClicked();
+            Chest chest = inv.getChest();
+            if (e.getClickedInventory().equals(e.getView().getBottomInventory())) {
+                ItemStack clicked = e.getCurrentItem();
+                if (clicked == null || clicked.getType() == Material.AIR)
+                    return;
 
-        Player p = (Player) e.getWhoClicked();
-        Chest chest = inv.getChest();
-        if (e.getClickedInventory().equals(e.getView().getBottomInventory())) {
-            ItemStack clicked = e.getCurrentItem();
-            if (clicked == null || clicked.getType() == Material.AIR)
+                if (!chest.getBlacklist().contains(clicked.getType())) {
+                    chest.addToBlacklist(clicked.getType());
+                    inv.updateInventory(p);
+                }
+                return;
+            }
+
+            int slot = e.getSlot();
+            if (slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("add-item")
+                    || slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("remove-item"))
                 return;
 
-            if (!chest.getBlacklist().contains(clicked.getType())) {
-                chest.addToBlacklist(clicked.getType());
+            ItemStack clicked = e.getCurrentItem();
+            if (clicked != null && chest.getBlacklist().contains(clicked.getType())) {
+                chest.removeFromBlacklist(clicked.getType());
                 inv.updateInventory(p);
             }
-            return;
-        }
-
-        int slot = e.getSlot();
-        if (slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("add-item")
-                || slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("remove-item"))
-            return;
-
-        ItemStack clicked = e.getCurrentItem();
-        if (clicked != null && chest.getBlacklist().contains(clicked.getType())) {
-            chest.removeFromBlacklist(clicked.getType());
-            inv.updateInventory(p);
         }
     }
 
     @EventHandler
     public void onMenuClose(InventoryCloseEvent e) {
-        if (!(e.getInventory().getHolder() instanceof ChestInventory inv))
+        if (!(InventoryUtil.getHolder(e.getInventory()) instanceof ChestInventory inv))
             return;
 
         if (inv.isUpdatingInventory())
