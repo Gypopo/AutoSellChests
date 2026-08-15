@@ -27,6 +27,7 @@ public class InformationScreen implements InventoryHolder {
     private final Location selectedChest;
     private SimplePair<Integer, String> updatedString;
     private int infoItemSlot; // The slot of the item which contains the %time% placeholder
+    private ItemStack infoItem;
     private Task dynamicLore;
 
     public InformationScreen(Chest chest, Location location) {
@@ -66,10 +67,7 @@ public class InformationScreen implements InventoryHolder {
             builder.enableItem("claimable-item");
 
         this.inv = builder.build();
-
-        // If %time% placeholder is present, create a new task to update it every 20 ticks
-        if (this.updatedString != null)
-            this.dynamicLore = this.updateTime(builder.getItem("info-item"));
+        this.infoItem = builder.getItem("info-item");
     }
 
     private String getLocation(Location loc) {
@@ -104,8 +102,8 @@ public class InformationScreen implements InventoryHolder {
     }
 
     // Every second use player#getItemOnCursor() so the lore is only updated if the player hovers this item
-    private Task updateTime(ItemStack item) {
-        return AutoSellChests.getInstance().runTaskTimer(() -> {
+    private Task updateTime(Player p, ItemStack item) {
+        return AutoSellChests.getInstance().runTaskTimer(p, () -> {
             if (this.inv.getViewers().isEmpty())
                 this.stopTask();
 
@@ -137,6 +135,10 @@ public class InformationScreen implements InventoryHolder {
 
     public void open(Player p) {
         p.openInventory(this.inv);
+
+        // If %time% placeholder is present, create a new task to update it every 20 ticks
+        if (this.updatedString != null)
+            this.dynamicLore = this.updateTime(p, this.infoItem);
     }
 
     @Override

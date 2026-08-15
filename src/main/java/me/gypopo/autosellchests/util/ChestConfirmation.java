@@ -30,7 +30,7 @@ public enum ChestConfirmation {
             BossBar bar = Bukkit.createBossBar(Lang.PLACED_SELL_CHESTS_BOSS_BAR.get(), color, BarStyle.SEGMENTED_10);
             bar.setProgress(Math.min((AutoSellChests.getInstance().getManager().getOwnedChests(p) * 100 / AutoSellChests.getInstance().getManager().getMaxSell(p)) * 0.01, 1));
             bar.addPlayer(p);
-            AutoSellChests.getInstance().runTaskLater(() -> bar.removePlayer(p), 20 * 5);
+            AutoSellChests.getInstance().runTaskLater(() -> bar.removePlayer(p), p, 20 * 5);
         } else if (this == ACTION_BAR) {
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Lang.PLACED_SELL_CHESTS_ACTION_BAR.get()
                     .replace("%amount%", String.valueOf(AutoSellChests.getInstance().getManager().getOwnedChests(p)))

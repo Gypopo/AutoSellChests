@@ -412,7 +412,7 @@ public class PlayerListener implements Listener {
             }
 
             ((Player) e.getPlayer()).updateInventory();
-        }, 1L);
+        }, e.getPlayer(), 1L);
     }
 
     private Sound getSound(String sound) {

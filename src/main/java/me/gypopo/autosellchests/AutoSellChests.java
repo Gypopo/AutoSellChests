@@ -29,6 +29,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandMap;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -235,12 +236,24 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
         this.scheduler.runTaskForRegionLater(loc, runnable, delay);
     }
 
+    public void runTaskLater(Runnable runnable, Entity entity, long delay) {
+        this.scheduler.runTaskLaterForEntity(entity, runnable, delay);
+    }
+
     public void runTask(Runnable runnable) {
         this.scheduler.runGlobal(runnable);
     }
 
     public void runTask(Chest chest, Runnable runnable) {
         this.scheduler.runTaskForRegion(chest.getLocation().getLeftLocation().toLoc(), runnable);
+    }
+
+    public void runTask(Entity entity, Runnable runnable) {
+        this.scheduler.runForEntity(entity, runnable);
+    }
+
+    public Task runTaskTimer(Entity entity, Runnable runnable, long delay, long period) {
+        return this.scheduler.runFixedForEntity(entity, runnable, delay, period);
     }
 
     public void runTaskAsync(Runnable runnable) {
