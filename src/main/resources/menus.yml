@@ -9,7 +9,7 @@ sell-chest-menu:
   # Set to AIR to disable this
   fill-item:
     material: GRAY_STAINED_GLASS_PANE
-    name: " "
+    hide-tooltip: true
   # The items inside the inventory
   items:
     # The item which displays info about this sell chest
@@ -68,7 +68,7 @@ settings-menu:
   # Set to AIR to disable this
   fill-item:
     material: GRAY_STAINED_GLASS_PANE
-    name: " "
+    hide-tooltip: true
   # The items inside the inventory
   items:
     logging-item:
@@ -103,7 +103,7 @@ blacklist-menu:
   gui-rows: 6
   fill-item:
     material: GRAY_STAINED_GLASS_PANE
-    name: ""
+    hide-tooltip: true
   items:
     # Button to add items to the blacklist
     add-item:
@@ -131,7 +131,7 @@ upgrade-menu:
   # Set to AIR to disable this
   fill-item:
     material: GRAY_STAINED_GLASS_PANE
-    name: " "
+    hide-tooltip: true
   # The items inside the inventory
   items:
     # Item only enabled if interval upgrades are enabled

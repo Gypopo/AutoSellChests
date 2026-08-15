@@ -122,6 +122,8 @@ public class SimpleInventoryBuilder {
         }
         if (config.contains("CustomModelData"))
             meta.setCustomModelData(config.getInt("CustomModelData"));
+        if (config.getBoolean("hide-tooltip") && ServerInfo.getVersion() >= 121)
+            meta.setHideTooltip(true);
 
         item.setItemMeta(meta);
 
