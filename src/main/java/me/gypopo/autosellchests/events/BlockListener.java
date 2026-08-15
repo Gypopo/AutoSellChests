@@ -33,7 +33,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityExplode(EntityExplodeEvent event) {
         if (event.isCancelled() ||
-                (this.plugin.version == 121 &&
+                (this.plugin.version >= 121 &&
                         (event.getExplosionResult() == ExplosionResult.TRIGGER_BLOCK || event.getExplosionResult() == ExplosionResult.KEEP)))
             return;
 
@@ -42,7 +42,9 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockExplode(BlockExplodeEvent event) {
-        if (event.isCancelled())
+        if (event.isCancelled() ||
+                (this.plugin.version >= 121 &&
+                        (event.getExplosionResult() == ExplosionResult.TRIGGER_BLOCK || event.getExplosionResult() == ExplosionResult.KEEP)))
             return;
 
         this.handleBlockExploison(event.blockList());
