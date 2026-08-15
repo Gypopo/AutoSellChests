@@ -15,6 +15,7 @@ public class InventoryManager {
     private SimpleInventoryBuilder upgradeInv;
     private SimpleInventoryBuilder settingsInv;
     private SimpleInventoryBuilder mainInv;
+    private SimpleInventoryBuilder blacklistInv;
 
     public InventoryManager() {
         this.init();
@@ -32,6 +33,10 @@ public class InventoryManager {
         return this.upgradeInv;
     }
 
+    public SimpleInventoryBuilder getBlacklistInv() {
+        return this.blacklistInv;
+    }
+
     public void reload() {
         this.init();
     }
@@ -42,6 +47,7 @@ public class InventoryManager {
         this.mainInv = this.loadInventory("sell-chest-menu");
         this.settingsInv = this.loadInventory("settings-menu");
         this.upgradeInv = this.loadInventory("upgrade-menu");
+        this.blacklistInv = this.loadInventory("blacklist-menu");
 
         Logger.info("Completed loading custom inventory's from menus.yml");
     }

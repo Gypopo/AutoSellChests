@@ -120,6 +120,47 @@ public class ConfigUtil {
                 configVer = 132;
             }
 
+            if (configVer == 132) {
+                // Add the per chest item blacklist menu and its setting item to menus.yml
+                File file = new File(plugin.getDataFolder(), "menus.yml");
+                YamlConfiguration config = plugin.loadConfiguration(file, "menus.yml");
+
+                if (config != null && !config.contains("settings-menu.items.blacklist-item")) {
+                    if (config.getInt("settings-menu.items.hologram-item.slot") == 5)
+                        config.set("settings-menu.items.hologram-item.slot", 6);
+
+                    ConfigurationSection item = config.createSection("settings-menu.items.blacklist-item");
+                    item.set("material", "HOPPER");
+                    item.set("name", "%translations-manage-blacklist%");
+                    item.set("lore", Collections.singletonList("%translations-manage-blacklist-lore%"));
+                    item.set("slot", 6);
+
+                    ConfigurationSection menu = config.createSection("blacklist-menu");
+                    menu.set("title", "%translations-chest-blacklist-title%");
+                    menu.set("gui-rows", 6);
+
+                    ConfigurationSection fill = menu.createSection("fill-item");
+                    fill.set("material", "GRAY_STAINED_GLASS_PANE");
+                    fill.set("hide-tooltip", true);
+
+                    ConfigurationSection add = menu.createSection("items.add-item");
+                    add.set("material", "LIME_STAINED_GLASS_PANE");
+                    add.set("name", "%translations-blacklist-add-item%");
+                    add.set("lore", Collections.singletonList("%translations-blacklist-add-item-lore%"));
+                    add.set("slot", 49);
+
+                    ConfigurationSection remove = menu.createSection("items.remove-item");
+                    remove.set("material", "RED_STAINED_GLASS_PANE");
+                    remove.set("name", "%translations-blacklist-remove-item%");
+                    remove.set("lore", Collections.singletonList("%translations-blacklist-remove-item-lore%"));
+                    remove.set("slot", 51);
+
+                    ConfigUtil.save(config, file);
+                }
+
+                configVer = 140;
+            }
+
             Config.get().set("config-version", getConfigVersion(configVer));
             Config.save();
             Config.reload();

@@ -97,6 +97,19 @@ public class MainScheduler {
             }
 
             ItemStack[] items = block.getInventory().getContents(); // Retrieve the items from the inventory
+
+            ItemStack[] blacklisted = null;
+            if (!chest.getBlacklist().isEmpty()) {
+                // Copy the blacklisted items into a separate list and remove them from the original one
+                blacklisted = new ItemStack[items.length];
+                for (int i = 0; i < items.length; i++) {
+                    if (items[i] != null && chest.isBlacklisted(items[i].getType())) {
+                        blacklisted[i] = items[i];
+                        items[i] = null;
+                    }
+                }
+            }
+
             SellPrices transaction = EconomyShopGUIHook.getCutSellPrices(owner, items, true); // Get the sell prices of the items, and modify the array
 
             if (!transaction.isEmpty()) {
@@ -104,6 +117,14 @@ public class MainScheduler {
                 Map<EcoType, Double> prices = owner.isOnline() ? this.callPreTransactionEvent(transaction, total) : transaction.getPrices();
                 if (prices == null)
                     return; // Transaction cancelled by PreTransactionEvent
+
+                if (blacklisted != null) {
+                    // Merge the blacklisted items back into the original array
+                    for (int i = 0; i < blacklisted.length; i++) {
+                        if (blacklisted[i] != null)
+                            items[i] = blacklisted[i];
+                    }
+                }
 
                 block.getInventory().setContents(items); // Update the inventory with the updated array of items
 

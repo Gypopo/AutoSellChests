@@ -88,7 +88,37 @@ settings-menu:
       name: "%translations-toggle-chest-hologram%"
       lore:
       - "%translations-current-value%"
-      slot: 5
+      slot: 4
+    blacklist-item:
+      material: "HOPPER"
+      name: "%translations-manage-blacklist%"
+      lore:
+      - "%translations-manage-blacklist-lore%"
+      slot: 6
+
+# Represents the blacklist menu of a chest
+# The blacklisted items are listed in the top rows, the bottom row holds the buttons
+blacklist-menu:
+  title: "%translations-chest-blacklist-title%"
+  gui-rows: 6
+  fill-item:
+    material: GRAY_STAINED_GLASS_PANE
+    name: ""
+  items:
+    # Button to add items to the blacklist
+    add-item:
+      material: "LIME_CONCRETE"
+      name: "%translations-blacklist-add-item%"
+      lore:
+      - "%translations-blacklist-add-item-lore%"
+      slot: 49
+    # Button to remove items from the blacklist
+    remove-item:
+      material: "RED_CONCRETE"
+      name: "%translations-blacklist-remove-item%"
+      lore:
+      - "%translations-blacklist-remove-item-lore%"
+      slot: 51
 
 # Represents the upgrades menu of a chest
 upgrade-menu:

@@ -1,5 +1,6 @@
 package me.gypopo.autosellchests.events;
 
+import com.gpplugins.gplib.util.InventoryUtil;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Config;
 import me.gypopo.autosellchests.files.Lang;
@@ -26,6 +27,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.ItemStack;
@@ -206,6 +208,12 @@ public class PlayerListener implements Listener {
     public void onMenuClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
 
+        // Handle the black list menu separately to allow selecting items from the player's inventory
+        if (e.getView().getTopInventory() instanceof BlacklistScreen inv) {
+            this.handleBlacklistClick(e, inv);
+            return;
+        }
+
         if (e.getClickedInventory().getHolder() instanceof InformationScreen inv) {
             Chest chest = inv.getChest();
             Location loc = inv.getSelectedChest();
@@ -280,6 +288,9 @@ public class PlayerListener implements Listener {
                 this.plugin.getHologramManager().removeHologram(chest);
                 chest.setHologram(!chest.isHologram());
                 inv.updateInventory((Player) e.getWhoClicked());
+            } else if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("blacklist-item")) {
+                inv.update();
+                new BlacklistScreen(chest, inv.getSelectedChest()).open((Player) e.getWhoClicked());
             }
             e.setCancelled(true);
         } else if (e.getClickedInventory().getHolder() instanceof UpgradeScreen inv) {
@@ -344,6 +355,35 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void handleBlacklistClick(InventoryClickEvent e, BlacklistScreen inv) {
+        e.setCancelled(true);
+
+        Player p = (Player) e.getWhoClicked();
+        Chest chest = inv.getChest();
+        if (e.getClickedInventory().equals(e.getView().getBottomInventory())) {
+            ItemStack clicked = e.getCurrentItem();
+            if (clicked == null || clicked.getType() == Material.AIR)
+                return;
+
+            if (!chest.getBlacklist().contains(clicked.getType())) {
+                chest.addToBlacklist(clicked.getType());
+                inv.updateInventory(p);
+            }
+            return;
+        }
+
+        int slot = e.getSlot();
+        if (slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("add-item")
+                || slot == this.plugin.getInventoryManager().getBlacklistInv().getSlot("remove-item"))
+            return;
+
+        ItemStack clicked = e.getCurrentItem();
+        if (clicked != null && chest.getBlacklist().contains(clicked.getType())) {
+            chest.removeFromBlacklist(clicked.getType());
+            inv.updateInventory(p);
+        }
+    }
+
     @EventHandler
     public void onMenuClose(InventoryCloseEvent e) {
         if (!(e.getInventory().getHolder() instanceof ChestInventory inv))
@@ -353,7 +393,11 @@ public class PlayerListener implements Listener {
             return;
 
         this.plugin.runTaskLater(() -> {
-            new InformationScreen(inv.getChest(), inv.getSelectedChest()).open((Player) e.getPlayer());
+            if (inv instanceof BlacklistScreen) {
+                new SettingsScreen(inv.getChest(), inv.getSelectedChest()).open((Player) e.getPlayer());
+            } else {
+                new InformationScreen(inv.getChest(), inv.getSelectedChest()).open((Player) e.getPlayer());
+            }
 
             ((Player) e.getPlayer()).updateInventory();
         }, 1L);

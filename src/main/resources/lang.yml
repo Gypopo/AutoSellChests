@@ -70,6 +70,22 @@ change-chest-name: "<gradient:#FF4A4A>Click to update the name of this chest</gr
 toggle-chest-hologram: "<gradient:#FF4A4A>Click to toggle the chest hologram</gradient:#FFDBDB>"
 # The current name of the AutoSellChest
 current-displayname: "&eCurrent: &a%chest-name%"
+# The setting item which opens the blacklist menu
+manage-blacklist: "<gradient:#FF4A4A>Manage blacklist</gradient:#FFDBDB>"
+# The lore of the manage blacklist setting item
+manage-blacklist-lore: "&7Click to manage the items this chest won't sell"
+# The inventory title of the blacklist menu
+chest-blacklist-title: "&8&lSettings &7> &8&lBlacklist"
+# The displayname of the add item button in the blacklist menu
+blacklist-add-item: "&a&lAdd item"
+# The lore of the add item button in the blacklist menu
+blacklist-add-item-lore: "&7Click an item in your inventory to blacklist it"
+# The displayname of the remove item button in the blacklist menu
+blacklist-remove-item: "&c&lRemove item"
+# The lore of the remove item button, also shown on each blacklisted item
+blacklist-remove-item-lore: "&7Click a blacklisted item above to remove it"
+# The lore of the remove item button, also shown on each blacklisted item
+blacklist-remove-item-hint: "&7Click to remove"
 # When a sell chest is placed against a regular chest
 cannot-form-double-chest: "&cThe sell chest cannot be a placed against a non sell chest"
 # When a sell chest is placed against someone else's sell chest

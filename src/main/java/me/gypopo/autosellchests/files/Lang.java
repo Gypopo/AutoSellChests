@@ -79,6 +79,16 @@ public enum Lang {
     CHANGE_CHEST_NAME("&c&lClick to update the name"),
     CURRENT_DISPLAYNAME("&eCurrent: &a%chest-name%"),
     TOGGLE_CHEST_HOLOGRAM("&c&lClick to toggle the chest hologram"),
+    MANAGE_BLACKLIST("&c&lManage blacklist"),
+    MANAGE_BLACKLIST_LORE("&7Click to manage the items this chest won't sell"),
+
+    // Blacklist menu
+    CHEST_BLACKLIST_TITLE("&8&lSettings &7> &8&lBlacklist"),
+    BLACKLIST_ADD_ITEM("&a&lAdd item"),
+    BLACKLIST_ADD_ITEM_LORE("&7Click an item in your inventory to blacklist it"),
+    BLACKLIST_REMOVE_ITEM("&c&lRemove item"),
+    BLACKLIST_REMOVE_ITEM_LORE("&7Click a blacklisted item above to remove it"),
+    BLACKLIST_REMOVE_ITEM_HINT("&7Click to remove"),
 
     // Enter name menu
     ENTER_NAME_MENU_TITLE("&8&lEnter new name"),

@@ -37,6 +37,8 @@ public class SQLite {
         if (!this.isNewFormat())
             this.update();
 
+        this.addBlacklistColumn();
+
         return true;
     }
 
@@ -90,6 +92,30 @@ public class SQLite {
         }
     }
 
+    private void addBlacklistColumn() {
+        try {
+            PreparedStatement stmt = conn.prepareStatement("PRAGMA table_info(chests);");
+            ResultSet rs = stmt.executeQuery();
+            boolean exists = false;
+            while (rs.next()) {
+                if (rs.getString("name").equals("blacklist")) {
+                    exists = true;
+                    break;
+                }
+            }
+            rs.close();
+            stmt.close();
+
+            if (!exists) {
+                Statement alter = conn.createStatement();
+                alter.executeUpdate("ALTER TABLE chests ADD COLUMN blacklist TEXT;");
+                alter.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void addSettingsColumn() {
         try {
             Statement stmt = conn.createStatement();
@@ -126,7 +152,8 @@ public class SQLite {
                     "income TEXT," +
                     "claimAble TEXT," +
                     "settings TEXT," +
-                    "name TEXT);");
+                    "name TEXT," +
+                    "blacklist TEXT);");
             stmt.close();
         } catch (SQLException e ) {
             e.printStackTrace();
@@ -144,8 +171,8 @@ public class SQLite {
     }
 
     public void setChest(Chest chest) {
-        try (PreparedStatement stmt = conn.prepareStatement("REPLACE INTO chests(chest_id, location, owner, items, income, claimAble, settings, name) " +
-                "VALUES(?, ?, ?, ?, ?, ?, ?, ?);")) {
+        try (PreparedStatement stmt = conn.prepareStatement("REPLACE INTO chests(chest_id, location, owner, items, income, claimAble, settings, name, blacklist) " +
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);")) {
 
             stmt.setInt(1, chest.getId());
             stmt.setString(2, chest.getLocation().toString());
@@ -155,6 +182,7 @@ public class SQLite {
             stmt.setString(6, chest.getClaimAbleRaw());
             stmt.setString(7, chest.getSettings().toString());
             stmt.setString(8, chest.getName());
+            stmt.setString(9, chest.getBlacklistRaw());
 
             stmt.execute();
         } catch (SQLException e) {
@@ -173,7 +201,7 @@ public class SQLite {
     }
 
     public void saveChests(Collection<Chest> chests) {
-        try (PreparedStatement stmt = conn.prepareStatement("UPDATE chests SET items = ?, income = ?, claimAble = ?, settings = ?, name = ? WHERE location = ?;")) {
+        try (PreparedStatement stmt = conn.prepareStatement("UPDATE chests SET items = ?, income = ?, claimAble = ?, settings = ?, name = ?, blacklist = ? WHERE location = ?;")) {
             for (Chest chest : chests) {
                 try {
                     stmt.setInt(1, chest.getItemsSold());
@@ -181,9 +209,10 @@ public class SQLite {
                     stmt.setString(3, chest.getClaimAbleRaw());
                     stmt.setString(4, chest.getSettings().toString());
                     stmt.setString(5, chest.getName());
+                    stmt.setString(6, chest.getBlacklistRaw());
 
                     // TODO: Use the ID instead of the chest location
-                    stmt.setString(6, chest.getLocation().toString());
+                    stmt.setString(7, chest.getLocation().toString());
                     stmt.executeUpdate();
                 } catch (SQLException e) {
                     Logger.warn("Exception occurred while saving chest: ID: " + chest.getId() + " | Location: World '" + chest.getLocation().getLeftLocation().world + "', x" + chest.getLocation().getLeftLocation().x + ", y" + chest.getLocation().getLeftLocation().y + ", z" + chest.getLocation().getLeftLocation().z + " | TotalProfit: $" + chest.getIncome(null) + " | TotalItemsSold: " + chest.getItemsSold());
@@ -200,7 +229,7 @@ public class SQLite {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM chests WHERE location = '" + location.toString() + "';");
-            Chest chest = new Chest(rs.getInt("chest_id"), rs.getString("location"), rs.getString("owner"), rs.getInt("items"), rs.getString("income"), rs.getString("claimAble"), rs.getString("settings"), rs.getString("name"));
+            Chest chest = new Chest(rs.getInt("chest_id"), rs.getString("location"), rs.getString("owner"), rs.getInt("items"), rs.getString("income"), rs.getString("claimAble"), rs.getString("settings"), rs.getString("name"), rs.getString("blacklist"));
             rs.close();
             stmt.close();
             return chest;
@@ -217,7 +246,7 @@ public class SQLite {
             Collection<Chest> chests = new ArrayList<>();
             while (rs.next()) {
                 try {
-                    chests.add(new Chest(rs.getInt("chest_id"), rs.getString("location"), rs.getString("owner"), rs.getInt("items"), rs.getString("income"), rs.getString("claimAble"), rs.getString("settings"), rs.getString("name")));
+                    chests.add(new Chest(rs.getInt("chest_id"), rs.getString("location"), rs.getString("owner"), rs.getInt("items"), rs.getString("income"), rs.getString("claimAble"), rs.getString("settings"), rs.getString("name"), rs.getString("blacklist")));
                 } catch (Exception e) {
                     Logger.warn("Failed to load chest " + rs.getInt("chest_id") + " from database, skipping...");
                     e.printStackTrace();
@@ -239,7 +268,7 @@ public class SQLite {
             Collection<Chest> chests = new ArrayList<>();
             int id = 0; // Todo: Better solution for id's since the chest may get a different id if one is removed
             while (rs.next()) {
-                chests.add(new Chest(id, rs.getString("location"), rs.getString("owner"), rs.getInt("items"), "null", "null", rs.getString("settings"), null));
+                chests.add(new Chest(id, rs.getString("location"), rs.getString("owner"), rs.getInt("items"), "null", "null", rs.getString("settings"), null, null));
                 id++;
             }
             rs.close();

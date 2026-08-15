@@ -1,5 +1,6 @@
 package me.gypopo.autosellchests.util;
 
+import com.gpplugins.gplib.util.ServerInfo;
 import me.gypopo.autosellchests.AutoSellChests;
 import me.gypopo.autosellchests.files.Lang;
 import me.gypopo.autosellchests.util.exceptions.InventoryLoadException;
@@ -127,6 +128,10 @@ public class SimpleInventoryBuilder {
         return item;
     }
 
+    public int getSize() {
+        return this.size;
+    }
+
     // Used to get the slot of a item, for reference only
     public int getSlot(String item) {
         if (!this.items.containsKey(item))
@@ -144,6 +149,15 @@ public class SimpleInventoryBuilder {
     public void enableItem(String i) {
         SimplePair<Integer, ItemStack> item = this.items.get(i);
         this.inv.setItem(item.key, item.value);
+    }
+
+    // Used to place dynamic items directly into a slot(i.e. the blacklisted items inside the blacklist menu)
+    public void setItem(int slot, ItemStack item) {
+        this.inv.setItem(slot, item);
+    }
+
+    public void addItem(ItemStack item) {
+        this.inv.addItem( item);
     }
 
     // Used to insert custom items(i.e. upgrade items(configured in config.yml))

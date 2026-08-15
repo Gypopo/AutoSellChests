@@ -10,11 +10,14 @@ import me.gypopo.autosellchests.util.Logger;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.util.EcoType;
 import me.gypopo.economyshopgui.util.EconomyType;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,6 +34,7 @@ public class Chest {
     private int intervalUpgrade;
     private int multiplierUpgrade;
     private boolean enableHologram;
+    private final Set<Material> blacklist; // Materials which cannot be sold by this chest, matched by material only
 
     private long interval; // The current recurring interval of this chest in millis
     private long nextInterval; // The time the chest is next sold in millis
@@ -38,7 +42,7 @@ public class Chest {
 
     private boolean loaded; // Whether we should tick the chest
 
-    public Chest(int id, String location, String owner, int itemsSold, String income, String claimAble, String settings, String displayname) {
+    public Chest(int id, String location, String owner, int itemsSold, String income, String claimAble, String settings, String displayname, String blacklist) {
         this.id = id;
         this.location = new ChestLocation(location);
         this.owner = UUID.fromString(owner);
@@ -50,6 +54,7 @@ public class Chest {
         this.intervalUpgrade = settings == null ? 0 : this.getIntervalLevel(settings);
         this.multiplierUpgrade = settings == null ? 0 : this.getMultiplierLevel(settings);
         this.enableHologram = settings == null || settings.split("\\|")[0].equals("1");
+        this.blacklist = this.loadBlacklist(blacklist);
 
         this.interval = UpgradeManager.getIntervals()[UpgradeManager.intervalUpgrades ? this.intervalUpgrade : 0];
         this.multiplier = UpgradeManager.getMultipliers()[UpgradeManager.multiplierUpgrades ? this.multiplierUpgrade : 0];
@@ -66,6 +71,7 @@ public class Chest {
         this.displayname = displayname.replace("%id%", String.valueOf(id));
         this.intervalUpgrade = intervalUpgrade;
         this.multiplierUpgrade = multiplierUpgrade;
+        this.blacklist = EnumSet.noneOf(Material.class);
 
         this.interval = UpgradeManager.getIntervals()[UpgradeManager.intervalUpgrades ? this.intervalUpgrade : 0];
         this.multiplier = UpgradeManager.getMultipliers()[UpgradeManager.multiplierUpgrades ? this.multiplierUpgrade : 0];
@@ -188,6 +194,44 @@ public class Chest {
 
     public void setHologram(boolean enabled) {
         this.enableHologram = enabled;
+    }
+
+    public Set<Material> getBlacklist() {
+        return this.blacklist;
+    }
+
+    public boolean isBlacklisted(Material material) {
+        return this.blacklist.contains(material);
+    }
+
+    public void addToBlacklist(Material material) {
+        this.blacklist.add(material);
+    }
+
+    public void removeFromBlacklist(Material material) {
+        this.blacklist.remove(material);
+    }
+
+    public String getBlacklistRaw() {
+        if (this.blacklist.isEmpty())
+            return "null";
+
+        return this.blacklist.stream().map(Enum::name).collect(Collectors.joining(","));
+    }
+
+    private Set<Material> loadBlacklist(String blacklist) {
+        Set<Material> materials = EnumSet.noneOf(Material.class);
+        if (blacklist == null || blacklist.isEmpty() || blacklist.equals("null"))
+            return materials;
+
+        for (String s : blacklist.split(",")) {
+            try {
+                materials.add(Material.valueOf(s));
+            } catch (IllegalArgumentException e) {
+                Logger.warn("Failed to load blacklisted material '" + s + "' for chest " + this.id + ", skipping...");
+            }
+        }
+        return materials;
     }
 
     public int getIntervalUpgrade() {
