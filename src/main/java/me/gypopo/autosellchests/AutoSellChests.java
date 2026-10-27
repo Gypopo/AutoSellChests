@@ -65,8 +65,12 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
     private boolean premium;
     private boolean ready;
     public boolean newPriceFormat = true; // New format to store prices in databases, as of ASC v2.7.0
-    public boolean supportsNewAPI; // Whether we can use EconomyShopGUI API v1.7.0+
     public boolean debug;
+
+    // Plugin developers do not need to check for this if you require users to use the latest versions of ESGUI either way,
+    // AutoSellChests simply does this to maintain optional backwards compatibility
+    public boolean supportsNewAPI; // Whether we can use EconomyShopGUI API v1.7.0+
+    public boolean supportsAPILogging; // Whether the API supports API logging of our transactions (API v1.11+)
 
     @Override
     public void onLoad() {
@@ -84,7 +88,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
             this.premium = false;
             version = new Version(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI").getDescription().getVersion());
-            supportsNewAPI = version.isGreater(new Version("6.2.5"));
+            this.supportsNewAPI = version.isGreater(new Version("6.2.5"));
+            this.supportsAPILogging = version.isGreater(new Version("7.2.1"));
             if (version.isSmaller(new Version("5.5.1"))) {
                 this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI, please download version v5.5.1 or later, found v" + version.getVer() + ", disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);
@@ -96,7 +101,8 @@ public final class AutoSellChests extends JavaPlugin implements Listener {
 
             this.premium = true;
             version = new Version(Bukkit.getServer().getPluginManager().getPlugin("EconomyShopGUI-Premium").getDescription().getVersion());
-            supportsNewAPI = version.isGreater(new Version("5.5.3"));
+            this.supportsNewAPI = version.isGreater(new Version("5.5.3"));
+            this.supportsAPILogging = version.isGreater(new Version("6.3.1"));
             if (version.isSmaller(new Version("4.10.2"))) {
                 this.getLogger().warning("This plugin requires a newer version of EconomyShopGUI Premium, please download version v4.10.2 or later, found v" + version.getVer() + ", disabling...");
                 this.getServer().getPluginManager().disablePlugin(this);

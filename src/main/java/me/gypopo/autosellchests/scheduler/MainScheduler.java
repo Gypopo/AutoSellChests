@@ -47,6 +47,8 @@ public class MainScheduler {
     private final boolean intervalLogging;
     private final boolean afkDetection;
 
+    private final boolean useAPILogging;
+
     public MainScheduler(AutoSellChests plugin) {
         this.plugin = plugin;
         this.queue = new SchedulerQueue();
@@ -56,6 +58,8 @@ public class MainScheduler {
         this.afkDetection = plugin.getAFKManager() != null;
 
         this.logger = Config.get().getString("interval-logs.interval", "").isEmpty() ? null : new IntervalLogger(this.SCHEDULER_THREAD);
+
+        this.useAPILogging = plugin.supportsAPILogging && Config.get().getBoolean("log-transactions", true);
 
         Logger.info("Starting sell interval...");
         this.SCHEDULER_THREAD.scheduleAtFixedRate(this::processChests, 50L, 50L, TimeUnit.MILLISECONDS);
@@ -139,6 +143,10 @@ public class MainScheduler {
                         EconomyShopGUIHook.getEcon(type).depositBalance(owner, price);
                     } else chest.addClaimAble(type, price);
                 });
+
+                if (this.useAPILogging)
+                    EconomyShopGUIHook.logTransaction(chest.getOwner(), transaction.getItems(), prices, total, Transaction.Mode.SELL, "sell chest");
+
                 this.handleLogs(chest, owner, prices, total);
             }
         } catch (Exception e) {
