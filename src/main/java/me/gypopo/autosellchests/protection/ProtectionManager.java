@@ -33,13 +33,13 @@ public class ProtectionManager {
     }
 
     private void onLoad() {
-        this.service.registerFlags(PLACE_CHEST);
-
         PluginManager pm = this.plugin.getServer().getPluginManager();
         if (pm.getPlugin("WorldGuard") != null)
             this.service.addHook(new WorldGuardProtection());
         if (pm.getPlugin("Lands") != null)
             this.service.addHook(new LandsProtection(this.plugin));
+
+        this.service.registerFlags(PLACE_CHEST);
     }
 
     public void init() {
@@ -50,6 +50,16 @@ public class ProtectionManager {
 
         if (pm.getPlugin("Lands") != null) {
             Logger.info(Lang.PROTECTION_PLUGIN_LOADED.get().replace("%plugin%", "Lands"));
+        }
+
+        if (pm.getPlugin("GriefDefender") != null) {
+            this.service.addHook(new GriefDefenderProtection("asc", PLACE_CHEST));
+            Logger.info(Lang.PROTECTION_PLUGIN_LOADED.get().replace("%plugin%", "GriefDefender"));
+        }
+
+        if (pm.getPlugin("GriefPrevention") != null) {
+            this.service.addHook(new GriefPreventionProtection());
+            Logger.info(Lang.PROTECTION_PLUGIN_LOADED.get().replace("%plugin%", "GriefPrevention"));
         }
 
         if (pm.getPlugin("ChestProtect") != null) {
