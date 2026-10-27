@@ -56,6 +56,8 @@ public class SimpleInventoryBuilder {
                 continue; // Claimable item should only show when claimable
             if (i.equals("hologram-item"))
                 continue; // Only enabled if holograms
+            if (i.equals("previous-page-item") || i.equals("next-page-item"))
+                continue; // Pagination buttons only show when there is a page to navigate to
 
             SimplePair<Integer, ItemStack> item = this.items.get(i);
             if (item.value != null)
@@ -149,6 +151,11 @@ public class SimpleInventoryBuilder {
 
     // Used for items which should only be displayed if its actually used(i.e. claimAbleProfit item)
     public void enableItem(String i) {
+        if (!this.items.containsKey(i)) {
+            Logger.warn("Failed to load item '" + i + "' from '" + this.title + "' from menus.yml");
+            return;
+        }
+
         SimplePair<Integer, ItemStack> item = this.items.get(i);
         this.inv.setItem(item.key, item.value);
     }
@@ -164,13 +171,20 @@ public class SimpleInventoryBuilder {
 
     // Used to insert custom items(i.e. upgrade items(configured in config.yml))
     public void insertItem(String i, ItemStack item) {
+        if (!this.items.containsKey(i)) {
+            Logger.warn("Failed to load item '" + i + "' from '" + this.title + "' from menus.yml");
+            return;
+        }
+
         this.inv.setItem(this.items.get(i).key, item);
     }
 
     // Used to replace values in item name/lore
     public void replace(String i, Map<String, String> replacements) {
-        if (!this.items.containsKey(i))
+        if (!this.items.containsKey(i)) {
+            Logger.warn("Failed to load item '" + i + "' from '" + this.title + "' from menus.yml");
             return;
+        }
 
         int slot = this.items.get(i).key;
         ItemStack item = this.inv.getItem(slot).clone(); // Clone the item since we are replacing its contents
