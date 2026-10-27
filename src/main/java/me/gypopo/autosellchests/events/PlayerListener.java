@@ -279,8 +279,11 @@ public class PlayerListener implements Listener {
                     ex.printStackTrace();
                 }
             } else if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("hologram-item")) {
-                this.plugin.getHologramManager().removeHologram(chest);
                 chest.setHologram(!chest.isHologram());
+                if (chest.isHologram()) {
+                    this.plugin.getHologramManager().loadHologram(chest);
+                } else this.plugin.getHologramManager().removeHologram(chest);
+
                 inv.updateInventory((Player) e.getWhoClicked());
             } else if (e.getSlot() == this.plugin.getInventoryManager().getSettingsInv().getSlot("blacklist-item")) {
                 inv.update();
@@ -351,7 +354,7 @@ public class PlayerListener implements Listener {
 
             Player p = (Player) e.getWhoClicked();
             Chest chest = inv.getChest();
-            if (e.getClickedInventory().equals(e.getView().getBottomInventory())) {
+            if (e.getClickedInventory().equals(InventoryUtil.getBottomInventory(e))) {
                 ItemStack clicked = e.getCurrentItem();
                 if (clicked == null || clicked.getType() == Material.AIR)
                     return;
