@@ -6,7 +6,7 @@
 
     <groupId>me.gypopo</groupId>
     <artifactId>autosellchests</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
     <packaging>jar</packaging>
 
     <name>AutoSellChests</name>
@@ -133,18 +133,18 @@
         <dependency>
             <groupId>com.github.Gypopo</groupId>
             <artifactId>EconomyShopGUI-API</artifactId>
-            <version>1.7.3</version>
+            <version>1.11.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.wesjd</groupId>
             <artifactId>anvilgui</artifactId>
-            <version>1.10.12-SNAPSHOT</version>
+            <version>1.10.13-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.gpplugins</groupId>
             <artifactId>GPLib</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.decentsoftware-eu</groupId>
