@@ -57,7 +57,7 @@ public class HologramManager {
     }
 
     public void loadHologram(Chest chest) {
-        if (this.provider != null)
+        if (this.provider != null && chest.isHologram())
             this.provider.upsert(H_PREFIX + chest.getId(), this.getLocation(chest), this.getLines(chest), this.displayRange);
     }
 
